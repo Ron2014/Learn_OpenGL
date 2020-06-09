@@ -24,7 +24,7 @@ glGenBuffers(1, &buffer);
 
 所以，GLFW解决的是操作系统的适配，GLAD解决的是显卡（驱动）的适配。
 
-## 什么是 GLUT
+## 什么是 GLUT 库
 
 GLUT(OpenGL Utility Toolkit) 的功能等同于 GLFW，提供了一整套与设备无关的窗口API. 也可以说 GLFW 是 GLUT-like Windowing。
 
@@ -42,3 +42,11 @@ GLUT(OpenGL Utility Toolkit) 的功能等同于 GLFW，提供了一整套与设�
 为了节省开发者调试平台适配的时间，更加专注于自身软件的功能实现，就需要有个库将这些不同平台的库进行封装。
 
 GLFW 和 GLUT 就是做这种“打包”工作的。
+
+## 学习路线
+
+目前，[LearnOpenGL官网](https://learnopengl.com/) 使用的是 GLFW + GLAD。《Computer Graphics with OpenGL》中使用的是 GLUT，因此造成了混用的局面。在完成了[LearnOpenGL 的 Hello Window](https://learnopengl.com/Getting-started/Hello-Window) 以及《Computer Graphics with OpenGL》第二章的第一个OpenGL程序之后，表示所有开发环境都已搭建完成。
+
+之后，可以对照[LearnOpenGL中文网站](https://learnopengl-cn.github.io/) 的翻译逐课学习。
+
+总之，网站学习为主，书籍（2004年出版，内容未免老旧，概念、术语不及如今丰富）学习为辅。
