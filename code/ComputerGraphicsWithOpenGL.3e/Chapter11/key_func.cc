@@ -19,6 +19,10 @@ void displayFcn(void) {
   glPointSize(3.0);
 }
 
+/**
+ * 窗口尺寸改变时触发
+ * 但不会立即刷新图元信息
+*/
 void winReshapeFcn(GLint newWidth, GLint newHeight) {
   cout << "winReshapeFcn " << newWidth << " " << newHeight << endl;
   glViewport(0, 0, newWidth, newHeight);
@@ -39,6 +43,9 @@ void plotPoint(GLint x, GLint y) {
   glFlush();
 }
 
+/**
+ * 按下C时开始绘制坐标点
+*/
 void curveDrawing(GLubyte curvePlotKey, GLint xMouse, GLint yMouse) {
   GLint x = xMouse;
   GLint y = winHeight - yMouse;
@@ -60,7 +67,9 @@ int main(int argc, char *argv[]) {
   glutCreateWindow("Keyboard Curve-Drawing Example");
 
   init();
-  glutDisplayFunc(displayFcn);
+  
+  glutDisplayFunc(displayFcn);        // 每次绘制图元（glBegin）之前都会调用的函数，用来设置画笔的粗细、颜色
+
   glutReshapeFunc(winReshapeFcn);
   glutKeyboardFunc(curveDrawing);
 

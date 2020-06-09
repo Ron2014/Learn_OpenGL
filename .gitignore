@@ -1,2 +1,7 @@
 fips-*
 **/tests/*
+.*
+**/Debug/*
+*.vcxproj.*
+**/packages/*
+packages.config

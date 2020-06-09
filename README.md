@@ -45,10 +45,37 @@ GLFW 和 GLUT 就是做这种“打包”工作的。
 
 ## 学习路线
 
-目前，[LearnOpenGL官网](https://learnopengl.com/) 使用的是 GLFW + GLAD。《Computer Graphics with OpenGL》中使用的是 GLUT + GLU, 因此造成了混用的局面。在完成了[LearnOpenGL 的 Hello Window](https://learnopengl.com/Getting-started/Hello-Window) 以及《Computer Graphics with OpenGL》第二章的第一个OpenGL程序之后，表示所有开发环境都已搭建完成。
+可选路线包括:
+
+- 看书
+  1. 3D数学基础:图形与游戏开发
+  2. DirectX 9.0 3D游戏开发编程基础
+  3. 计算机图形学 第4版 
+  4. Unity Shader入门
+  5. Unity Shaders and Effects Cookbook [中文教学](https://blog.csdn.net/candycat1992/category_1782159_2.html)
+  6. C++ GUI QT4编程(底层也是OpenGL)
+- LearnOpenGL(配套中文版, 还有B站傅老师的`OpenGL自製3D遊戲引擎`)
+- Unreal官方教学视频(渲染/光照/材质等偏向应用的部分)
+- Unity官方教学视频(就看网站能不能打开了)
+
+[LearnOpenGL官网](https://learnopengl.com/) 使用的是 GLFW + GLAD. 
+
+《Computer Graphics with OpenGL》中使用的是 GLUT + GLU (这个GLUT多年没更新了, OpenGL官网推荐用freeglut替代).
+
+B站傅老师则使用的是 GLFW + GLEW.
+
+因此项目中第三方库(code/Ext)比较多。在完成了[LearnOpenGL 的 Hello Window](https://learnopengl.com/Getting-started/Hello-Window) 以及《Computer Graphics with OpenGL》第二章的第一个OpenGL程序之后，表示所有开发环境都已搭建完成。
 
 之后，可以对照[LearnOpenGL中文网站](https://learnopengl-cn.github.io/) 的翻译逐课学习。
 
 总之，网站学习为主，书籍（2004年出版，内容未免老旧，概念、术语不及如今丰富）学习为辅。
 
 不过网站的内容也不算最新，OpenGL版本停留在3.3。
+
+## 关于库
+
+Nuget是一个.NET平台下的开源的项目，它是Visual Studio的扩展。在使用Visual Studio开发基于.NET Framework的应用时，Nuget能把在项目中添加、移除和更新引用的工作变得更加快捷方便.
+
+NuGet程序包的方式已成为微软主推的组件安装方式，几乎各个组件都在NuGet上找得到，近到创建Web项目默认使用NuGet程序包，远到.NET Core完全使用了NuGet组件安装，NuGet已然成为了未来的趋势，相信它在未来可以做得更好。
+
+目前为止, freeglut glfw glew 在 NuGet 上都能找到(前提先建立一个项目). 这也是通过B站傅老师视频才知道的功能.
