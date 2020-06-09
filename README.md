@@ -22,7 +22,7 @@ glGenBuffers(1, &buffer);
 
 你可以看到代码非常复杂，而且很繁琐，我们需要对每个可能使用的函数都要重复这个过程。幸运的是，有些库能简化此过程，其中GLAD是目前最新，也是最流行的库。
 
-所以，GLFW解决的是操作系统的适配，GLAD解决的是显卡（驱动）的适配。
+所以，GLFW解决的是操作系统的适配，GLAD解决的是显卡（驱动）的适配。用上面的例子理解，GLAD具体是通过管理函数地址来工作的。
 
 ## 什么是 GLUT 库
 
@@ -45,8 +45,10 @@ GLFW 和 GLUT 就是做这种“打包”工作的。
 
 ## 学习路线
 
-目前，[LearnOpenGL官网](https://learnopengl.com/) 使用的是 GLFW + GLAD。《Computer Graphics with OpenGL》中使用的是 GLUT，因此造成了混用的局面。在完成了[LearnOpenGL 的 Hello Window](https://learnopengl.com/Getting-started/Hello-Window) 以及《Computer Graphics with OpenGL》第二章的第一个OpenGL程序之后，表示所有开发环境都已搭建完成。
+目前，[LearnOpenGL官网](https://learnopengl.com/) 使用的是 GLFW + GLAD。《Computer Graphics with OpenGL》中使用的是 GLUT + GLU, 因此造成了混用的局面。在完成了[LearnOpenGL 的 Hello Window](https://learnopengl.com/Getting-started/Hello-Window) 以及《Computer Graphics with OpenGL》第二章的第一个OpenGL程序之后，表示所有开发环境都已搭建完成。
 
 之后，可以对照[LearnOpenGL中文网站](https://learnopengl-cn.github.io/) 的翻译逐课学习。
 
 总之，网站学习为主，书籍（2004年出版，内容未免老旧，概念、术语不及如今丰富）学习为辅。
+
+不过网站的内容也不算最新，OpenGL版本停留在3.3。

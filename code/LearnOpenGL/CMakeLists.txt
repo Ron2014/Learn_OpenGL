@@ -1,0 +1,5 @@
+fips_begin_app(HelloWindow cmdline)
+fips_vs_disable_warnings(4819)
+fips_files_ex(HelloWindow main.cc GROUP "SOURCES")
+fips_deps(glfw glad)
+fips_end_app()

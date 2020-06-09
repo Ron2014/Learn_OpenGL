@@ -16,6 +16,7 @@ fips_setup()
 fips_add_subdirectory(Ext)
 fips_add_subdirectory(Lab)
 fips_add_subdirectory(ComputerGraphicsWithOpenGL.3e)
+fips_add_subdirectory(LearnOpenGL)
 fips_finish()
 
 
