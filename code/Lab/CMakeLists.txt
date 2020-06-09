@@ -1,0 +1,12 @@
+fips_begin_app(Lab cmdline)
+fips_vs_disable_warnings(4819)
+fips_files(main.cc)
+fips_deps(glfw)
+fips_end_app()
+
+fips_begin_unittest(Lab)
+    fips_vs_warning_level(3)
+    fips_vs_disable_warnings(4819)
+    fips_files_ex(Test *.cc GROUP "SOURCES")
+    fips_deps(freeglut_static)
+fips_end_unittest()

@@ -1,3 +1,6 @@
 [submodule "fips"]
 	path = fips
 	url = https://github.com/Ron2014/fips
+[submodule "code/Ext/glad"]
+	path = code/Ext/glad
+	url = https://github.com/Ron2014/glad
