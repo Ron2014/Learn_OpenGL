@@ -18,8 +18,9 @@ const char *vertexShaderSource = "#version 330 core\n"
 
 const char *fragmentShaderSource = "#version 330 core\n"
   "out vec4 FragColor;\n"
+  "uniform vec4 ourColor;\n"
   "void main() {\n"
-  "   FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);"
+  "   FragColor = ourColor;"
   "}\0";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -31,7 +32,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void processInput(GLFWwindow *window)
 {
   if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, true);           // response to ESC
+      glfwSetWindowShouldClose(window, true);           // response to ESC
   else if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
     if ((int)glfwGetTime()%2)
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -117,6 +118,17 @@ int main(int argc, char *argv[]) {
   createShader(GL_FRAGMENT_SHADER, fragmentShaderSource, shaders);
   int shaderProgram = createProgram(shaders);
 
+/*
+  float timeValue = glfwGetTime();
+  float greenValue = (sin(timeValue) / 2.0f) + 0.5f;      // 随机一个绿色分量
+  cout << "green value " << greenValue << endl;
+
+  int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");    // 找到ourColor的位置
+  glUseProgram(shaderProgram);                                                  // !!! 更新 uniform 之前要激活着色器程序 !!!
+  // glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);               // 设置该值为向量 (0.0f, greenValue, 0.0f, 1.0f), 后缀4f指定了这种赋值方式
+  GLfloat values[] = {0.0f, greenValue, 0.0f, 1.0f};
+  glUniform4fv(vertexColorLocation, 1, values);
+*/
   float vertices[] = {
     -0.5f, -0.5f, 0.0f,
      0.5f, -0.5f, 0.0f,
@@ -138,7 +150,6 @@ int main(int argc, char *argv[]) {
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0); 
 
-
   // render loop:
   while(!glfwWindowShouldClose(window))
   {
@@ -148,6 +159,16 @@ int main(int argc, char *argv[]) {
     // render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    float timeValue = glfwGetTime();
+    float greenValue = (sin(timeValue) / 2.0f) + 0.5f;      // 随机一个绿色分量
+    cout << "green value " << greenValue << endl;
+
+    int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");    // 找到ourColor的位置
+    glUseProgram(shaderProgram);                                                  // !!! 更新 uniform 之前要激活着色器程序 !!!
+    // glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);               // 设置该值为向量 (0.0f, greenValue, 0.0f, 1.0f), 后缀4f指定了这种赋值方式
+    GLfloat values[] = {0.0f, greenValue, 0.0f, 1.0f};
+    glUniform4fv(vertexColorLocation, 1, values);
 
     // draw our first triangle
     glUseProgram(shaderProgram);

@@ -4,23 +4,10 @@ using namespace std;
 #include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-#define INFO_LEN 512
+#include "shader.h"
 
 const unsigned int WIN_WIDTH = 800;
 const unsigned int WIN_HEIGHT = 600;
-
-const char *vertexShaderSource = "#version 330 core\n"
-  "layout (location=0) in vec3 aPos;\n"
-  "void main() {\n"
-  "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-  "}\0";
-
-const char *fragmentShaderSource = "#version 330 core\n"
-  "out vec4 FragColor;\n"
-  "void main() {\n"
-  "   FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);"
-  "}\0";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -38,46 +25,6 @@ void processInput(GLFWwindow *window)
     else
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
-}
-
-bool checkError(const int objID, const char *msg) {
-  int success;
-  char info[INFO_LEN];
-  glGetShaderiv(objID, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(objID, INFO_LEN, NULL, info);
-    printf("%s:\n", msg);
-    printf("%s\n", info);
-    return false;
-  }
-  return true;
-}
-
-void createShader(GLenum shader_type, const char* shader_source, vector<int> &shaders) {
-  int objID = glCreateShader(shader_type);
-  glShaderSource(objID, 1, &shader_source, NULL);
-  glCompileShader(objID);
-
-  char errMsg[INFO_LEN];
-  sprintf(errMsg, "ERROR: Shader %d COMPILATION FAILED", shader_type);
-  if (checkError(objID, errMsg)) {
-    shaders.push_back(objID);
-  }
-}
-
-int createProgram(vector<int> &shaders) {
-  int shaderProgram = glCreateProgram();
-  for (auto objID : shaders) {
-    glAttachShader(shaderProgram, objID);
-  }
-  glLinkProgram(shaderProgram);
-
-  if (checkError(shaderProgram, "ERROR: Shader Program LINKING FAILED")) {
-    for (auto objID : shaders) {
-      glDeleteShader(objID);
-    }
-  }
-  return shaderProgram;
 }
 
 int main(int argc, char *argv[]) {
@@ -102,7 +49,6 @@ int main(int argc, char *argv[]) {
       return -1;
   }
   glfwMakeContextCurrent(window);         // 当前线程与window绑定
-  // glViewport(0, 0, WIN_WIDTH, WIN_HEIGHT);             // glad API，设置渲染窗口的尺寸
   glfwSetWindowSizeCallback(window, framebuffer_size_callback);
 
   // glad 必须在 windows 创建成功后初始化
@@ -112,15 +58,13 @@ int main(int argc, char *argv[]) {
   }
 
   // shader source -> shader object -> shader program
-  vector<int> shaders;
-  createShader(GL_VERTEX_SHADER, vertexShaderSource, shaders);
-  createShader(GL_FRAGMENT_SHADER, fragmentShaderSource, shaders);
-  int shaderProgram = createProgram(shaders);
+  Shader shader;
 
   float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f,
+    // position           // color
+    -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,     // left-bottom is red
+     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,     // right-bottom is green
+     0.0f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,     // top is blue
   };
 
   unsigned int VBO, VAO;
@@ -131,8 +75,13 @@ int main(int argc, char *argv[]) {
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+  // 顶点属性0 layout (location = 0)
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
+
+  // 顶点属性1 layout (location = 1) 注意起始位置要越过前面表示位置的3个分量float
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3*sizeof(float)));
+  glEnableVertexAttribArray(1);
 
   // unbind
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -150,7 +99,7 @@ int main(int argc, char *argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // draw our first triangle
-    glUseProgram(shaderProgram);
+    shader.use();
     glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -162,7 +111,6 @@ int main(int argc, char *argv[]) {
   // ------------------------------------------------------------------------
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
-  glDeleteProgram(shaderProgram);
 
   glfwTerminate();
   return 0;

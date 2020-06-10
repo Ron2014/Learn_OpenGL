@@ -12,14 +12,17 @@ const unsigned int WIN_HEIGHT = 600;
 
 const char *vertexShaderSource = "#version 330 core\n"
   "layout (location=0) in vec3 aPos;\n"
+  "out vec4 vertexColor;\n"
   "void main() {\n"
-  "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+  "   gl_Position = vec4(aPos, 1.0);\n"
+  "   vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
   "}\0";
 
 const char *fragmentShaderSource = "#version 330 core\n"
+  "in vec4 vertexColor;"
   "out vec4 FragColor;\n"
   "void main() {\n"
-  "   FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);"
+  "   FragColor = vertexColor;"
   "}\0";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -31,13 +34,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void processInput(GLFWwindow *window)
 {
   if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, true);           // response to ESC
-  else if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-    if ((int)glfwGetTime()%2)
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    else
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  }
+      glfwSetWindowShouldClose(window, true);           // response to ESC
 }
 
 bool checkError(const int objID, const char *msg) {
@@ -94,7 +91,7 @@ int main(int argc, char *argv[]) {
 
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
 
-  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "Hello Triangle", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "Shaders", NULL, NULL);
   if (window == NULL)
   {
       cout << "Failed to create GLFW window" << endl;
