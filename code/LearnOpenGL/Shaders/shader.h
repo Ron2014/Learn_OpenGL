@@ -22,5 +22,6 @@ class Shader {
     // uniform set
     void setBool(const string &name, bool value) const;
     void setInt(const string &name, int value) const;
+    void setUint(const string &name, unsigned int value) const;
     void setFloat(const string &name, float value) const;
 };

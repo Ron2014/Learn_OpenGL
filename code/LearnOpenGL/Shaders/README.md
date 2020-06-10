@@ -20,6 +20,12 @@ int main()
 
 ## 数据类型 type
 
+基本C类型: int, float, double, unsigned int, bool.
+
+unsigned int 可以简写成 uint.
+
+此外就是添加了不同类型, 不同维度的向量数据类型 XvecN.
+
 1. vecN     - float
 2. bvecN    - boolean
 3. ivecN    - int
