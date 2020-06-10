@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
 
-  GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(800, 600, "Hello Window", NULL, NULL);
   if (window == NULL)
   {
       cout << "Failed to create GLFW window" << endl;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     return -1;
   }    
 
-  glViewport(0, 0, 800, 600);             // glad API，设置渲染窗口的尺寸
+  // glViewport(0, 0, 800, 600);             // glad API，设置渲染窗口的尺寸
   glfwSetWindowSizeCallback(window, framebuffer_size_callback);
 
   // render loop:
