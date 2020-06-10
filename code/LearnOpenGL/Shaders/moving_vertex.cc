@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
   }
 
   // shader source -> shader object -> shader program
-  Shader shader("E:\\GitHub\\Learn_OpenGL\\res\\shaders\\vertex_shader_moving.shader");
+  Shader shader("vertex_moving.shader");
 
   float vertices[] = {
     // position           // color

@@ -1,4 +1,5 @@
 ## Hello Window
+fips_include_directories(Common)
 
 fips_begin_app(HelloWindow cmdline)
 fips_vs_disable_warnings(4819)
@@ -60,12 +61,28 @@ fips_end_app()
 
 fips_begin_app(ShaderClass cmdline)
 fips_vs_disable_warnings(4819)
-fips_files_ex(Shaders use_shader_class.cc shader.cc GROUP "SOURCES")
+fips_dir(Common)
+fips_files(shader.cc)
+fips_files_ex(Shaders use_shader_class.cc GROUP "SOURCES")
 fips_deps(glfw glad)
 fips_end_app()
 
-fips_begin_app(MovingVertex cmdline)
+## Textures
+
+fips_begin_app(Textures cmdline)
 fips_vs_disable_warnings(4819)
-fips_files_ex(Shaders moving_vertex.cc shader.cc GROUP "SOURCES")
+add_definitions(-DSTB_IMAGE_IMPLEMENTATION)
+fips_dir(Common)
+fips_files(shader.cc texture2d.cc)
+fips_files_ex(Textures main.cc GROUP "SOURCES")
+fips_deps(glfw glad)
+fips_end_app()
+
+fips_begin_app(TexturesMix cmdline)
+fips_vs_disable_warnings(4819)
+add_definitions(-DSTB_IMAGE_IMPLEMENTATION)
+fips_dir(Common)
+fips_files(shader.cc texture2d.cc)
+fips_files_ex(Textures mix_two.cc GROUP "SOURCES")
 fips_deps(glfw glad)
 fips_end_app()

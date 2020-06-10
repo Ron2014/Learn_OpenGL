@@ -7,8 +7,8 @@ using namespace std;
 
 #define INFO_LEN 512
 
-const unsigned int WIN_WIDTH = 800;
-const unsigned int WIN_HEIGHT = 600;
+unsigned int WIN_WIDTH = 800;
+unsigned int WIN_HEIGHT = 600;
 
 const char *vertexShaderSource = "#version 330 core\n"
   "layout (location=0) in vec3 aPos;\n"
@@ -26,6 +26,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
   cout << "veiw change " << width << " " << height << endl;
   glViewport(0, 0, width, height);
+  WIN_WIDTH = width;
+  WIN_HEIGHT = height;
 }  
 
 void processInput(GLFWwindow *window)

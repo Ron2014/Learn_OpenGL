@@ -29,15 +29,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
   glViewport(0, 0, width, height);
 }  
 
-bool line_mode = false;
-
 void processInput(GLFWwindow *window)
 {
   if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);           // response to ESC
   else if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-    line_mode = !line_mode;
-    if (line_mode)
+    if ((int)glfwGetTime()%2)
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
