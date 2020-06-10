@@ -87,3 +87,6 @@ VAO被绑定后, 随后的顶点属性调用 glVertexAttribPointer/glEnableVerte
 
 也许这个'枪'是个'喷枪' :)
 
+## 索引缓冲对象
+
+索引缓冲对象(Element Buffer Object，EBO，也叫Index Buffer Object，IBO) 用来解决不同图元共享顶点的情况. 优化顶点数量.
