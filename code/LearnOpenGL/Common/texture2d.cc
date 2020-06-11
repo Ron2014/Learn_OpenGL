@@ -7,7 +7,7 @@ using namespace std;
 
 unsigned int Texture2D::TEXTURE_UNIT_ID = GL_TEXTURE0;
 
-Texture2D::Texture2D(const GLchar *texPath) {
+Texture2D::Texture2D(const GLchar *texPath, GLenum wrapping, GLenum filter) {
   if (TEXTURE_UNIT_ID==GL_TEXTURE0) stbi_set_flip_vertically_on_load(true);     // 图片的y轴0.0坐标通常在顶部, 图像加载时帮助我们翻转y轴
 
   // 生成Texture并指定模式, 要放在文件加载之前.
@@ -16,10 +16,10 @@ Texture2D::Texture2D(const GLchar *texPath) {
   glBindTexture(GL_TEXTURE_2D, ID);
 
   // 为当前绑定的纹理对象设置环绕、过滤方式
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping);   
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 
   stringstream ss;
   ss << TEXTURE_PATH << "\\" << texPath;

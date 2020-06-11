@@ -96,6 +96,30 @@ void Shader::use() {
   glUseProgram(ID);
 }
 
+// bool Shader::getBool(const string &name) const {
+//     int location = glGetUniformLocation(ID, name.c_str());
+//     glUseProgram(ID);
+//     glUniform1i(location, (int)value);
+// }
+
+// int Shader::getInt(const string &name) const {
+//     int location = glGetUniformLocation(ID, name.c_str());
+//     glUseProgram(ID);
+//     glUniform1i(location, value);
+// }
+
+// unsigned int Shader::getUint(const string &name) const {
+//     int location = glGetUniformLocation(ID, name.c_str());
+//     glUseProgram(ID);
+//     glUniform1ui(location, value);
+// }
+
+// float Shader::getFloat(const string &name) const {
+//     int location = glGetUniformLocation(ID, name.c_str());
+//     glUseProgram(ID);
+//     glUniform1f(location, value);
+// }
+
 void Shader::setBool(const string &name, bool value) const {
     int location = glGetUniformLocation(ID, name.c_str());
     glUseProgram(ID);
@@ -118,4 +142,10 @@ void Shader::setFloat(const string &name, float value) const {
     int location = glGetUniformLocation(ID, name.c_str());
     glUseProgram(ID);
     glUniform1f(location, value);
+}
+
+void Shader::setMatrix4(const string &name, GLfloat *value) const {
+    int location = glGetUniformLocation(ID, name.c_str());
+    glUseProgram(ID);
+    glUniformMatrix4fv(location, 1, GL_FALSE, value);
 }

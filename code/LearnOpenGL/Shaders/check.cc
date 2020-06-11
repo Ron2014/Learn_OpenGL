@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
 
-  GLFWwindow* window = glfwCreateWindow(800, 600, "Hello Window", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(800, 600, "Shaders", NULL, NULL);
   if (window == NULL)
   {
       cout << "Failed to create GLFW window" << endl;
