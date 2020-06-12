@@ -1,9 +1,5 @@
 # 专业术语中中英对照
 
-```math
-SE = \frac{\sigma}{\sqrt{n}}
-```
-
 - 矩阵 Matrix
 - 变换 Transform
 - 向量 Vector
