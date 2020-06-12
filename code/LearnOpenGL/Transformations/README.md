@@ -1,4 +1,4 @@
-# 专业术语中中英对照
+# 专业术语中英对照
 
 - 矩阵 Matrix
 - 变换 Transform
@@ -341,7 +341,7 @@ $$
 
 此时从Z轴方向(也就是飞机的顶部)袭来螺旋气流, 飞机是毫无招架能力的. 你会发现, 无论怎么旋转, 中间的立柱(转子)无法保持稳定.
 
-![这就是钢铁侠不愿意回忆进入虫洞的原因吧, 因为这种飞行方式简直就是跟死神赌博](https://raw.githubusercontent.com/Ron2014/Ron2014.github.io/master/assets/images/gimbal_lock4.gif)
+![这就是钢铁侠不愿意回忆进入虫洞的原因吧, 因为这种飞行方式简直就是跟死神赌博](https://raw.githubusercontent.com/Ron2014/Ron2014.github.io/master/assets/images/gimbal_lock3.gif)
 
 特点:
 
@@ -374,6 +374,9 @@ Unity欧拉角的旋转顺序（父子关系）是y-x-z。即旋转y轴x和z轴�
    - 旋转X轴一定角度之后, 旋转Y轴. 你会发现此时的Y轴与惯性坐标系一致. 那是因为y-x-z嵌套关系中, 旋转X轴不改变Y轴.
    - 旋转X轴一定角度之后, 旋转Z轴. 你会发现此时的Z轴与局部坐标系一致. 那是因为y-x-z嵌套关系中, 旋转X轴改变了Z轴.
 
+![](https://raw.githubusercontent.com/Ron2014/Ron2014.github.io/master/assets/images/gimbal_lock6.gif)
+![](https://raw.githubusercontent.com/Ron2014/Ron2014.github.io/master/assets/images/gimbal_lock4.gif)
+
 这就导致, 如果有多个方向的旋转, 严格按照y-x-z的变换顺序, 才能保证所有的旋转作用在局部坐标系下.
 
 如果反过来, z-x-y的顺序做旋转, 传入的角度应该是按照惯性坐标系来计算的.
@@ -391,7 +394,7 @@ Unity欧拉角的旋转顺序（父子关系）是y-x-z。即旋转y轴x和z轴�
 
 y轴是惯性坐标系的y轴，其它轴是模型的坐标轴。这是因为不同坐标系的轴才有可能产生共面.
 
-![此时我脑海中一直在想, 在这个飞船Pitch转体的同时, 加上Yaw转体是个什么样子, 还能飞过这个洞口么](https://raw.githubusercontent.com/Ron2014/Ron2014.github.io/master/assets/images/matrix4.gif)
+![此时我脑海中一直在想, 在这个飞船Pitch转体的同时, 加上Yaw转体是个什么样子, 还能飞过这个洞口么](https://raw.githubusercontent.com/Ron2014/Ron2014.github.io/master/assets/images/matrix3.gif)
 
 然后就是那些极限运动类的模拟器(游戏), 一个滑板运动员冲上弧形斜坡, 准备在空中实现Pitch转体时, 再同时完成Yaw, 好像也挺常见的.
 
