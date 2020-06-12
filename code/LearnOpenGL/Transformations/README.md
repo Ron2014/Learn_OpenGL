@@ -309,12 +309,13 @@ $$
 
 [优酷视频](http://v.youku.com/v_show/id_XNzkyOTIyMTI=.html)
 
-
 对于左手坐标系非常好理解, 想象自己用第一人称视角开飞机, 左手坐标系Z轴(纵深)指向屏幕里, 也就是飞机面朝的方向. 旋转术语:
 
 1. 沿X轴 - Pitch  - Lateral         - 俯仰. 飞机抬头升起, 或低头俯冲.
 2. 沿Y轴 - Yaw    - Vertical        - 偏航. 飞机在水平方向上调整航线(朝向).
 3. 沿Z轴 - Roll   - Longitudinal    - 桶滚. 飞机朝向(前进方向)不变, 但像一个钻机一样旋转/摇晃.
+
+![R-Pitch, G-Roll, B-Yaw](https://raw.githubusercontent.com/Ron2014/Ron2014.github.io/master/assets/images/gimbal_lock.png)
 
 现在在万向节中想象你在在这架飞机, 它的朝向由箭头标识, 这样很快就能确定陀螺仪的旋转轴, 是么?
 
@@ -361,6 +362,42 @@ $$
 转子平衡 vs 避免死锁 不可兼得.
 
 除非, 在此基础上再加一个最内层旋转轴, 这样我们就一共有4个旋转轴了...这是否就是四元数的图形含义呢?
+
+#### Unity中的万向锁 
+
+Unity欧拉角的旋转顺序（父子关系）是y-x-z。即旋转y轴x和z轴都变，旋转x轴只有z轴变化，旋转z轴其它轴不变. 
+
+在Unity中创建两个嵌套的Cube, 坐标系在局部(local)和惯性(global)之间切换, 修改根Cube的Rotation来观察Unity3D旋转的规则
+
+1. GameObject上Transform组件上的Position Rotation Scale 都是相对于父对象的局部信息. 对父对象的Transform做出修改, 会嵌套的作用在子对象上, 但子对象的Transform因为都是局部数据, 所以会保持不变.
+2. (按某个轴)旋转, 既不是依照惯性坐标系, 也不是依照局部坐标系. 而是依照欧拉角的旋转顺序做出改变. 比如
+   - 旋转X轴一定角度之后, 旋转Y轴. 你会发现此时的Y轴与惯性坐标系一致. 那是因为y-x-z嵌套关系中, 旋转X轴不改变Y轴.
+   - 旋转X轴一定角度之后, 旋转Z轴. 你会发现此时的Z轴与局部坐标系一致. 那是因为y-x-z嵌套关系中, 旋转X轴改变了Z轴.
+
+这就导致, 如果有多个方向的旋转, 严格按照y-x-z的变换顺序, 才能保证所有的旋转作用在局部坐标系下.
+
+如果反过来, z-x-y的顺序做旋转, 传入的角度应该是按照惯性坐标系来计算的.
+
+但这只是计算顺序, 无法解决万向锁.
+
+当X轴旋转-90°, 让Z轴和Y轴重合, Z轴向的旋转也就是Y轴的旋转, 即这两个Rotation向量结果是一样的
+
+- -90, 45, 45
+- -90, 90, 0
+
+这个症状可以描述为: Pitch90°的同时, 无法完成Yaw的动作.
+
+在U3D中，旋转顺序是y-x-z（模型坐标---惯性坐标系旋转），官网为z-x-y（惯性坐标系----模型坐标）。
+
+y轴是惯性坐标系的y轴，其它轴是模型的坐标轴。这是因为不同坐标系的轴才有可能产生共面.
+
+![此时我脑海中一直在想, 在这个飞船Pitch转体的同时, 加上Yaw转体是个什么样子, 还能飞过这个洞口么](https://raw.githubusercontent.com/Ron2014/Ron2014.github.io/master/assets/images/matrix4.gif)
+
+然后就是那些极限运动类的模拟器(游戏), 一个滑板运动员冲上弧形斜坡, 准备在空中实现Pitch转体时, 再同时完成Yaw, 好像也挺常见的.
+
+最后附上飞机的基本结构
+
+![Pitch-Elevator-升降舵, Roll-Aileron-副翼, Yaw-Rudder-方向舵](https://raw.githubusercontent.com/Ron2014/Ron2014.github.io/master/assets/images/gimbal_lock5.gif)
 
 ### 四元数
 
