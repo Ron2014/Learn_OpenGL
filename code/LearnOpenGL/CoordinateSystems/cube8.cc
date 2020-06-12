@@ -17,12 +17,19 @@ using namespace std;
 unsigned int WIN_WIDTH = 800;
 unsigned int WIN_HEIGHT = 600;
 
+Shader *shader;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
   cout << "veiw change " << width << " " << height << endl;
   glViewport(0, 0, width, height);
+
   WIN_WIDTH = width;
   WIN_HEIGHT = height;
+
+  glm::mat4 projection(1.0f);
+  projection = glm::perspective(glm::radians(45.0f), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
+  shader->setMatrix4("projection", glm::value_ptr(projection));
 }  
 
 void processInput(GLFWwindow *window)
@@ -51,7 +58,7 @@ int main(int argc, char *argv[]) {
 
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
 
-  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "Transformations", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "Cube8", NULL, NULL);
   if (window == NULL)
   {
       cout << "Failed to create GLFW window" << endl;
@@ -69,21 +76,50 @@ int main(int argc, char *argv[]) {
   }
 
   // shader source -> shader object -> shader program
-  Shader shader("vertex_trans.shader", "fragment_mix_texture.shader");
+  // shader = new Shader("vertex_coordinate_trans.shader");
+  shader = new Shader("vertex_coordinate_trans.shader", "fragment_texture.shader");
   Texture2D texture0("container.jpg");
   Texture2D texture1("awesomeface.png");
 
+
+  // 8个顶点绘制 cube failure
   float vertices[] = {
 //     ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // 图片的右上, 钉在屏幕第一象限的中心. 红色
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // 图片的右下, 钉在屏幕第四象限的中心. 绿色
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // 图片的左下, 钉在屏幕第三象限的中心. 蓝色
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // 图片的左上, 钉在屏幕第二象限的中心. 黄色
+     0.5f,  0.5f,  0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // 图片的右上, 钉在屏幕第一象限的中心. 红色
+     0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // 图片的右下, 钉在屏幕第四象限的中心. 绿色
+    -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // 图片的左下, 钉在屏幕第三象限的中心. 蓝色
+    -0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   // 图片的左上, 钉在屏幕第二象限的中心. 黄色
+//     ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
+     0.5f,  0.5f, -0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // 图片的右上, 钉在屏幕第一象限的中心. 红色
+     0.5f, -0.5f, -0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // 图片的右下, 钉在屏幕第四象限的中心. 绿色
+    -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // 图片的左下, 钉在屏幕第三象限的中心. 蓝色
+    -0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   // 图片的左上, 钉在屏幕第二象限的中心. 黄色
   };
 
   unsigned int indices[] = { // 注意索引从0开始! 
-      0, 1, 3, // 第一个三角形
-      1, 2, 3  // 第二个三角形
+      // front
+      0, 1, 3,  // 第一个三角形
+      1, 2, 3,  // 第二个三角形
+
+      // back
+      4, 5, 7,  // 第一个三角形
+      5, 6, 7,  // 第二个三角形
+
+      // top
+      0, 3, 4,
+      3, 7, 4,
+
+      // bottom
+      1, 2, 5,
+      2, 6, 5,
+
+      // left
+      2, 3, 6,
+      3, 7, 6,
+
+      // right
+      0, 1, 4,
+      1, 5, 4,
   };
 
   unsigned int VBO[BUF_LEN], VAO[BUF_LEN], EBO[BUF_LEN];
@@ -131,8 +167,20 @@ int main(int argc, char *argv[]) {
   // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
   glBindVertexArray(0); 
 
-  shader.setInt("texture0", 0);
-  shader.setInt("texture1", 1);
+  shader->setInt("texture0", 0);
+  shader->setInt("texture1", 1);
+
+  // 注意，我们将矩阵向我们要进行移动场景的反方向移动。同理旋转也是, 而且是先旋转, 再位移
+  glm::mat4 view(1.0f);
+  view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+  glm::mat4 projection(1.0f);
+  projection = glm::perspective(glm::radians(45.0f), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
+
+  shader->setMatrix4("view", glm::value_ptr(view));
+  shader->setMatrix4("projection", glm::value_ptr(projection));
+  
+  glEnable(GL_DEPTH_TEST);
   
   // render loop:
   while(!glfwWindowShouldClose(window))
@@ -142,26 +190,27 @@ int main(int argc, char *argv[]) {
 
     // render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // draw our rect by 6 vertex
     texture0.use();
     texture1.use();
-
-    glm::mat4 trans(1.0f);
-    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-    shader.setMatrix4("transform", glm::value_ptr(trans));
     
-    shader.use();
+    shader->use();
+
+    glm::mat4 model(1.0f);
+    model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 1.0f, 1.0f));
+    shader->setMatrix4("model", glm::value_ptr(model));
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
     glBindVertexArray(VAO[0]);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
     glfwSwapBuffers(window);              // double buffer switch
     glfwPollEvents();                     // keyboard/mouse event
   }
+
+  delete shader;
 
   // optional: de-allocate all resources once they've outlived their purpose:
   // ------------------------------------------------------------------------

@@ -17,12 +17,19 @@ using namespace std;
 unsigned int WIN_WIDTH = 800;
 unsigned int WIN_HEIGHT = 600;
 
+Shader *shader;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
   cout << "veiw change " << width << " " << height << endl;
   glViewport(0, 0, width, height);
+
   WIN_WIDTH = width;
   WIN_HEIGHT = height;
+
+  glm::mat4 projection(1.0f);
+  projection = glm::perspective(glm::radians(45.0f), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
+  shader->setMatrix4("projection", glm::value_ptr(projection));
 }  
 
 void processInput(GLFWwindow *window)
@@ -51,7 +58,7 @@ int main(int argc, char *argv[]) {
 
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
 
-  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "Transformations", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "Cube36", NULL, NULL);
   if (window == NULL)
   {
       cout << "Failed to create GLFW window" << endl;
@@ -69,21 +76,66 @@ int main(int argc, char *argv[]) {
   }
 
   // shader source -> shader object -> shader program
-  Shader shader("vertex_trans.shader", "fragment_mix_texture.shader");
+  shader = new Shader("vertex_cube_36.shader", "fragment_mix_texture.shader");
   Texture2D texture0("container.jpg");
   Texture2D texture1("awesomeface.png");
 
+  // 好多重复向量啊
   float vertices[] = {
-//     ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // 图片的右上, 钉在屏幕第一象限的中心. 红色
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // 图片的右下, 钉在屏幕第四象限的中心. 绿色
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // 图片的左下, 钉在屏幕第三象限的中心. 蓝色
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // 图片的左上, 钉在屏幕第二象限的中心. 黄色
+      -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+       0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+       0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+       0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+      -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+      -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+      -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+      -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+       0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+       0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+       0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+       0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+      -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
   };
 
-  unsigned int indices[] = { // 注意索引从0开始! 
-      0, 1, 3, // 第一个三角形
-      1, 2, 3  // 第二个三角形
+  glm::vec3 cubePositions[] = {
+    glm::vec3( 0.0f,  0.0f,  0.0f), 
+    glm::vec3( 2.0f,  5.0f, -15.0f), 
+    glm::vec3(-1.5f, -2.2f, -2.5f),  
+    glm::vec3(-3.8f, -2.0f, -12.3f),  
+    glm::vec3( 2.4f, -0.4f, -3.5f),  
+    glm::vec3(-1.7f,  3.0f, -7.5f),  
+    glm::vec3( 1.3f, -2.0f, -2.5f),  
+    glm::vec3( 1.5f,  2.0f, -2.5f), 
+    glm::vec3( 1.5f,  0.2f, -1.5f), 
+    glm::vec3(-1.3f,  1.0f, -1.5f)  
   };
 
   unsigned int VBO[BUF_LEN], VAO[BUF_LEN], EBO[BUF_LEN];
@@ -96,9 +148,6 @@ int main(int argc, char *argv[]) {
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO[0]); //  全都存到 VBO[0] 中, VBO[1] 是空闲的
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   // 但是 两个 VAO 保存不同的顶点属性. 也就是说, 用VAO区分不同的三角形
   // VAO 保存的是顶点属性调用 glVertexAttribPointer/glEnableVertexAttribArray/glDisableVertexAttribArray
@@ -114,13 +163,13 @@ int main(int argc, char *argv[]) {
   */
 
   // position
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
-  // color
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3*sizeof(float)));
-  glEnableVertexAttribArray(1);
+  // // color
+  // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3*sizeof(float)));
+  // glEnableVertexAttribArray(1);
   // texture coordinate
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(3*sizeof(float)));
   glEnableVertexAttribArray(2);
 
   // unbind
@@ -131,9 +180,25 @@ int main(int argc, char *argv[]) {
   // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
   glBindVertexArray(0); 
 
-  shader.setInt("texture0", 0);
-  shader.setInt("texture1", 1);
+  shader->setInt("texture0", 0);
+  shader->setInt("texture1", 1);
+
+  // glm::mat4 model(1.0f);
+  // model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));  // 我们要观察的物体 Pitch -90° 放在 X-Z平面上
+
+  glm::mat4 view(1.0f);
+  // 注意，我们将矩阵向我们要进行移动场景的反方向移动。同理旋转也是, 而且是先旋转, 再位移
+  view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+  glm::mat4 projection(1.0f);
+  projection = glm::perspective(glm::radians(45.0f), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
+
+  // shader->setMatrix4("model", glm::value_ptr(model));
+  shader->setMatrix4("view", glm::value_ptr(view));
+  shader->setMatrix4("projection", glm::value_ptr(projection));
   
+  glEnable(GL_DEPTH_TEST);
+
   // render loop:
   while(!glfwWindowShouldClose(window))
   {
@@ -142,26 +207,30 @@ int main(int argc, char *argv[]) {
 
     // render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // draw our rect by 6 vertex
     texture0.use();
     texture1.use();
-
-    glm::mat4 trans(1.0f);
-    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-    shader.setMatrix4("transform", glm::value_ptr(trans));
     
-    shader.use();
+    shader->use();
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
     glBindVertexArray(VAO[0]);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    for(glm::vec3 pos : cubePositions) {
+      glm::mat4 model(1.0f);
+      model = glm::translate(model, pos);
+      model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+      shader->setMatrix4("model", glm::value_ptr(model));
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 
     glfwSwapBuffers(window);              // double buffer switch
     glfwPollEvents();                     // keyboard/mouse event
   }
+
+  delete shader;
 
   // optional: de-allocate all resources once they've outlived their purpose:
   // ------------------------------------------------------------------------

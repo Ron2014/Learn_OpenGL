@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
   }
 
   // shader source -> shader object -> shader program
-  Shader shader("vertex_scale_rotate.shader", "fragment_mix_texture.shader");
+  Shader shader("vertex_trans.shader", "fragment_mix_texture.shader");
   Texture2D texture0("container.jpg");
   Texture2D texture1("awesomeface.png");
 

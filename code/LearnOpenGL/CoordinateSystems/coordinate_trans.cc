@@ -17,12 +17,19 @@ using namespace std;
 unsigned int WIN_WIDTH = 800;
 unsigned int WIN_HEIGHT = 600;
 
+Shader *shader;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
   cout << "veiw change " << width << " " << height << endl;
   glViewport(0, 0, width, height);
+
   WIN_WIDTH = width;
   WIN_HEIGHT = height;
+
+  glm::mat4 projection(1.0f);
+  projection = glm::perspective(glm::radians(45.0f), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
+  shader->setMatrix4("projection", glm::value_ptr(projection));
 }  
 
 void processInput(GLFWwindow *window)
@@ -51,7 +58,7 @@ int main(int argc, char *argv[]) {
 
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
 
-  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "Transformations", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "Coordinate", NULL, NULL);
   if (window == NULL)
   {
       cout << "Failed to create GLFW window" << endl;
@@ -69,7 +76,7 @@ int main(int argc, char *argv[]) {
   }
 
   // shader source -> shader object -> shader program
-  Shader shader("vertex_trans.shader", "fragment_mix_texture.shader");
+  shader = new Shader("vertex_coordinate_trans.shader", "fragment_mix_texture.shader");
   Texture2D texture0("container.jpg");
   Texture2D texture1("awesomeface.png");
 
@@ -131,8 +138,23 @@ int main(int argc, char *argv[]) {
   // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
   glBindVertexArray(0); 
 
-  shader.setInt("texture0", 0);
-  shader.setInt("texture1", 1);
+  shader->setInt("texture0", 0);
+  shader->setInt("texture1", 1);
+
+  glm::mat4 model(1.0f);
+  model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));  // 我们要观察的物体 Pitch -90° 放在 X-Z平面上
+
+  glm::mat4 view(1.0f);
+  // 注意，我们将矩阵向我们要进行移动场景的反方向移动。同理旋转也是, 而且是先旋转, 再位移
+  view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+  view = glm::rotate(view, glm::radians(60.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // 相机如果从Z轴平视过去什么都看不到, 所以要旋转
+
+  glm::mat4 projection(1.0f);
+  projection = glm::perspective(glm::radians(45.0f), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
+
+  shader->setMatrix4("model", glm::value_ptr(model));
+  shader->setMatrix4("view", glm::value_ptr(view));
+  shader->setMatrix4("projection", glm::value_ptr(projection));
   
   // render loop:
   while(!glfwWindowShouldClose(window))
@@ -147,13 +169,8 @@ int main(int argc, char *argv[]) {
     // draw our rect by 6 vertex
     texture0.use();
     texture1.use();
-
-    glm::mat4 trans(1.0f);
-    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-    shader.setMatrix4("transform", glm::value_ptr(trans));
     
-    shader.use();
+    shader->use();
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
     glBindVertexArray(VAO[0]);
@@ -162,6 +179,8 @@ int main(int argc, char *argv[]) {
     glfwSwapBuffers(window);              // double buffer switch
     glfwPollEvents();                     // keyboard/mouse event
   }
+
+  delete shader;
 
   // optional: de-allocate all resources once they've outlived their purpose:
   // ------------------------------------------------------------------------

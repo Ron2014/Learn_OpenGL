@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
   }
 
   // shader source -> shader object -> shader program
-  Shader shader("vertex_trans.shader", "fragment_mix_texture.shader");
+  Shader shader("vertex_scale_rotate.shader", "fragment_mix_texture.shader");
   Texture2D texture0("container.jpg");
   Texture2D texture1("awesomeface.png");
 
@@ -157,6 +157,18 @@ int main(int argc, char *argv[]) {
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
     glBindVertexArray(VAO[0]);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    // second transformation
+    // ---------------------
+    trans = glm::mat4(1.0f); // reset it to identity matrix
+    trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+    float scaleAmount = sin(glfwGetTime());
+    trans = glm::scale(trans, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
+    // shader.setMatrix4("transform", &trans[0][0]);
+    shader.setMatrix4("transform", glm::value_ptr(trans));
+
+    // now with the uniform matrix being replaced with new transformations, draw it again.
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glfwSwapBuffers(window);              // double buffer switch
