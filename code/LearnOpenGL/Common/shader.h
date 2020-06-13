@@ -32,4 +32,5 @@ class Shader {
     void setUint(const string &name, unsigned int value) const;
     void setFloat(const string &name, float value) const;
     void setMatrix4(const string &name, GLfloat *value) const;
+    void setVec3(const string &name, GLfloat *value) const;
 };

@@ -2,3 +2,11 @@
 fips_include_directories(Common)
 fips_add_subdirectory(Common)
 fips_add_subdirectory(Beginner)
+fips_add_subdirectory(Lighting)
+
+fips_begin_unittest(LearnOpenGL)
+    fips_vs_warning_level(3)
+    fips_vs_disable_warnings(4819)
+    fips_files_ex(Unittest *.cc GROUP "SOURCES")
+    fips_deps(Common)
+fips_end_unittest()

@@ -13,12 +13,16 @@ using namespace std;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#define BUF_LEN 1
+enum {
+  IDX_LAMP,
+  IDX_OBJ,
+  BUFF_LEN,
+};
 
 unsigned int WIN_WIDTH = 800;
 unsigned int WIN_HEIGHT = 600;
 
-Shader *shader;
+Shader *shader[BUFF_LEN];
 Camera::Camera *camera;
 
 // 注意Z轴朝向屏幕外
@@ -60,7 +64,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
   glm::mat4 projection(1.0f);
   projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
-  shader->setMatrix4("projection", glm::value_ptr(projection));
+  shader[IDX_OBJ]->setMatrix4("projection", glm::value_ptr(projection));
 }  
 
 void processInput(GLFWwindow *window)
@@ -102,7 +106,7 @@ int main(int argc, char *argv[]) {
 
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
 
-  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "CameraClass", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "Specular Lighting", NULL, NULL);
   if (window == NULL)
   {
       cout << "Failed to create GLFW window" << endl;
@@ -128,55 +132,63 @@ int main(int argc, char *argv[]) {
   }
 
   // shader source -> shader object -> shader program
-  shader = new Shader("vertex_cube_36.shader", "fragment_mix_texture.shader");
+  shader[IDX_LAMP] = new Shader("vertex_lighted.shader", "fragment_lamp.shader");
+  shader[IDX_OBJ] = new Shader("vertex_specular.shader", "fragment_specular.shader");
+
+  vec3 lightColor(1.0f, 1.0f, 1.0f);
+  vec3 objColor(1.0f, 0.5f, 0.31f);
+  shader[IDX_OBJ]->setVec3("lightColor", glm::value_ptr(lightColor));
+  shader[IDX_OBJ]->setVec3("objColor", glm::value_ptr(objColor));
+
   camera = new Camera::Camera(0.0f);
 
-  Texture2D texture0("container.jpg");
-  Texture2D texture1("awesomeface.png");
+  glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+  shader[IDX_OBJ]->setVec3("lightPos", glm::value_ptr(lightPos));
 
-  // 好多重复向量啊
+  Texture2D texture("awesomeface.png");
+
   float vertices[] = {
-      -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-       0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,   0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,   1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,   1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,   1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,   0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,   0.0f, 0.0f,
 
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-      -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,    0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,    1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,    1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,    1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,    0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,    0.0f, 0.0f,
 
-      -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-      -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-      -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,   1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,   1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,   0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,   0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,   0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,   1.0f, 0.0f,
 
-       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-       0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-       0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-       0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,   1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,   1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,   0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,   0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,   0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,   1.0f, 0.0f,
 
-      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-       0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-       0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-       0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-       0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-      -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,   0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,   1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,   1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,   1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,   0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,   0.0f, 1.0f,
+    
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,   0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,   1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,   1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,   1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,   0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,   0.0f, 1.0f,
   };
 
   glm::vec3 cubePositions[] = {
@@ -192,38 +204,25 @@ int main(int argc, char *argv[]) {
     glm::vec3(-1.3f,  1.0f, -1.5f)  
   };
 
-  unsigned int VBO[BUF_LEN], VAO[BUF_LEN];
-  glGenVertexArrays(BUF_LEN, VAO);      // 第二个参数实际上表示一个数组, 第一个参数表示数组大小.
-  glGenBuffers(BUF_LEN, VBO);           // 所以如果是一个 unsigned int 得用&, 如 glGenVertexArrays(1, &VBO);
+  unsigned int VBO[BUFF_LEN], VAO[BUFF_LEN];
+  glGenVertexArrays(BUFF_LEN, VAO);      // 第二个参数实际上表示一个数组, 第一个参数表示数组大小.
+  glGenBuffers(BUFF_LEN, VBO);           // 所以如果是一个 unsigned int 得用&, 如 glGenVertexArrays(1, &VBO);
 
-  // rect 0
-  glBindVertexArray(VAO[0]);
+  for (int i=0; i<BUFF_LEN; i++) {
+    glBindVertexArray(VAO[i]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[i]); //  全都存到 VBO[0] 中, VBO[1] 是空闲的
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  glBindBuffer(GL_ARRAY_BUFFER, VBO[0]); //  全都存到 VBO[0] 中, VBO[1] 是空闲的
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  // 但是 两个 VAO 保存不同的顶点属性. 也就是说, 用VAO区分不同的三角形
-  // VAO 保存的是顶点属性调用 glVertexAttribPointer/glEnableVertexAttribArray/glDisableVertexAttribArray
-  // 暂且理解成调用这些接口的参数缓存在 VAO 中.
-
-  /**
-   * 1. 顶点属性编号
-   * 2. 包含3个变量
-   * 3. 每个变量类型为float
-   * 4. 是否标准化. 我们已经保证了向量分量都在[-1.0, 1.0]之间, 所以不需要标准化.
-   * 5. 共占用内存长度(步长)
-   * 6. 在缓冲区中的起始位置
-  */
-
-  // position
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)0);
-  glEnableVertexAttribArray(0);
-  // // color
-  // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3*sizeof(float)));
-  // glEnableVertexAttribArray(1);
-  // texture coordinate
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(3*sizeof(float)));
-  glEnableVertexAttribArray(2);
+    // position
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    // normal
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);
+    // normal
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
+    glEnableVertexAttribArray(2);
+  }
 
   // unbind
   // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
@@ -231,9 +230,6 @@ int main(int argc, char *argv[]) {
   // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
   // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
   glBindVertexArray(0); 
-
-  shader->setInt("texture0", 0);
-  shader->setInt("texture1", 1);
   
   glEnable(GL_DEPTH_TEST);
   
@@ -248,44 +244,55 @@ int main(int argc, char *argv[]) {
     processInput(window);
 
     // render
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);       // 黑色空间
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // draw our rect by 6 vertex
-    texture0.use();
-    texture1.use();
-    
-    shader->use();
-
-    glBindVertexArray(VAO[0]);
     
     glm::mat4 projection(1.0f);
     projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
-    shader->setMatrix4("projection", glm::value_ptr(projection));
-
     glm::mat4 view = camera->GetViewMatrix();
-    shader->setMatrix4("view", glm::value_ptr(view));
-    // shader->setMatrix4("view", &camera->GetViewMatrix()[0][0]);
+
+    shader[IDX_OBJ]->setMatrix4("projection", glm::value_ptr(projection));
+    shader[IDX_OBJ]->setMatrix4("view", glm::value_ptr(view));
+    shader[IDX_OBJ]->setVec3("viewPos", glm::value_ptr(camera->Position));
+
+    shader[IDX_LAMP]->setMatrix4("projection", glm::value_ptr(projection));
+    shader[IDX_LAMP]->setMatrix4("view", glm::value_ptr(view));
+    
+    //////////////////////////////// render obj
+    shader[IDX_OBJ]->use();
+    texture.use();
+    glBindVertexArray(VAO[IDX_OBJ]);
 
     for(glm::vec3 pos : cubePositions) {
       glm::mat4 model(1.0f);
       model = glm::translate(model, pos);
       model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-      shader->setMatrix4("model", glm::value_ptr(model));
+      shader[IDX_OBJ]->setMatrix4("model", glm::value_ptr(model));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
+    
+    //////////////////////////////// render lamp
+    glm::mat4 model(1.0f);
+    model = glm::translate(model, lightPos);
+    model = glm::scale(model, glm::vec3(0.2f));
+    shader[IDX_LAMP]->setMatrix4("model", glm::value_ptr(model));
+
+    shader[IDX_LAMP]->use();
+    glBindVertexArray(VAO[IDX_LAMP]);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glfwSwapBuffers(window);              // double buffer switch
     glfwPollEvents();                     // keyboard/mouse event
   }
 
-  delete shader;
+  delete shader[IDX_LAMP];
+  delete shader[IDX_OBJ];
   delete camera;
 
   // optional: de-allocate all resources once they've outlived their purpose:
   // ------------------------------------------------------------------------
-  glDeleteVertexArrays(BUF_LEN, VAO);
-  glDeleteBuffers(BUF_LEN, VBO);
+  glDeleteVertexArrays(BUFF_LEN, VAO);
+  glDeleteBuffers(BUFF_LEN, VBO);
 
   glfwTerminate();
   return 0;

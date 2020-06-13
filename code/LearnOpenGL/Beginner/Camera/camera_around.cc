@@ -138,10 +138,9 @@ int main(int argc, char *argv[]) {
     glm::vec3(-1.3f,  1.0f, -1.5f)  
   };
 
-  unsigned int VBO[BUF_LEN], VAO[BUF_LEN], EBO[BUF_LEN];
+  unsigned int VBO[BUF_LEN], VAO[BUF_LEN];
   glGenVertexArrays(BUF_LEN, VAO);      // 第二个参数实际上表示一个数组, 第一个参数表示数组大小.
   glGenBuffers(BUF_LEN, VBO);           // 所以如果是一个 unsigned int 得用&, 如 glGenVertexArrays(1, &VBO);
-  glGenBuffers(BUF_LEN, EBO);
 
   // rect 0
   glBindVertexArray(VAO[0]);
@@ -175,7 +174,6 @@ int main(int argc, char *argv[]) {
   // unbind
   // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
   glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
   // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
   glBindVertexArray(0); 
@@ -216,7 +214,6 @@ int main(int argc, char *argv[]) {
     
     shader->use();
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
     glBindVertexArray(VAO[0]);
 
     for(glm::vec3 pos : cubePositions) {
@@ -245,7 +242,6 @@ int main(int argc, char *argv[]) {
   // ------------------------------------------------------------------------
   glDeleteVertexArrays(BUF_LEN, VAO);
   glDeleteBuffers(BUF_LEN, VBO);
-  glDeleteBuffers(BUF_LEN, EBO);
 
   glfwTerminate();
   return 0;

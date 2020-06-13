@@ -149,3 +149,9 @@ void Shader::setMatrix4(const string &name, GLfloat *value) const {
     glUseProgram(ID);
     glUniformMatrix4fv(location, 1, GL_FALSE, value);
 }
+
+void Shader::setVec3(const string &name, GLfloat *value) const {
+    int location = glGetUniformLocation(ID, name.c_str());
+    glUseProgram(ID);
+    glUniform3fv(location, 1, value);
+}
