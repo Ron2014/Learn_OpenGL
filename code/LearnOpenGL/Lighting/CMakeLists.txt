@@ -83,3 +83,42 @@ fips_vs_disable_warnings(4819)
 fips_files_ex(LightingMaps emission_letters.cc GROUP "SOURCES")
 fips_deps(Common)
 fips_end_app()
+
+## Light Casters
+
+fips_begin_app(DirectLight cmdline)
+fips_vs_disable_warnings(4819)
+fips_files_ex(LightCasters direct_light.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(PointLight cmdline)
+fips_vs_disable_warnings(4819)
+fips_files_ex(LightCasters point_light.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(PointLightFollow cmdline)
+fips_vs_disable_warnings(4819)
+fips_files_ex(LightCasters point_light_follow.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(SpotLight cmdline)
+fips_vs_disable_warnings(4819)
+fips_files_ex(LightCasters spotlight.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(SpotLightFollow cmdline)
+fips_vs_disable_warnings(4819)
+fips_files_ex(LightCasters spotlight_follow.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(SpotLightFadeout cmdline)
+fips_vs_disable_warnings(4819)
+fips_files_ex(LightCasters spotlight_fadeout.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+

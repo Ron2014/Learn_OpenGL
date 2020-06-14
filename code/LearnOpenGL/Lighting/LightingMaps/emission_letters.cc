@@ -25,11 +25,6 @@ unsigned int WIN_HEIGHT = 600;
 Shader *shader[BUFF_LEN];
 Camera::Camera *camera;
 
-// 注意Z轴朝向屏幕外
-glm::vec3 cameraPos(0.0f, 0.0f, 5.0f);
-glm::vec3 cameraFront(0.0f, 0.0f, -1.0f);       // 注视前方1米的点，同时也是移动的单位向量
-glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
-
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float lastX=WIN_WIDTH*0.5f, lastY=WIN_HEIGHT*0.5f;

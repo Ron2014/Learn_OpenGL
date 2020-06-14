@@ -101,6 +101,8 @@ local->model_matrix->world->view_matrix->view->projection_matrix->clip->viewport
 
 由投影矩阵创建的观察箱(Viewing Box)被称为平截头体(Frustum)，每个出现在平截头体范围内的坐标都会最终出现在用户的屏幕上。
 
+平截头体 Frustum，也就是常说的“视锥”。
+
 都是箱子了, 应该算是裁剪了吧. 视锥是否和它有关系呢.
 
 一旦所有顶点被变换到裁剪空间，最终的操作——透视除法(Perspective Division)将会执行，在这个过程中我们将位置向量的x，y，z分量分别除以向量的齐次w分量；透视除法是将4D裁剪空间坐标变换为3D标准化设备坐标的过程。这一步会在每一个顶点着色器运行的最后被自动执行。

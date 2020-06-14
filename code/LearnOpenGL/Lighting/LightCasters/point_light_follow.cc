@@ -128,24 +128,29 @@ int main(int argc, char *argv[]) {
 
   // shader source -> shader object -> shader program
   shader[IDX_LAMP] = new Shader("vertex_lighted.shader", "fragment_lamp.shader");
-  shader[IDX_OBJ] = new Shader("vertex_specular.shader", "fragment_lighting_map_specular.shader");
+  shader[IDX_OBJ] = new Shader("vertex_specular.shader", "fragment_point_light.shader");
 
-  vec3 ambientLight(0.1f, 0.1f, 0.1f);
+  vec3 ambientLight(0.2f, 0.2f, 0.2f);
   vec3 diffuseLight(0.5f, 0.5f, 0.5f);
   vec3 specularLight(1.0f, 1.0f, 1.0f);
   shader[IDX_OBJ]->setVec3("light.ambient", glm::value_ptr(ambientLight));
   shader[IDX_OBJ]->setVec3("light.diffuse", glm::value_ptr(diffuseLight));
   shader[IDX_OBJ]->setVec3("light.specular", glm::value_ptr(specularLight));
+  
+  shader[IDX_OBJ]->setFloat("light.constant", 1.0f);
+  shader[IDX_OBJ]->setFloat("light.linear", 0.09f);
+  shader[IDX_OBJ]->setFloat("light.quadratic", 	0.032f);
 
   // vec3 objColor(1.0f, 0.5f, 0.31f);
   // shader[IDX_OBJ]->setVec3("objColor", glm::value_ptr(objColor));
   Texture2D texture("container2.png");
-  Texture2D textureSpecular("lighting_maps_specular_color.png");
+  Texture2D textureSpecular("container2_specular.png");
+  Texture2D textureEmission("matrix.jpg");
   // vec3 specularObj(0.5f, 0.5f, 0.5f);
   float shininess = 32.0f;
   shader[IDX_OBJ]->setInt("material.diffuse", texture.unitID);
   shader[IDX_OBJ]->setInt("material.specular", textureSpecular.unitID);
-  // shader[IDX_OBJ]->setVec3("material.specular", glm::value_ptr(specularObj));
+  shader[IDX_OBJ]->setInt("material.emission", textureEmission.unitID);
   shader[IDX_OBJ]->setFloat("material.shininess", shininess);
 
   camera = new Camera::Camera(0.0f);
@@ -251,10 +256,9 @@ int main(int argc, char *argv[]) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);       // 黑色空间
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    float radius = 10.0f;
-    float lampX = cos(glfwGetTime()*0.5f) * radius;
-    float lampZ = sin(glfwGetTime()*0.5f) * radius;
-    glm::vec3 lightPos(lampX, 1.0f, lampZ);
+    // glm::vec3 lightPos = camera->Position + camera->Up;                              // 头顶灯泡
+    glm::vec3 lightPos = camera->Position + camera->Right + camera->Front * 3.0f;       // 右手持煤油灯
+    shader[IDX_OBJ]->setVec3("light.position", glm::value_ptr(lightPos));
     
     glm::mat4 projection(1.0f);
     projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
@@ -263,7 +267,6 @@ int main(int argc, char *argv[]) {
     shader[IDX_OBJ]->setMatrix4("projection", glm::value_ptr(projection));
     shader[IDX_OBJ]->setMatrix4("view", glm::value_ptr(view));
     shader[IDX_OBJ]->setVec3("viewPos", glm::value_ptr(camera->Position));
-    shader[IDX_OBJ]->setVec3("light.position", glm::value_ptr(lightPos));
 
     shader[IDX_LAMP]->setMatrix4("projection", glm::value_ptr(projection));
     shader[IDX_LAMP]->setMatrix4("view", glm::value_ptr(view));
@@ -272,16 +275,20 @@ int main(int argc, char *argv[]) {
     shader[IDX_OBJ]->use();
     texture.use();
     textureSpecular.use();                // 创建了 texture 但是忘记 use，就看不到高光效果了
+    textureEmission.use();
     glBindVertexArray(VAO[IDX_OBJ]);
 
-    for(glm::vec3 pos : cubePositions) {
+    for (int i=0; i<(sizeof(cubePositions)/sizeof(glm::vec3)); i++) {
+      glm::vec3 pos = cubePositions[i];
       glm::mat4 model(1.0f);
       model = glm::translate(model, pos);
-      model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+      // float angle = 20.0f * i;
+      // model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+      model = glm::rotate(model, (float)glfwGetTime()+20.0f*(i+1), glm::vec3(0.5f, 1.0f, 0.0f));
       shader[IDX_OBJ]->setMatrix4("model", glm::value_ptr(model));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
-    
+
     //////////////////////////////// render lamp
     glm::mat4 model(1.0f);
     model = glm::translate(model, lightPos);
