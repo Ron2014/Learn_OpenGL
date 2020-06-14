@@ -256,7 +256,7 @@ int main(int argc, char *argv[]) {
     float lampX = cos(glfwGetTime()*0.5f) * radius;
     float lampY = sin(glfwGetTime()*0.5f) * radius;
     glm::vec3 lightPos(lampX, lampY, 0.0f);
-    glm::vec3 lightDir = glm::vec3(0.0) - lightPos;
+    glm::vec3 lightDir = glm::normalize(glm::vec3(0.0) - lightPos);
     shader[IDX_OBJ]->setVec3("light.direction", glm::value_ptr(lightDir));
     
     glm::mat4 projection(1.0f);

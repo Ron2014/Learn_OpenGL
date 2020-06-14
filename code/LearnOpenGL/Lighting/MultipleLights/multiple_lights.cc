@@ -128,20 +128,31 @@ int main(int argc, char *argv[]) {
 
   // shader source -> shader object -> shader program
   shader[IDX_LAMP] = new Shader("vertex_lighted.shader", "fragment_lamp.shader");
-  shader[IDX_OBJ] = new Shader("vertex_specular.shader", "fragment_spotlight_fadeout.shader");
+  shader[IDX_OBJ] = new Shader("vertex_specular.shader", "fragment_multiple_lights.shader");
 
-  vec3 ambientLight(0.2f, 0.2f, 0.2f);
-  vec3 diffuseLight(0.5f, 0.5f, 0.5f);
+  // direct light
+  vec3 ambientLight(0.1f, 0.1f, 0.1f);
+  vec3 diffuseLight(0.1f, 0.1f, 0.1f);
   vec3 specularLight(1.0f, 1.0f, 1.0f);
-  shader[IDX_OBJ]->setVec3("light.ambient", glm::value_ptr(ambientLight));
-  shader[IDX_OBJ]->setVec3("light.diffuse", glm::value_ptr(diffuseLight));
-  shader[IDX_OBJ]->setVec3("light.specular", glm::value_ptr(specularLight));
-  
-  shader[IDX_OBJ]->setFloat("light.constant", 1.0f);
-  shader[IDX_OBJ]->setFloat("light.linear", 0.09f);
-  shader[IDX_OBJ]->setFloat("light.quadratic", 	0.032f);
-  shader[IDX_OBJ]->setFloat("light.cutoff", glm::cos(glm::radians(15.0f)));
-  shader[IDX_OBJ]->setFloat("light.cutoff_outter", glm::cos(glm::radians(20.0f)));
+  vec3 directLight(0.0f, -1.0f, 0.0f);
+
+  shader[IDX_OBJ]->setVec3("directLight.ambient", glm::value_ptr(ambientLight));
+  shader[IDX_OBJ]->setVec3("directLight.diffuse", glm::value_ptr(diffuseLight));
+  shader[IDX_OBJ]->setVec3("directLight.specular", glm::value_ptr(specularLight));
+  shader[IDX_OBJ]->setVec3("directLight.direction", glm::value_ptr(directLight));
+
+  // spot light
+  ambientLight = vec3(0.0f, 0.0f, 0.0f);
+  diffuseLight = vec3(0.8f, 0.8f, 0.8f);
+  specularLight = vec3(1.0f, 1.0f, 1.0f);
+  shader[IDX_OBJ]->setVec3("spotLight.ambient", glm::value_ptr(ambientLight));
+  shader[IDX_OBJ]->setVec3("spotLight.diffuse", glm::value_ptr(diffuseLight));
+  shader[IDX_OBJ]->setVec3("spotLight.specular", glm::value_ptr(specularLight));
+  shader[IDX_OBJ]->setFloat("spotLight.constant", 1.0f);
+  shader[IDX_OBJ]->setFloat("spotLight.linear", 0.45f);
+  shader[IDX_OBJ]->setFloat("spotLight.quadratic", 	0.0075f);
+  shader[IDX_OBJ]->setFloat("spotLight.cutoff", glm::cos(glm::radians(5.0f)));
+  shader[IDX_OBJ]->setFloat("spotLight.cutoff_outter", glm::cos(glm::radians(10.0f)));
 
   // vec3 objColor(1.0f, 0.5f, 0.31f);
   // shader[IDX_OBJ]->setVec3("objColor", glm::value_ptr(objColor));
@@ -149,6 +160,7 @@ int main(int argc, char *argv[]) {
   Texture2D textureSpecular("container2_specular.png");
   Texture2D textureEmission("matrix.jpg");
   // vec3 specularObj(0.5f, 0.5f, 0.5f);
+
   float shininess = 32.0f;
   shader[IDX_OBJ]->setInt("material.diffuse", texture.unitID);
   shader[IDX_OBJ]->setInt("material.specular", textureSpecular.unitID);
@@ -212,7 +224,14 @@ int main(int argc, char *argv[]) {
     glm::vec3( 1.3f, -2.0f, -2.5f),  
     glm::vec3( 1.5f,  2.0f, -2.5f), 
     glm::vec3( 1.5f,  0.2f, -1.5f), 
-    glm::vec3(-1.3f,  1.0f, -1.5f)  
+    glm::vec3(-1.3f,  1.0f, -1.5f),
+  };
+
+  glm::vec3 pointLightPositions[] = {
+    glm::vec3( 0.7f,  0.2f,  2.0f),
+    glm::vec3( 2.3f, -3.3f, -4.0f),
+    glm::vec3(-4.0f,  2.0f, -12.0f),
+    glm::vec3( 0.0f,  0.0f, -3.0f),
   };
 
   unsigned int VBO[BUFF_LEN], VAO[BUFF_LEN];
@@ -241,6 +260,18 @@ int main(int argc, char *argv[]) {
   // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
   // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
   glBindVertexArray(0); 
+  
+  for (int i=0; i<(sizeof(pointLightPositions)/sizeof(glm::vec3)); i++) {
+    shader[IDX_OBJ]->setVec3("pointLights.ambient", glm::value_ptr(ambientLight), i);
+    shader[IDX_OBJ]->setVec3("pointLights.diffuse", glm::value_ptr(diffuseLight), i);
+    shader[IDX_OBJ]->setVec3("pointLights.specular", glm::value_ptr(specularLight), i);
+    
+    shader[IDX_OBJ]->setFloat("pointLights.constant", 1.0f, i);
+    shader[IDX_OBJ]->setFloat("pointLights.linear", 0.14, i);
+    shader[IDX_OBJ]->setFloat("pointLights.quadratic", 0.07f, i);
+
+    shader[IDX_OBJ]->setVec3("pointLights.position", glm::value_ptr(pointLightPositions[i]), i);
+  }
   
   glEnable(GL_DEPTH_TEST);
   
@@ -277,8 +308,8 @@ int main(int argc, char *argv[]) {
     // 右手持手电筒
     glm::vec3 lightPos = camera->Position + camera->Right + camera->Front * 3.0f;
     glm::vec3 lightDir = glm::normalize(camera->Position + camera->Front * 5.0f - lightPos);
-    shader[IDX_OBJ]->setVec3("light.position", glm::value_ptr(lightPos));
-    shader[IDX_OBJ]->setVec3("light.direction", glm::value_ptr(lightDir));
+    shader[IDX_OBJ]->setVec3("spotLight.position", glm::value_ptr(lightPos));
+    shader[IDX_OBJ]->setVec3("spotLight.direction", glm::value_ptr(lightDir));
 
     glm::mat4 projection(1.0f);
     projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
@@ -307,14 +338,28 @@ int main(int argc, char *argv[]) {
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
-    //////////////////////////////// render lamp
+    //////////////////////////////// render point light
+    shader[IDX_LAMP]->use();
+    glBindVertexArray(VAO[IDX_LAMP]);
+
+    for (int i=0; i<(sizeof(pointLightPositions)/sizeof(glm::vec3)); i++) {
+      glm::vec3 pos = pointLightPositions[i];
+      glm::mat4 model(1.0f);
+      model = glm::translate(model, pos);
+      // model = glm::rotate(model, (float)glfwGetTime()+20.0f*(i+1), glm::vec3(0.5f, 0.5f, 1.0f));
+      model = glm::scale(model, glm::vec3(0.2f));
+      shader[IDX_LAMP]->setMatrix4("model", glm::value_ptr(model));
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+
+    //////////////////////////////// render spotlight
+    shader[IDX_LAMP]->use();
+    glBindVertexArray(VAO[IDX_LAMP]);
+
     glm::mat4 model(1.0f);
     model = glm::translate(model, lightPos);
     model = glm::scale(model, glm::vec3(0.2f));
     shader[IDX_LAMP]->setMatrix4("model", glm::value_ptr(model));
-
-    shader[IDX_LAMP]->use();
-    glBindVertexArray(VAO[IDX_LAMP]);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glfwSwapBuffers(window);              // double buffer switch

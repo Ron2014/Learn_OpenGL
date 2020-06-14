@@ -122,3 +122,11 @@ fips_files_ex(LightCasters spotlight_fadeout.cc GROUP "SOURCES")
 fips_deps(Common)
 fips_end_app()
 
+## Multiple Lights
+
+fips_begin_app(MultipleLights cmdline)
+fips_vs_disable_warnings(4819)
+fips_files_ex(MultipleLights multiple_lights.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+

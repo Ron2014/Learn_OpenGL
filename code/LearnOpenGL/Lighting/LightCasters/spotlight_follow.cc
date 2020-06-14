@@ -261,7 +261,7 @@ int main(int argc, char *argv[]) {
     float lampX = cos(glfwGetTime()*0.5f) * radius;
     float lampY = sin(glfwGetTime()*0.5f) * radius;
     glm::vec3 lightPos(lampX, lampY, 0.0f);
-    glm::vec3 lightDir = glm::vec3(0.0f) - lightPos;
+    glm::vec3 lightDir = glm::normalize(glm::vec3(0.0f) - lightPos);
     shader[IDX_OBJ]->setVec3("light.position", glm::value_ptr(lightPos));
     shader[IDX_OBJ]->setVec3("light.direction", glm::value_ptr(lightDir));
 */
@@ -269,7 +269,7 @@ int main(int argc, char *argv[]) {
 /*
     // 头顶探照灯
     glm::vec3 lightPos = camera->Position + camera->Up;
-    glm::vec3 lightDir = camera->Front * 5.0f - camera->Up;
+    glm::vec3 lightDir = glm::normalize(camera->Front * 5.0f - camera->Up);
     shader[IDX_OBJ]->setVec3("light.position", glm::value_ptr(lightPos));
     shader[IDX_OBJ]->setVec3("light.direction", glm::value_ptr(lightDir));
 */

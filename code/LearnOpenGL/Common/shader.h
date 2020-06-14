@@ -21,16 +21,16 @@ class Shader {
     void use();
 
     // uniform get
-     bool getBool(const string &name ) const;
-     int getInt(const string &name ) const;
-     unsigned int getUint(const string &name ) const;
-     float getFloat(const string &name ) const;
+    bool getBool(const string &name ) const;
+    int getInt(const string &name ) const;
+    unsigned int getUint(const string &name ) const;
+    float getFloat(const string &name ) const;
 
     // uniform set
-    void setBool(const string &name, bool value) const;
-    void setInt(const string &name, int value) const;
-    void setUint(const string &name, unsigned int value) const;
-    void setFloat(const string &name, float value) const;
-    void setMatrix4(const string &name, GLfloat *value) const;
-    void setVec3(const string &name, GLfloat *value) const;
+    void setBool(const string &name, bool value, int idx=-1) const;
+    void setInt(const string &name, int value, int idx=-1) const;
+    void setUint(const string &name, unsigned int value, int idx=-1) const;
+    void setFloat(const string &name, float value, int idx=-1) const;
+    void setMatrix4(const string &name, GLfloat *value, int idx=-1) const;
+    void setVec3(const string &name, GLfloat *value, int idx=-1) const;
 };
