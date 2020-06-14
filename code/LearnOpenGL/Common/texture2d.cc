@@ -5,7 +5,7 @@
 #include <sstream>
 using namespace std;
 
-unsigned int Texture2D::TEXTURE_UNIT_ID = GL_TEXTURE0;
+unsigned int Texture2D::TEXTURE_UNIT_ID = 0;
 
 Texture2D::Texture2D(const GLchar *texPath, GLenum wrapping, GLenum minFilter, GLenum magFilter) {
   if (TEXTURE_UNIT_ID==GL_TEXTURE0) stbi_set_flip_vertically_on_load(true);     // 图片的y轴0.0坐标通常在顶部, 图像加载时帮助我们翻转y轴
@@ -47,6 +47,6 @@ Texture2D::~Texture2D() {
 
 void Texture2D::use() {
   // cout << unitID << endl;
-  glActiveTexture(unitID);
+  glActiveTexture(unitID+GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, ID);
 }

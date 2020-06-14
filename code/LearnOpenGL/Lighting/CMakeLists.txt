@@ -51,3 +51,23 @@ fips_vs_disable_warnings(4819)
 fips_files_ex(Materials light_color.cc GROUP "SOURCES")
 fips_deps(Common)
 fips_end_app()
+
+## Lighting Map
+
+fips_begin_app(LightingMap0 cmdline)
+fips_vs_disable_warnings(4819)
+fips_files_ex(LightingMaps lighting_map0.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(LightingMap cmdline)
+fips_vs_disable_warnings(4819)
+fips_files_ex(LightingMaps lighting_map.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(LightingMapSpecular cmdline)
+fips_vs_disable_warnings(4819)
+fips_files_ex(LightingMaps lighting_map_specular.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
