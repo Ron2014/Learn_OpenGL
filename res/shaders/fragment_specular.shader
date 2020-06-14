@@ -15,8 +15,8 @@ uniform vec3 viewPos;
 
 void main()
 {
-  float ambient = 0.05f;
-  float specularIntension = 0.5f;
+  float ambient = 0.1f;
+  float specularIntension = 2.0f;
   
   vec3 norm = normalize(Normal);
   vec3 lightDir = normalize(lightPos - FragPos);
