@@ -21,9 +21,11 @@ class Model {
             loadModel(path);
         }
         ~Model() {
-            for (auto it : textures_loaded) {
+            cout << "~Model:" << directory.substr(directory.find_last_of("\\")) << endl;
+            for (auto it : textures_loaded)
                 delete it.second;
-            }
+            for (auto mesh : meshes)
+                mesh.Clean();
         }
         void Draw(Shader *shader);   
     private:

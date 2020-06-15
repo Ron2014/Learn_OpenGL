@@ -35,8 +35,8 @@ class Mesh {
         vector<Texture2D *> textures;
         /*  函数  */
         Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices, const vector<Texture2D *> &textures);
-        ~Mesh();
         void Draw(Shader *shader);
+        void Clean();
     private:
         /*  渲染数据  */
         unsigned int VAO, VBO, EBO;

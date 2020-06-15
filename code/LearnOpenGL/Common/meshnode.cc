@@ -47,6 +47,7 @@ void Mesh::setupMesh() {
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
 
+  cout << "Mesh::setupMesh ------" << VAO << " " << VBO << " " << EBO << endl;
   glBindVertexArray(VAO);   // -----------------
 
   // 数据导入缓冲区
@@ -81,7 +82,8 @@ void Mesh::setupMesh() {
   glBindVertexArray(0);     // -----------------
 }
 
-Mesh::~Mesh() { 
+void Mesh::Clean() { 
+  cout << "Mesh::Clean ------" << VAO << " " << VBO << " " << EBO << endl;
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);
