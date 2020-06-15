@@ -5,3 +5,5 @@ fips-*
 *.vcxproj.*
 **/packages/*
 packages.config
+*.zip
+*.rar

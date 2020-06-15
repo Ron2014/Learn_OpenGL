@@ -8,8 +8,8 @@ using namespace std;
 #define TEXTURE_DEFAULT "avengers.jpg"
 
 class Texture2D {
-  static unsigned int TEXTURE_UNIT_ID;
 public:
+  static unsigned int TEXTURE_UNIT_ID;
   unsigned int ID;
   unsigned int type;
   string uniform_name;

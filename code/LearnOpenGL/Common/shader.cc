@@ -50,12 +50,16 @@ static int createProgram(vector<int> &shaders) {
 static int getUniformLocation(int ID, const string &name, int idx) {
   if (idx>=0) {
     size_t dot_pos = name.find(".");
+#ifdef __DEBUG_UNIFORM
     cout << idx << " " << dot_pos << endl;
+#endif
     if (dot_pos!=string::npos) {
       stringstream tmp_name;
       tmp_name << name.substr(0, dot_pos);
       tmp_name << "[" << idx << "]" << name.substr(dot_pos, name.length()-dot_pos);
+#ifdef __DEBUG_UNIFORM
       cout << tmp_name.str().c_str() << endl;
+#endif
       return glGetUniformLocation(ID, tmp_name.str().c_str());
     }
   }
@@ -142,6 +146,9 @@ void Shader::setBool(const string &name, bool value, int idx) const {
 }
 
 void Shader::setInt(const string &name, int value, int idx) const {
+#ifdef __DEBUG_DRAW
+    cout << name << " " << value << endl;
+#endif
     int location = getUniformLocation(ID, name.c_str(), idx);
     glUseProgram(ID);
     glUniform1i(location, value);

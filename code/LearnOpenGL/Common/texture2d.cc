@@ -9,8 +9,6 @@ using namespace std;
 unsigned int Texture2D::TEXTURE_UNIT_ID = 0;
 
 Texture2D::Texture2D(string texPath, string uniform_name, GLuint type, GLenum wrapping, GLenum minFilter, GLenum magFilter): type(type), uniform_name(uniform_name) {
-  if (TEXTURE_UNIT_ID==GL_TEXTURE0) stbi_set_flip_vertically_on_load(true);     // 图片的y轴0.0坐标通常在顶部, 图像加载时帮助我们翻转y轴
-
   // 生成Texture并指定模式, 要放在文件加载之前.
   // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work
   glGenTextures(1, &ID);
@@ -18,6 +16,7 @@ Texture2D::Texture2D(string texPath, string uniform_name, GLuint type, GLenum wr
   if (texPath.find("\\")==string::npos)
     texPath = TEXTURE_PATH + texPath;
 
+  cout << "load texture ------" << texPath.c_str() << endl;
   data = stbi_load(texPath.c_str(), &width, &height, &nrChannels, 0);
   if (data) {
     // note that the awesomeface.png has transparency and thus an alpha channel
@@ -52,7 +51,9 @@ Texture2D::~Texture2D() {
 }
 
 void Texture2D::use() {
-  // cout << unitID << endl;
+#ifdef __DEBUG_DRAW
+  cout << unitID << endl;
+#endif
   glActiveTexture(TEXTURE_UNIT_ID+GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, ID);
   TEXTURE_UNIT_ID ++;
