@@ -307,7 +307,9 @@ int main(int argc, char *argv[]) {
     // render
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);       // 黑色空间
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 /*
+    // 旋转光
     float radius = 3.0f;
     float lampX = cos(glfwGetTime()*0.5f) * radius;
     float lampY = sin(glfwGetTime()*0.5f) * radius;
@@ -346,49 +348,62 @@ int main(int argc, char *argv[]) {
       shader[IDX_OBJ]->use();
       for (int i=0; i<TEX_COUNT; i++)
         textures[i]->use();                // 创建了 texture 但是忘记 use，就看不到高光效果了
+
+      glm::mat4 model = glm::mat4(1.0f);
+      model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+      model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+      shader[IDX_OBJ]->setMatrix4("model", glm::value_ptr(model));
+
       nanosuit.Draw(shader[IDX_OBJ]);
       Texture2D::reset();                  // use 完之后记得重置
     }
     
     //////////////////////////////// render obj
-    shader[IDX_OBJ]->use();
-    for (int i=0; i<TEX_COUNT; i++)
-      textures[i]->use();                // 创建了 texture 但是忘记 use，就看不到高光效果了
-    glBindVertexArray(VAO[IDX_OBJ]);
+    {
+      shader[IDX_OBJ]->use();
+      for (int i=0; i<TEX_COUNT; i++)
+        textures[i]->use();                // 创建了 texture 但是忘记 use，就看不到高光效果了
 
-    for (int i=0; i<(sizeof(cubePositions)/sizeof(glm::vec3)); i++) {
-      glm::vec3 pos = cubePositions[i];
-      glm::mat4 model(1.0f);
-      model = glm::translate(model, pos);
-      model = glm::rotate(model, (float)glfwGetTime()+20.0f*(i+1), glm::vec3(0.5f, 1.0f, 0.0f));
-      shader[IDX_OBJ]->setMatrix4("model", glm::value_ptr(model));
-      glDrawArrays(GL_TRIANGLES, 0, 36);
+      glBindVertexArray(VAO[IDX_OBJ]);
+      for (int i=0; i<(sizeof(cubePositions)/sizeof(glm::vec3)); i++) {
+        glm::vec3 pos = cubePositions[i];
+        glm::mat4 model(1.0f);
+        model = glm::translate(model, pos);
+        model = glm::rotate(model, (float)glfwGetTime()+20.0f*(i+1), glm::vec3(0.5f, 1.0f, 0.0f));
+        shader[IDX_OBJ]->setMatrix4("model", glm::value_ptr(model));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+      }
+      
+      Texture2D::reset();                   // use 完之后记得重置
     }
-    Texture2D::reset();                   // use 完之后记得重置
 
     //////////////////////////////// render point light
-    shader[IDX_LAMP]->use();
-    glBindVertexArray(VAO[IDX_LAMP]);
+    {
+      shader[IDX_LAMP]->use();
+      glBindVertexArray(VAO[IDX_LAMP]);
 
-    for (int i=0; i<(sizeof(pointLightPositions)/sizeof(glm::vec3)); i++) {
-      glm::vec3 pos = pointLightPositions[i];
+      for (int i=0; i<(sizeof(pointLightPositions)/sizeof(glm::vec3)); i++) {
+        glm::vec3 pos = pointLightPositions[i];
+        glm::mat4 model(1.0f);
+        model = glm::translate(model, pos);
+        // model = glm::rotate(model, (float)glfwGetTime()+20.0f*(i+1), glm::vec3(0.5f, 0.5f, 1.0f));
+        model = glm::scale(model, glm::vec3(0.2f));
+        shader[IDX_LAMP]->setMatrix4("model", glm::value_ptr(model));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+      }
+    }
+
+    //////////////////////////////// render spotlight
+    {
+      shader[IDX_LAMP]->use();
+      glBindVertexArray(VAO[IDX_LAMP]);
+
       glm::mat4 model(1.0f);
-      model = glm::translate(model, pos);
-      // model = glm::rotate(model, (float)glfwGetTime()+20.0f*(i+1), glm::vec3(0.5f, 0.5f, 1.0f));
+      model = glm::translate(model, lightPos);
       model = glm::scale(model, glm::vec3(0.2f));
       shader[IDX_LAMP]->setMatrix4("model", glm::value_ptr(model));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
-
-    //////////////////////////////// render spotlight
-    shader[IDX_LAMP]->use();
-    glBindVertexArray(VAO[IDX_LAMP]);
-
-    glm::mat4 model(1.0f);
-    model = glm::translate(model, lightPos);
-    model = glm::scale(model, glm::vec3(0.2f));
-    shader[IDX_LAMP]->setMatrix4("model", glm::value_ptr(model));
-    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glfwSwapBuffers(window);              // double buffer switch
     glfwPollEvents();                     // keyboard/mouse event
