@@ -19,6 +19,19 @@ enum {
   BUFF_LEN,
 };
 
+enum {
+  TEX_DIFFUSE,
+  TEX_SPECULAR,
+  TEX_EMISSION,
+  TEX_COUNT,
+};
+
+const char *texture_data[TEX_COUNT][2] = {
+  {"container2.png", "material.diffuse"},
+  {"container2_specular.png", "material.specular"},
+  {"matrix.jpg", "material.emission"},
+};
+
 unsigned int WIN_WIDTH = 800;
 unsigned int WIN_HEIGHT = 600;
 
@@ -143,17 +156,13 @@ int main(int argc, char *argv[]) {
   shader[IDX_OBJ]->setFloat("light.cutoff", glm::cos(glm::radians(15.0f)));
   shader[IDX_OBJ]->setFloat("light.cutoff_outter", glm::cos(glm::radians(20.0f)));
 
-  // vec3 objColor(1.0f, 0.5f, 0.31f);
-  // shader[IDX_OBJ]->setVec3("objColor", glm::value_ptr(objColor));
-  Texture2D texture("container2.png");
-  Texture2D textureSpecular("container2_specular.png");
-  Texture2D textureEmission("matrix.jpg");
-  // vec3 specularObj(0.5f, 0.5f, 0.5f);
-  float shininess = 32.0f;
-  shader[IDX_OBJ]->setInt("material.diffuse", texture.unitID);
-  shader[IDX_OBJ]->setInt("material.specular", textureSpecular.unitID);
-  shader[IDX_OBJ]->setInt("material.emission", textureEmission.unitID);
-  shader[IDX_OBJ]->setFloat("material.shininess", shininess);
+  Texture2D *textures[TEX_COUNT];
+  for (int i=0; i<TEX_COUNT; i++) {
+    textures[i] = new Texture2D(texture_data[i][0], texture_data[i][1]);
+    shader[IDX_OBJ]->setInt(textures[i]->uniform_name, i);
+  }
+  shader[IDX_OBJ]->setFloat("material.shininess", 32.0f);
+
 
   camera = new Camera::Camera(0.0f);
 
@@ -293,9 +302,8 @@ int main(int argc, char *argv[]) {
     
     //////////////////////////////// render obj
     shader[IDX_OBJ]->use();
-    texture.use();
-    textureSpecular.use();                // 创建了 texture 但是忘记 use，就看不到高光效果了
-    textureEmission.use();
+    for (int i=0; i<TEX_COUNT; i++)
+      textures[i]->use();                // 创建了 texture 但是忘记 use，就看不到高光效果了
     glBindVertexArray(VAO[IDX_OBJ]);
 
     for (int i=0; i<(sizeof(cubePositions)/sizeof(glm::vec3)); i++) {
@@ -306,6 +314,7 @@ int main(int argc, char *argv[]) {
       shader[IDX_OBJ]->setMatrix4("model", glm::value_ptr(model));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
+    Texture2D::reset();                   // use 完之后记得重置
 
     //////////////////////////////// render lamp
     glm::mat4 model(1.0f);
@@ -321,8 +330,10 @@ int main(int argc, char *argv[]) {
     glfwPollEvents();                     // keyboard/mouse event
   }
 
-  delete shader[IDX_LAMP];
-  delete shader[IDX_OBJ];
+  for (int i=0; i<BUFF_LEN; i++)
+    delete shader[i];
+  for (int i=0; i<TEX_COUNT; i++)
+    delete textures[i];
   delete camera;
 
   // optional: de-allocate all resources once they've outlived their purpose:

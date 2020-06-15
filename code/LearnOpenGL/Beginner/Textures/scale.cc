@@ -83,8 +83,8 @@ int main(int argc, char *argv[]) {
 
   // shader source -> shader object -> shader program
   shader = new Shader("vertex_texture.shader", "fragment_scale.shader");
-  Texture2D texture0("container.jpg", GL_CLAMP_TO_EDGE);
-  Texture2D texture1("awesomeface.png", GL_REPEAT, GL_NEAREST);
+  Texture2D texture0("container.jpg", "", 0, GL_CLAMP_TO_EDGE);
+  Texture2D texture1("awesomeface.png", "", 0, GL_REPEAT, GL_NEAREST);
 
   float vertices[] = {
 //     ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -

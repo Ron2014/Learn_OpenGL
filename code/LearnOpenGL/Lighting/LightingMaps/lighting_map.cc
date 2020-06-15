@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
   Texture2D texture("container2.png");
   vec3 specularObj(0.5f, 0.5f, 0.5f);
   float shininess = 256.0f;
-  shader[IDX_OBJ]->setInt("material.diffuse", texture.unitID);
+  shader[IDX_OBJ]->setInt("material.diffuse", 0);
   shader[IDX_OBJ]->setVec3("material.specular", glm::value_ptr(specularObj));
   shader[IDX_OBJ]->setFloat("material.shininess", shininess);
 

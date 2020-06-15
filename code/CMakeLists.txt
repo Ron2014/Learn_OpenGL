@@ -12,6 +12,7 @@ fips_include_directories(Ext/glfw-3.3.2/include)
 fips_include_directories(Ext/glad/include)
 fips_include_directories(Ext/freeglut-3.2.1/include)
 fips_include_directories(Ext/glm)
+fips_include_directories(Ext/assimp-5.0.1/include)
 
 fips_setup()
 fips_add_subdirectory(Ext)

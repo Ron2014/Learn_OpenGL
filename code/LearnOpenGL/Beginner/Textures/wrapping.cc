@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 
   // shader source -> shader object -> shader program
   Shader shader("vertex_texture.shader", "fragment_mix_texture.shader");
-  Texture2D texture0("container.jpg", GL_CLAMP_TO_EDGE);
+  Texture2D texture0("container.jpg", "", 0, GL_CLAMP_TO_EDGE);
   Texture2D texture1("awesomeface.png");
 
   float vertices[] = {
