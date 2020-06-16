@@ -78,10 +78,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
   WIN_WIDTH = width;
   WIN_HEIGHT = height;
-
-  glm::mat4 projection(1.0f);
-  projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
-  for (int i=0; i<BUFF_LEN; i++) shader[i]->setMatrix4("projection", glm::value_ptr(projection));
 }  
 
 void processInput(GLFWwindow *window)
@@ -369,7 +365,7 @@ int main(int argc, char *argv[]) {
     lightPos += camera->Right + camera->Front * 3.0f; // 绘制光源的位置, 会有一点出入. 目的是保证手电筒的光锥是直的.
 
     glm::mat4 projection(1.0f);
-    projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
+    projection = glm::perspective(glm::radians(camera->FieldOfView), float(WIN_WIDTH)/glm::max((float)WIN_HEIGHT,0.01f), 0.1f, 1000.0f);
     glm::mat4 view = camera->GetViewMatrix();
 
     for (int i : OBJ_IDXS) shader[i]->setVec3("viewPos", glm::value_ptr(camera->Position));

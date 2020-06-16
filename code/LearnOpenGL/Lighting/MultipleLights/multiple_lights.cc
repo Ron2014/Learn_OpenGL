@@ -70,10 +70,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
   WIN_WIDTH = width;
   WIN_HEIGHT = height;
-
-  glm::mat4 projection(1.0f);
-  projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
-  shader[IDX_OBJ]->setMatrix4("projection", glm::value_ptr(projection));
 }  
 
 void processInput(GLFWwindow *window)
@@ -114,6 +110,7 @@ int main(int argc, char *argv[]) {
   // 我们只会用到OpenGL的子集，无需向后兼容的特性
 
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
+#ifdef FULL_SCREEN
   GLFWmonitor *monitor = glfwGetPrimaryMonitor();
   const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
@@ -126,6 +123,9 @@ int main(int argc, char *argv[]) {
   WIN_HEIGHT = mode->height;
 
   GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, monitor, NULL);
+#else
+  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, NULL, NULL);
+#endif
   if (window == NULL)
   {
       cout << "Failed to create GLFW window" << endl;
@@ -328,7 +328,7 @@ int main(int argc, char *argv[]) {
     shader[IDX_OBJ]->setVec3("spotLight.direction", glm::value_ptr(lightDir));
 
     glm::mat4 projection(1.0f);
-    projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
+    projection = glm::perspective(glm::radians(camera->FieldOfView), float(WIN_WIDTH)/glm::max((float)WIN_HEIGHT,0.01f), 0.1f, 1000.0f);
     glm::mat4 view = camera->GetViewMatrix();
 
     shader[IDX_OBJ]->setMatrix4("projection", glm::value_ptr(projection));

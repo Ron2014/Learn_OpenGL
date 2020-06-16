@@ -64,11 +64,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
   WIN_WIDTH = width;
   WIN_HEIGHT = height;
-
-  shader[IDX_OBJ]->use();
-  glm::mat4 projection(1.0f);
-  projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
-  shader[IDX_OBJ]->setMatrix4("projection", glm::value_ptr(projection));
 }  
 
 void processInput(GLFWwindow *window)
@@ -181,7 +176,7 @@ int main(int argc, char *argv[]) {
 
     glm::mat4 view = camera->GetViewMatrix();
     glm::mat4 projection(1.0f);
-    projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
+    projection = glm::perspective(glm::radians(camera->FieldOfView), float(WIN_WIDTH)/glm::max((float)WIN_HEIGHT,0.01f), 0.1f, 1000.0f);
     shader[IDX_OBJ]->setMatrix4("view", glm::value_ptr(view));
     shader[IDX_OBJ]->setMatrix4("projection", glm::value_ptr(projection));
 

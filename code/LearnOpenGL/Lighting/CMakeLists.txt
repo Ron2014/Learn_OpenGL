@@ -126,6 +126,7 @@ fips_end_app()
 
 fips_begin_app(MultipleLights cmdline)
 fips_vs_disable_warnings(4819)
+add_definitions(-DFULL_SCREEN)
 fips_files_ex(MultipleLights multiple_lights.cc GROUP "SOURCES")
 fips_deps(Common)
 fips_end_app()
