@@ -79,11 +79,11 @@ Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath) {
     cout << vertexPath << endl;
     cout << fragmentPath << endl;
 
-    buffer << SHADER_PATH << "\\" << vertexPath;
+    buffer << SHADER_PATH << vertexPath;
     vShaderFile.open(buffer.str().c_str(), ios::in);
 
     buffer.str("");
-    buffer << SHADER_PATH << "\\" << fragmentPath;
+    buffer << SHADER_PATH << fragmentPath;
     fShaderFile.open(buffer.str().c_str(), ios::in);
 
     // vShaderFile.read(buffer, INFO_LEN-1);

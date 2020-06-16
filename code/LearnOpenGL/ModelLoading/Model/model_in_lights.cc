@@ -21,6 +21,8 @@ enum {
   BUFF_LEN,
 };
 
+int OBJ_IDXS[] = {IDX_CUBE, IDX_MODEL};
+
 enum {
   TEX_DIFFUSE,
   TEX_SPECULAR,
@@ -34,8 +36,8 @@ const char *cube_texture_data[TEX_COUNT][2] = {
   {"matrix.jpg", "material.emission"},
 };
 
-unsigned int WIN_WIDTH = 1920;
-unsigned int WIN_HEIGHT = 1080;
+unsigned int WIN_WIDTH = 800;
+unsigned int WIN_HEIGHT = 600;
 
 Shader *shader[BUFF_LEN];
 Camera::Camera *camera;
@@ -67,7 +69,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-  cout << "veiw change " << width << " " << height << endl;
+  cout << "view change " << width << " " << height << endl;
   glViewport(0, 0, width, height);
 
   WIN_WIDTH = width;
@@ -75,7 +77,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
   glm::mat4 projection(1.0f);
   projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
-  shader[IDX_CUBE]->setMatrix4("projection", glm::value_ptr(projection));
+  for (int i=0; i<BUFF_LEN; i++) shader[i]->setMatrix4("projection", glm::value_ptr(projection));
 }  
 
 void processInput(GLFWwindow *window)
@@ -104,6 +106,10 @@ void processInput(GLFWwindow *window)
 }
 
 int main(int argc, char *argv[]) {
+  if (argc < 1) {
+    cout << "usage: model_in_lights <model_name>" << endl;
+    return 0;
+  }
   glfwInit();
   
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -116,18 +122,19 @@ int main(int argc, char *argv[]) {
   // 我们只会用到OpenGL的子集，无需向后兼容的特性
 
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
-  GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-  const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+  // GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+  // const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-  glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-  glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-  glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-  glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+  // glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+  // glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+  // glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+  // glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 
-  WIN_WIDTH = mode->width;
-  WIN_HEIGHT = mode->height;
+  // WIN_WIDTH = mode->width;
+  // WIN_HEIGHT = mode->height;
 
-  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, monitor, NULL);
+  // GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, monitor, NULL);
+  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, NULL, NULL);
   if (window == NULL)
   {
       cout << "Failed to create GLFW window" << endl;
@@ -154,38 +161,70 @@ int main(int argc, char *argv[]) {
   // shader source -> shader object -> shader program
   shader[IDX_LAMP] = new Shader("vertex_lighted.shader", "fragment_lamp.shader");
   shader[IDX_CUBE] = new Shader("vertex_specular.shader", "fragment_multiple_lights.shader");
-  shader[IDX_MODEL] = new Shader("vertex_model.shader", "fragment_model.shader");
+  shader[IDX_MODEL] = new Shader("vertex_specular.shader", "fragment_model_in_lights.shader");
 
   // direct light
-  vec3 ambientLight(0.1f, 0.1f, 0.1f);
+  vec3 ambientLight(0.f, 0.f, 0.f);
   vec3 diffuseLight(0.1f, 0.1f, 0.1f);
   vec3 specularLight(1.0f, 1.0f, 1.0f);
   vec3 directLight(0.0f, -1.0f, 0.0f);
 
-  shader[IDX_CUBE]->setVec3("directLight.ambient", glm::value_ptr(ambientLight));
-  shader[IDX_CUBE]->setVec3("directLight.diffuse", glm::value_ptr(diffuseLight));
-  shader[IDX_CUBE]->setVec3("directLight.specular", glm::value_ptr(specularLight));
-  shader[IDX_CUBE]->setVec3("directLight.direction", glm::value_ptr(directLight));
+  for (int i : OBJ_IDXS) {
+    shader[i]->setVec3("directLight.ambient", glm::value_ptr(ambientLight));
+    shader[i]->setVec3("directLight.diffuse", glm::value_ptr(diffuseLight));
+    shader[i]->setVec3("directLight.specular", glm::value_ptr(specularLight));
+
+    shader[i]->setVec3("directLight.direction", glm::value_ptr(directLight));
+  }
 
   // spot light
   ambientLight = vec3(0.0f, 0.0f, 0.0f);
   diffuseLight = vec3(0.8f, 0.8f, 0.8f);
   specularLight = vec3(1.0f, 1.0f, 1.0f);
-  shader[IDX_CUBE]->setVec3("spotLight.ambient", glm::value_ptr(ambientLight));
-  shader[IDX_CUBE]->setVec3("spotLight.diffuse", glm::value_ptr(diffuseLight));
-  shader[IDX_CUBE]->setVec3("spotLight.specular", glm::value_ptr(specularLight));
-  shader[IDX_CUBE]->setFloat("spotLight.constant", 1.0f);
-  shader[IDX_CUBE]->setFloat("spotLight.linear", 0.45f);
-  shader[IDX_CUBE]->setFloat("spotLight.quadratic", 	0.0075f);
-  shader[IDX_CUBE]->setFloat("spotLight.cutoff", glm::cos(glm::radians(5.0f)));
-  shader[IDX_CUBE]->setFloat("spotLight.cutoff_outter", glm::cos(glm::radians(10.0f)));
+
+  for (int i: OBJ_IDXS) {
+    shader[i]->setVec3("spotLight.ambient", glm::value_ptr(ambientLight));
+    shader[i]->setVec3("spotLight.diffuse", glm::value_ptr(diffuseLight));
+    shader[i]->setVec3("spotLight.specular", glm::value_ptr(specularLight));
+
+    shader[i]->setFloat("spotLight.constant", 1.0f);
+    shader[i]->setFloat("spotLight.linear", 0.022f);
+    shader[i]->setFloat("spotLight.quadratic", 0.0019);
+
+    shader[i]->setFloat("spotLight.cutoff", glm::cos(glm::radians(15.0f)));
+    shader[i]->setFloat("spotLight.cutoff_outter", glm::cos(glm::radians(20.0f)));
+  }
+
+  // point light
+  glm::vec3 pointLightPositions[] = {
+    glm::vec3( 0.7f,  0.2f,  2.0f),
+    glm::vec3( 2.3f, -3.3f, -4.0f),
+    glm::vec3(-4.0f,  2.0f, -12.0f),
+    glm::vec3( 0.0f,  0.0f, -3.0f),
+  };
+  
+  for (int i=0; i<(sizeof(pointLightPositions)/sizeof(glm::vec3)); i++) {
+    for (int j : OBJ_IDXS) {
+      shader[j]->setVec3("pointLights.ambient", glm::value_ptr(ambientLight), i);
+      shader[j]->setVec3("pointLights.diffuse", glm::value_ptr(diffuseLight), i);
+      shader[j]->setVec3("pointLights.specular", glm::value_ptr(specularLight), i);
+      
+      shader[j]->setFloat("pointLights.constant", 1.0f, i);
+      shader[j]->setFloat("pointLights.linear", 0.14, i);
+      shader[j]->setFloat("pointLights.quadratic", 0.07f, i);
+
+      shader[j]->setVec3("pointLights.position", glm::value_ptr(pointLightPositions[i]), i);
+    }
+  }
 
   Texture2D *cube_texture[TEX_COUNT];
   for (int i=0; i<TEX_COUNT; i++) {
     cube_texture[i] = new Texture2D(cube_texture_data[i][0], cube_texture_data[i][1]);
     shader[IDX_CUBE]->setInt(cube_texture[i]->uniform_name, i);
   }
-  shader[IDX_CUBE]->setFloat("material.shininess", 32.0f);
+
+  for (int i: OBJ_IDXS)
+    shader[i]->setFloat("material.shininess", 32.0f);
 
   camera = new Camera::Camera(0.0f);
 
@@ -246,20 +285,19 @@ int main(int argc, char *argv[]) {
     glm::vec3(-1.3f,  1.0f, -1.5f),
   };
 
-  glm::vec3 pointLightPositions[] = {
-    glm::vec3( 0.7f,  0.2f,  2.0f),
-    glm::vec3( 2.3f, -3.3f, -4.0f),
-    glm::vec3(-4.0f,  2.0f, -12.0f),
-    glm::vec3( 0.0f,  0.0f, -3.0f),
-  };
+  int model_count = argc-1;
+  Model **loading_models = new Model*[model_count];
+  for (int i=0; i<model_count; i++)
+    loading_models[i] = new Model(argv[i+1]);
 
   unsigned int VBO[BUFF_LEN], VAO[BUFF_LEN];
   glGenVertexArrays(BUFF_LEN, VAO);      // 第二个参数实际上表示一个数组, 第一个参数表示数组大小.
   glGenBuffers(BUFF_LEN, VBO);           // 所以如果是一个 unsigned int 得用&, 如 glGenVertexArrays(1, &VBO);
 
   for (int i=0; i<BUFF_LEN; i++) {
+    cout << "Main::genBuffer ------" << VAO[i] << " " << VBO[i] << endl;
     glBindVertexArray(VAO[i]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[i]); //  全都存到 VBO[0] 中, VBO[1] 是空闲的
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // position
@@ -279,20 +317,6 @@ int main(int argc, char *argv[]) {
   // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
   // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
   glBindVertexArray(0); 
-  
-  for (int i=0; i<(sizeof(pointLightPositions)/sizeof(glm::vec3)); i++) {
-    shader[IDX_CUBE]->setVec3("pointLights.ambient", glm::value_ptr(ambientLight), i);
-    shader[IDX_CUBE]->setVec3("pointLights.diffuse", glm::value_ptr(diffuseLight), i);
-    shader[IDX_CUBE]->setVec3("pointLights.specular", glm::value_ptr(specularLight), i);
-    
-    shader[IDX_CUBE]->setFloat("pointLights.constant", 1.0f, i);
-    shader[IDX_CUBE]->setFloat("pointLights.linear", 0.14, i);
-    shader[IDX_CUBE]->setFloat("pointLights.quadratic", 0.07f, i);
-
-    shader[IDX_CUBE]->setVec3("pointLights.position", glm::value_ptr(pointLightPositions[i]), i);
-  }
-
-  Model nanosuit("nanosuit");
   
   glEnable(GL_DEPTH_TEST);
   
@@ -329,32 +353,39 @@ int main(int argc, char *argv[]) {
     shader[IDX_CUBE]->setVec3("light.direction", glm::value_ptr(lightDir));
 */
     // 右手持手电筒
-    glm::vec3 lightPos = camera->Position + camera->Right + camera->Front * 3.0f;
-    glm::vec3 lightDir = glm::normalize(camera->Position + camera->Front * 5.0f - lightPos);
-    shader[IDX_CUBE]->setVec3("spotLight.position", glm::value_ptr(lightPos));
-    shader[IDX_CUBE]->setVec3("spotLight.direction", glm::value_ptr(lightDir));
+    glm::vec3 lightPos = camera->Position;  // shader的位置
+    glm::vec3 lightDir = camera->Front; //glm::normalize(camera->Position + camera->Front * 200.0f - lightPos);
+    for (int i : OBJ_IDXS) {
+      shader[i]->setVec3("spotLight.position", glm::value_ptr(lightPos));
+      shader[i]->setVec3("spotLight.direction", glm::value_ptr(lightDir));
+    }
+    lightPos += camera->Right + camera->Front * 3.0f; // 绘制光源的位置, 会有一点出入. 目的是保证手电筒的光锥是直的.
 
     glm::mat4 projection(1.0f);
     projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
     glm::mat4 view = camera->GetViewMatrix();
 
-    shader[IDX_CUBE]->setMatrix4("projection", glm::value_ptr(projection));
-    shader[IDX_CUBE]->setMatrix4("view", glm::value_ptr(view));
-    shader[IDX_CUBE]->setVec3("viewPos", glm::value_ptr(camera->Position));
+    for (int i : OBJ_IDXS) shader[i]->setVec3("viewPos", glm::value_ptr(camera->Position));
 
-    shader[IDX_LAMP]->setMatrix4("projection", glm::value_ptr(projection));
-    shader[IDX_LAMP]->setMatrix4("view", glm::value_ptr(view));
+    for (int i=0; i<BUFF_LEN; i++) {
+      shader[i]->setMatrix4("projection", glm::value_ptr(projection));
+      shader[i]->setMatrix4("view", glm::value_ptr(view));
+    }
     
-    //////////////////////////////// render nanosuit
+    //////////////////////////////// render loading_model
+    for (int i=0; i<model_count; i++)
     {
       shader[IDX_MODEL]->use();
 
       glm::mat4 model = glm::mat4(1.0f);
-      model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-      model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+      float radius = 10.0f;
+      float lampX = sin(glm::radians(10.0f*i)) * radius;
+      float lampZ = cos(glm::radians(10.0f*i)) * radius;
+      model = glm::translate(model, glm::vec3(-lampX, -5.0f, -lampZ)); // translate it down so it's at the center of the scene
+      model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
       shader[IDX_MODEL]->setMatrix4("model", glm::value_ptr(model));
 
-      nanosuit.Draw(shader[IDX_MODEL]);
+      loading_models[i]->Draw(shader[IDX_MODEL]);
       Texture2D::reset();                  // use 完之后记得重置
     }
     
@@ -371,7 +402,6 @@ int main(int argc, char *argv[]) {
         model = glm::translate(model, pos);
         model = glm::rotate(model, (float)glfwGetTime()+20.0f*(i+1), glm::vec3(0.5f, 1.0f, 0.0f));
         shader[IDX_CUBE]->setMatrix4("model", glm::value_ptr(model));
-        IDX_MODEL,
         glDrawArrays(GL_TRIANGLES, 0, 36);
       }
 
@@ -410,10 +440,14 @@ int main(int argc, char *argv[]) {
     glfwPollEvents();                     // keyboard/mouse event
   }
   
-  for (int i=0; i<BUFF_LEN; i++)
+  for (int i=0; i<BUFF_LEN; i++){
+    cout << "Main::cleanBuffer ------" << VAO[i] << " " << VBO[i] << endl;
     delete shader[i];
+  }
   for (int i=0; i<TEX_COUNT; i++)
     delete cube_texture[i];
+  for (int i=0; i<model_count; i++)
+    delete loading_models[i];
   delete camera;
 
   // optional: de-allocate all resources once they've outlived their purpose:

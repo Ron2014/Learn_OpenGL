@@ -1,5 +1,6 @@
 fips_begin_lib(Common)
 fips_vs_disable_warnings(4819)
+# add_definitions(-D__DEBUG_DRAW)
 add_definitions(-DSTB_IMAGE_IMPLEMENTATION)
 fips_files_ex(. *.cc GROUP "SOURCES")
 fips_deps(glfw glad assimp)

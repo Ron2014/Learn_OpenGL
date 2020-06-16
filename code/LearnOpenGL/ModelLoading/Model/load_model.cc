@@ -4,6 +4,7 @@ using namespace std;
 #include "shader.h"
 #include "texture2d.h"
 #include "camera.h"
+#include "stb_image.h"
 
 #include <vector>
 #include <glad/glad.h>
@@ -60,6 +61,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
   WIN_WIDTH = width;
   WIN_HEIGHT = height;
 
+  shader[IDX_OBJ]->use();
   glm::mat4 projection(1.0f);
   projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
   shader[IDX_OBJ]->setMatrix4("projection", glm::value_ptr(projection));
@@ -91,6 +93,11 @@ void processInput(GLFWwindow *window)
 }
 
 int main(int argc, char *argv[]) {
+  if (argc < 1) {
+    cout << "usage: load_model <model_name>" << endl;
+    return 0;
+  }
+  
   glfwInit();
   
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -105,19 +112,19 @@ int main(int argc, char *argv[]) {
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
 
   // 让窗口全屏显示
-  // GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-  // const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+  GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+  const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-  // glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-  // glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-  // glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-  // glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+  glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+  glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+  glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+  glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 
-  // WIN_WIDTH = mode->width;
-  // WIN_HEIGHT = mode->height;
+  WIN_WIDTH = mode->width;
+  WIN_HEIGHT = mode->height;
 
-  // GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, monitor, NULL);
-  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, monitor, NULL);
+  // GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, NULL, NULL);
   if (window == NULL)
   {
       cout << "Failed to create GLFW window" << endl;
@@ -139,11 +146,17 @@ int main(int argc, char *argv[]) {
     cout << "Failed to initialize GLAD" << endl;
     return -1;
   }
+  
+  stbi_set_flip_vertically_on_load(true);
 
   // shader source -> shader object -> shader program
   shader[IDX_OBJ] = new Shader("vertex_model.shader", "fragment_model.shader");
   camera = new Camera::Camera(0.0f);
-  Model nanosuit("nanosuit");
+
+  int model_count = argc-1;
+  Model **loading_models = new Model*[model_count];
+  for (int i=0; i<model_count; i++)
+    loading_models[i] = new Model(argv[i+1]);
 
   glEnable(GL_DEPTH_TEST);
   
@@ -158,25 +171,29 @@ int main(int argc, char *argv[]) {
     processInput(window);
 
     // render
-    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);       // 黑色空间
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);       // 黑色空间
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //////////////////////////////// render nanosuit
-    shader[IDX_OBJ]->use();
-    
-    glm::mat4 model = glm::mat4(1.0f);
-    // model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-    // model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
     glm::mat4 view = camera->GetViewMatrix();
     glm::mat4 projection(1.0f);
     projection = glm::perspective(glm::radians(camera->FieldOfView), (WIN_WIDTH*1.0f)/WIN_HEIGHT, 0.1f, 1000.0f);
-
-    shader[IDX_OBJ]->setMatrix4("model", glm::value_ptr(model));
     shader[IDX_OBJ]->setMatrix4("view", glm::value_ptr(view));
     shader[IDX_OBJ]->setMatrix4("projection", glm::value_ptr(projection));
 
-    nanosuit.Draw(shader[IDX_OBJ]);
+    //////////////////////////////// render loading_model
+    for (int i=0; i<model_count; i++) {
+      shader[IDX_OBJ]->use();
+      
+      glm::mat4 model = glm::mat4(1.0f);
+      float radius = 15.0f;
+      float lampX = sin(glm::radians(10.0f*i)) * radius;
+      float lampZ = cos(glm::radians(10.0f*i)) * radius;
+      model = glm::translate(model, glm::vec3(-lampX, -5.0f, -lampZ)); // translate it down so it's at the center of the scene
+      model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+      shader[IDX_OBJ]->setMatrix4("model", glm::value_ptr(model));
 
+      loading_models[i]->Draw(shader[IDX_OBJ]);
+    }
     glfwSwapBuffers(window);              // double buffer switch
     glfwPollEvents();                     // keyboard/mouse event
   }
@@ -184,6 +201,8 @@ int main(int argc, char *argv[]) {
   for (int i=0; i<BUFF_LEN; i++) {
     if (shader[i]) delete shader[i];
   }
+  for (int i=0; i<model_count; i++)
+    delete loading_models[i];
   delete camera;
 
   glfwTerminate();

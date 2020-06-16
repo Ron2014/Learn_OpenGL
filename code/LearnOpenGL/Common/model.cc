@@ -15,11 +15,7 @@ void Model::Draw(Shader *shader) {
 void Model::loadModel(string path){
     cout << "loadModel ------" << path.c_str() << endl;
     Assimp::Importer import;
-#ifdef CALC_TANGENT_SPACE
     const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);    
-#else
-    const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs); 
-#endif
 
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         cout << "ERROR::ASSIMP::" << import.GetErrorString() << endl;
@@ -35,12 +31,12 @@ void Model::loadModel(string path){
 }
 
 void Model::processNode(aiNode *node, const aiScene *scene) {
-  for(int i=0; i<node->mNumMeshes; i++) {
+  for(unsigned int i=0; i<node->mNumMeshes; i++) {
     aiMesh *aMesh = scene->mMeshes[node->mMeshes[i]];
     meshes.push_back(processMesh(aMesh, scene));
   }
   
-  for (int i=0; i<node->mNumChildren; i++)
+  for (unsigned int i=0; i<node->mNumChildren; i++)
     processNode(node->mChildren[i], scene);
 }
 
@@ -61,7 +57,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
     vertex.Normal.y = mesh->mNormals[i].y;
     vertex.Normal.z = mesh->mNormals[i].z;
 
-    if(mesh->HasTextureCoords(i)) {
+    if(mesh->mTextureCoords[0]) { // does the mesh contain texture coordinates?
       vertex.TexCoords.x = mesh->mTextureCoords[0][i].x;
       vertex.TexCoords.y = mesh->mTextureCoords[0][i].y;
     } else {
@@ -69,7 +65,6 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
       vertex.TexCoords.y = 0.0f;
     }
 
-#ifdef CALC_TANGENT_SPACE
     // tangent
     vertex.Tangent.x = mesh->mTangents[i].x;
     vertex.Tangent.y = mesh->mTangents[i].y;
@@ -78,32 +73,35 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
     vertex.Bitangent.x = mesh->mBitangents[i].x;
     vertex.Bitangent.y = mesh->mBitangents[i].y;
     vertex.Bitangent.z = mesh->mBitangents[i].z;
-#endif
 
     vertices.push_back(vertex);
   }
 
   // faces -> indices
-  for( int i=0; i<mesh->mNumFaces; i++) {
+  for( unsigned int i=0; i<mesh->mNumFaces; i++) {
     aiFace f = mesh->mFaces[i];
-    for (int j=0; j<f.mNumIndices; j++)
+    for (unsigned int j=0; j<f.mNumIndices; j++)
       indices.push_back(f.mIndices[j]);
   }
 
   // material
-  if (mesh->mMaterialIndex > 0) {
-    aiMaterial *m = scene->mMaterials[mesh->mMaterialIndex];
+  aiMaterial *m = scene->mMaterials[mesh->mMaterialIndex];
 
-    vector<Texture2D *> diffuseMaps = loadMaterialTextures(m, aiTextureType_DIFFUSE, "material.diffuse");
-    vector<Texture2D *> specularMaps = loadMaterialTextures(m, aiTextureType_SPECULAR, "material.specular");
-    vector<Texture2D *> normalMaps = loadMaterialTextures(m, aiTextureType_HEIGHT, "material.normal");    // 法线贴图, 用来表现凹凸面
-    vector<Texture2D *> heightMaps = loadMaterialTextures(m, aiTextureType_AMBIENT, "material.height");   // 高度贴图??? 和环境光有关???
+  vector<Texture2D *> diffuseMaps = loadMaterialTextures(m, aiTextureType_DIFFUSE, "material.diffuse");
+  if (diffuseMaps.size()) cout << "diffuse:" << diffuseMaps.size() << endl;
+  textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-    textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-    textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-  }
+  vector<Texture2D *> specularMaps = loadMaterialTextures(m, aiTextureType_SPECULAR, "material.specular");
+  if (specularMaps.size()) cout << "specular:" << specularMaps.size() << endl;
+  textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+
+  vector<Texture2D *> normalMaps = loadMaterialTextures(m, aiTextureType_HEIGHT, "material.normal");    // 法线贴图, 用来表现凹凸面
+  if (normalMaps.size()) cout << "normal:" << normalMaps.size() << endl;
+  textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+
+  vector<Texture2D *> heightMaps = loadMaterialTextures(m, aiTextureType_AMBIENT, "material.height");   // 高度贴图??? 和环境光有关???
+  if (heightMaps.size()) cout << "height:" << heightMaps.size() << endl;
+  textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
   return Mesh(vertices, indices, textures);
 }

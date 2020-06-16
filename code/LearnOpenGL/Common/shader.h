@@ -6,7 +6,7 @@ using namespace std;
 
 #define VERTEX_DEFAULT "vertex_default.shader"
 #define FRAGMENT_DEFAULT "fragment_default.shader"
-#define SHADER_PATH "E:\\GitHub\\Learn_OpenGL\\res\\shaders"
+#define SHADER_PATH "E:\\GitHub\\Learn_OpenGL\\res\\shaders\\"
 
 
 class Shader {

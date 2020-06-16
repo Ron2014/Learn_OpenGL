@@ -18,13 +18,10 @@ struct Vertex {
   vec3 Position;
   vec3 Normal;
   vec2 TexCoords;
-
-#ifdef CALC_TANGENT_SPACE
   // tangent
   vec3 Tangent;
   // bitangent
   vec3 Bitangent;
-#endif
 };
 
 class Mesh {

@@ -16,13 +16,12 @@ Texture2D::Texture2D(string texPath, string uniform_name, GLuint type, GLenum wr
   if (texPath.find("\\")==string::npos)
     texPath = TEXTURE_PATH + texPath;
 
-  cout << "load texture ------" << texPath.c_str() << endl;
   data = stbi_load(texPath.c_str(), &width, &height, &nrChannels, 0);
   if (data) {
     // note that the awesomeface.png has transparency and thus an alpha channel
     // so make sure to tell OpenGL the data type is of GL_RGBA
     // 如果不指定RGBA, png图片渲染不出来
-    GLint imgFmt = GL_RGB;
+    GLenum imgFmt = GL_RGB;
     if (nrChannels == 1)
         imgFmt = GL_RED;
     else if (nrChannels == 3)
@@ -30,8 +29,8 @@ Texture2D::Texture2D(string texPath, string uniform_name, GLuint type, GLenum wr
     else if (nrChannels == 4)
         imgFmt = GL_RGBA;
 
+    cout << "load texture ------" << texPath.c_str() << " " << nrChannels << endl;
     glBindTexture(GL_TEXTURE_2D, ID);
-
     glTexImage2D(GL_TEXTURE_2D, 0, imgFmt, width, height, 0, imgFmt, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -47,13 +46,11 @@ Texture2D::Texture2D(string texPath, string uniform_name, GLuint type, GLenum wr
 }
 
 Texture2D::~Texture2D() {
+  cout << "~Texture2D:" << ID << endl;
   if (ID) glDeleteTextures(1, &ID);
 }
 
 void Texture2D::use() {
-#ifdef __DEBUG_DRAW
-  cout << unitID << endl;
-#endif
   glActiveTexture(TEXTURE_UNIT_ID+GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, ID);
   TEXTURE_UNIT_ID ++;

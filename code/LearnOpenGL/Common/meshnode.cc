@@ -10,47 +10,80 @@ Mesh::Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices, 
   setupMesh();
 }
 
+/**
+ * 
+ * rendering
+ * 
+ * 绑定顺序是严格的:
+ * 1. 绑定顶点数组(属性)对象 VAO
+ * 2. 绑定顶点/索引缓冲 VBO/EBO
+ * 必须先绑定数组对象, 再绑定缓冲区
+ * 因为数组(属性)对象是对缓冲区字节数据分布的描述信息.
+ * 
+ * 解绑顺序是任意的的:
+ * 1. 解绑顶点数组(属性)对象 VAO
+ * 2. 解绑顶点/索引缓冲 VBO/EBO
+ * 数据都绘制完了, 用什么顺序解绑都无所谓了
+*/
 void Mesh::Draw(Shader *shader) {
 #ifdef __DEBUG_DRAW
   cout << "Mess draw ------" << indices.size() << endl;
 #endif
   map<unsigned int, unsigned int> texture_ids;
-  texture_ids[aiTextureType_DIFFUSE] = 0;
+  texture_ids[aiTextureType_DIFFUSE]  = 0;
   texture_ids[aiTextureType_SPECULAR] = 0;
-  texture_ids[aiTextureType_HEIGHT] = 0;
-  texture_ids[aiTextureType_AMBIENT] = 0;
+  texture_ids[aiTextureType_HEIGHT]   = 0;
+  texture_ids[aiTextureType_AMBIENT]  = 0;
 
-  int array_idx = 0;
-  for (Texture2D *tex : textures) {
-    int type_idx = texture_ids[tex->type]++;
+  for (unsigned int i=0; i<textures.size(); i++) {
+    Texture2D *tex = textures[i];
+    int num = texture_ids[tex->type]++;
+
 #ifdef __DEBUG_DRAW
-    cout << Texture2D::TEXTURE_UNIT_ID << " " << tex->uniform_name << type_idx << " " << array_idx << endl;
+    cout << Texture2D::TEXTURE_UNIT_ID << " " << tex->uniform_name << num << " " << i << endl;
 #endif
     tex->use();
-    shader->setInt(tex->uniform_name+to_string(type_idx), array_idx++);
+    shader->setInt(tex->uniform_name + to_string(num), i);
   }
   
   // 绘制网格
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  // 索引缓冲区都不需要绑定的, 只需要顶点属性缓冲区的绑定即可
   glBindVertexArray(VAO);
-  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-  // glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
-  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  // glBindVertexArray(0);
+  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
+  glBindVertexArray(0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
   // always good practice to set everything back to defaults once configured.
   Texture2D::reset();     // 位置0留空, 不绑定任何texture
 }
 
+/**
+ * 
+ * loading
+ * 
+ * 绑定顺序是任意的:
+ * 1. 绑定顶点数组(属性)对象 VAO
+ * 2. 绑定顶点/索引缓冲 VBO/EBO
+ * 前后均可
+ * 
+ * 解绑顺序是严格的:
+ * 1. 解绑顶点数组(属性)对象 VAO
+ * 2. 解绑顶点/索引缓冲 VBO/EBO
+ * 因为解绑调用的也是 glBindBuffer, 如果顺序不对, 会覆盖掉已经绑好的缓冲区
+*/
 void Mesh::setupMesh() {
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
 
   cout << "Mesh::setupMesh ------" << VAO << " " << VBO << " " << EBO << endl;
-  glBindVertexArray(VAO);   // -----------------
 
   // 数据导入缓冲区
+  glBindVertexArray(VAO);   // -----------------
+
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
@@ -67,7 +100,6 @@ void Mesh::setupMesh() {
   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
   glEnableVertexAttribArray(2);
 
-#ifdef CALC_TANGENT_SPACE
   // vertex tangent
   glEnableVertexAttribArray(3);
   glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
@@ -75,13 +107,14 @@ void Mesh::setupMesh() {
   // vertex bitangent
   glEnableVertexAttribArray(4);
   glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
-#endif
 
+  glBindVertexArray(0);     // -----------------
+  
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);     // -----------------
 }
 
+// Mesh::~Mesh() {
 void Mesh::Clean() { 
   cout << "Mesh::Clean ------" << VAO << " " << VBO << " " << EBO << endl;
   glDeleteVertexArrays(1, &VAO);
