@@ -106,7 +106,7 @@ void processInput(GLFWwindow *window)
 }
 
 int main(int argc, char *argv[]) {
-  if (argc < 1) {
+  if (argc < 2) {
     cout << "usage: model_in_lights <model_name>" << endl;
     return 0;
   }

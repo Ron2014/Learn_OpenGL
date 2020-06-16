@@ -1,5 +1,9 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <glad/glad.h>
 #include <string>
 using namespace std;
@@ -32,5 +36,8 @@ class Shader {
     void setUint(const string &name, unsigned int value, int idx=-1) const;
     void setFloat(const string &name, float value, int idx=-1) const;
     void setMatrix4(const string &name, GLfloat *value, int idx=-1) const;
+    void setMatrix4(const string &name, const glm::mat4 &mat4, int idx=-1) const;
     void setVec3(const string &name, GLfloat *value, int idx=-1) const;
+    void setVec3(const string &name, const glm::vec3 &value, int idx=-1) const;
+    void setVec4(const string &name, const glm::vec4 &value, int idx=-1) const;
 };

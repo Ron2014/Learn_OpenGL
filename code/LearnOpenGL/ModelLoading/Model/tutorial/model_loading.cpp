@@ -36,6 +36,10 @@ float lastFrame = 0.0f;
 
 int main(int argc, char *argv[])
 {
+    if (argc < 2) {
+        cout << "usage: model_in_lights <model_name>" << endl;
+        return 0;
+    }
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();

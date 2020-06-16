@@ -79,7 +79,9 @@ void Mesh::setupMesh() {
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
 
+#ifdef __DEBUG_LOAD
   cout << "Mesh::setupMesh ------" << VAO << " " << VBO << " " << EBO << endl;
+#endif
 
   // 数据导入缓冲区
 
@@ -117,7 +119,9 @@ void Mesh::setupMesh() {
 
 // Mesh::~Mesh() {
 void Mesh::Clean() { 
+#ifdef __DEBUG_LOAD
   cout << "Mesh::Clean ------" << VAO << " " << VBO << " " << EBO << endl;
+#endif
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);

@@ -21,7 +21,9 @@ class Model {
             loadModel(path, flip);
         }
         ~Model() {
+#ifdef __DEBUG_LOAD
             cout << "~Model:" << directory.substr(directory.find_last_of("\\")) << endl;
+#endif
             for (auto it : textures_loaded)
                 delete it.second;
             for (auto mesh : meshes)

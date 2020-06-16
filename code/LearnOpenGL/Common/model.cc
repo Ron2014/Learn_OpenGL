@@ -13,7 +13,9 @@ void Model::Draw(Shader *shader) {
 }
 
 void Model::loadModel(string path, bool flip){
+#ifdef __DEBUG_LOAD
     cout << "loadModel ------" << path.c_str() << endl;
+#endif
     Assimp::Importer import;
     GLenum aiProcess = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
     if (flip) aiProcess |= aiProcess_FlipUVs;
@@ -90,19 +92,27 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
   aiMaterial *m = scene->mMaterials[mesh->mMaterialIndex];
 
   vector<Texture2D *> diffuseMaps = loadMaterialTextures(m, aiTextureType_DIFFUSE, "material.diffuse");
+#ifdef __DEBUG_LOAD
   if (diffuseMaps.size()) cout << "diffuse:" << diffuseMaps.size() << endl;
+#endif
   textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
   vector<Texture2D *> specularMaps = loadMaterialTextures(m, aiTextureType_SPECULAR, "material.specular");
+#ifdef __DEBUG_LOAD
   if (specularMaps.size()) cout << "specular:" << specularMaps.size() << endl;
+#endif
   textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
   vector<Texture2D *> normalMaps = loadMaterialTextures(m, aiTextureType_HEIGHT, "material.normal");    // 法线贴图, 用来表现凹凸面
+#ifdef __DEBUG_LOAD
   if (normalMaps.size()) cout << "normal:" << normalMaps.size() << endl;
+#endif
   textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
   vector<Texture2D *> heightMaps = loadMaterialTextures(m, aiTextureType_AMBIENT, "material.height");   // 高度贴图??? 和环境光有关???
+#ifdef __DEBUG_LOAD
   if (heightMaps.size()) cout << "height:" << heightMaps.size() << endl;
+#endif
   textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
   return Mesh(vertices, indices, textures);

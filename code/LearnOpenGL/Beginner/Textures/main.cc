@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
   }
 
   // shader source -> shader object -> shader program
-  Shader shader("vertex_texture.shader", "fragment_texture.shader");
+  Shader shader("vertex_texture.shader", "fragment_texture_color.shader");
   Texture2D texture("container.jpg");
 
   float vertices[] = {

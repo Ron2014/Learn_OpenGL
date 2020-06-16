@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 
   // shader source -> shader object -> shader program
   // shader = new Shader("vertex_coordinate_trans.shader");
-  shader = new Shader("vertex_coordinate_trans.shader", "fragment_texture.shader");
+  shader = new Shader("vertex_coordinate_trans.shader", "fragment_texture_color.shader");
   Texture2D texture0("container.jpg");
   Texture2D texture1("awesomeface.png");
 

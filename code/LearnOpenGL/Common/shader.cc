@@ -172,8 +172,26 @@ void Shader::setMatrix4(const string &name, GLfloat *value, int idx) const {
     glUniformMatrix4fv(location, 1, GL_FALSE, value);
 }
 
+void Shader::setMatrix4(const string &name, const glm::mat4 &mat4, int idx) const {
+    int location = getUniformLocation(ID, name.c_str(), idx);
+    glUseProgram(ID);
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat4));
+}
+
 void Shader::setVec3(const string &name, GLfloat *value, int idx) const {
     int location = getUniformLocation(ID, name.c_str(), idx);
     glUseProgram(ID);
     glUniform3fv(location, 1, value);
+}
+
+void Shader::setVec3(const string &name, const glm::vec3 &value, int idx) const {
+    int location = getUniformLocation(ID, name.c_str(), idx);
+    glUseProgram(ID);
+    glUniform3fv(location, 1, glm::value_ptr(value));
+}
+
+void Shader::setVec4(const string &name, const glm::vec4 &value, int idx) const {
+    int location = getUniformLocation(ID, name.c_str(), idx);
+    glUseProgram(ID);
+    glUniform4fv(location, 1, glm::value_ptr(value));
 }

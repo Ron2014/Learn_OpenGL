@@ -29,7 +29,9 @@ Texture2D::Texture2D(string texPath, string uniform_name, GLuint type, GLenum wr
     else if (nrChannels == 4)
         imgFmt = GL_RGBA;
 
+#ifdef __DEBUG_LOAD
     cout << "load texture ------" << texPath.c_str() << " " << nrChannels << endl;
+#endif
     glBindTexture(GL_TEXTURE_2D, ID);
     glTexImage2D(GL_TEXTURE_2D, 0, imgFmt, width, height, 0, imgFmt, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -46,7 +48,9 @@ Texture2D::Texture2D(string texPath, string uniform_name, GLuint type, GLenum wr
 }
 
 Texture2D::~Texture2D() {
+#ifdef __DEBUG_LOAD
   cout << "~Texture2D:" << ID << endl;
+#endif
   if (ID) glDeleteTextures(1, &ID);
 }
 
