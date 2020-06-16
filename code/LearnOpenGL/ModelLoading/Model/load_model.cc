@@ -7,6 +7,7 @@ using namespace std;
 #include "stb_image.h"
 
 #include <vector>
+#include <map>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -21,6 +22,9 @@ enum {
   IDX_OBJ,
   BUFF_LEN,
 };
+
+// 不知为何 backpack的贴图没有Y方向颠倒, 这省去了flip操作.
+map<string, bool> flips = { {"nanosuit", true}, {"backpack", false} };
 
 unsigned int WIN_WIDTH = 800;
 unsigned int WIN_HEIGHT = 600;
@@ -112,6 +116,7 @@ int main(int argc, char *argv[]) {
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
 
   // 让窗口全屏显示
+#ifdef FULL_SCREEN
   GLFWmonitor *monitor = glfwGetPrimaryMonitor();
   const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
@@ -124,7 +129,9 @@ int main(int argc, char *argv[]) {
   WIN_HEIGHT = mode->height;
 
   GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, monitor, NULL);
-  // GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, NULL, NULL);
+#else
+  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, NULL, NULL);
+#endif
   if (window == NULL)
   {
       cout << "Failed to create GLFW window" << endl;
@@ -146,8 +153,6 @@ int main(int argc, char *argv[]) {
     cout << "Failed to initialize GLAD" << endl;
     return -1;
   }
-  
-  stbi_set_flip_vertically_on_load(true);
 
   // shader source -> shader object -> shader program
   shader[IDX_OBJ] = new Shader("vertex_model.shader", "fragment_model.shader");
@@ -156,7 +161,7 @@ int main(int argc, char *argv[]) {
   int model_count = argc-1;
   Model **loading_models = new Model*[model_count];
   for (int i=0; i<model_count; i++)
-    loading_models[i] = new Model(argv[i+1]);
+    loading_models[i] = new Model(argv[i+1], flips[argv[i+1]]);
 
   glEnable(GL_DEPTH_TEST);
   

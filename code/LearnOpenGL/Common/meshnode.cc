@@ -82,8 +82,9 @@ void Mesh::setupMesh() {
   cout << "Mesh::setupMesh ------" << VAO << " " << VBO << " " << EBO << endl;
 
   // 数据导入缓冲区
-  glBindVertexArray(VAO);   // -----------------
 
+  glBindVertexArray(VAO);   // -----------------
+  
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 

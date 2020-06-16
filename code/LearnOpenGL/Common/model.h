@@ -12,13 +12,13 @@ using namespace std;
 class Model {
     public:
         /*  函数   */
-        Model(string path) {
+        Model(string path, bool flip=true) {
             if (path.find("\\")==string::npos) {
                 char tmp[256];
                 sprintf(tmp, "%s%s\\%s.obj", MODEL_PATH, path.c_str(), path.c_str());
                 path = tmp;
             }
-            loadModel(path);
+            loadModel(path, flip);
         }
         ~Model() {
             cout << "~Model:" << directory.substr(directory.find_last_of("\\")) << endl;
@@ -34,7 +34,7 @@ class Model {
         map<string, Texture2D *> textures_loaded;
         string directory;
         /*  函数   */
-        void loadModel(string path);
+        void loadModel(string path, bool flip);
         void processNode(aiNode *node, const aiScene *scene);
         Mesh processMesh(aiMesh *mesh, const aiScene *scene);
         vector<Texture2D *> loadMaterialTextures(aiMaterial *mat, aiTextureType type, 

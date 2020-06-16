@@ -12,10 +12,12 @@ void Model::Draw(Shader *shader) {
   }
 }
 
-void Model::loadModel(string path){
+void Model::loadModel(string path, bool flip){
     cout << "loadModel ------" << path.c_str() << endl;
     Assimp::Importer import;
-    const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);    
+    GLenum aiProcess = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
+    if (flip) aiProcess |= aiProcess_FlipUVs;
+    const aiScene *scene = import.ReadFile(path, aiProcess);    
 
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         cout << "ERROR::ASSIMP::" << import.GetErrorString() << endl;

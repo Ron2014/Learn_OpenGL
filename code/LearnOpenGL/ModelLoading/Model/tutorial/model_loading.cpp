@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <map>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -10,6 +11,9 @@
 #include "model.h"
 
 #include <iostream>
+
+// 不知为何 backpack的贴图没有Y方向颠倒, 这省去了flip操作.
+map<string, bool> flips = { {"nanosuit", true}, {"backpack", false} };
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -81,8 +85,10 @@ int main(int argc, char *argv[])
 
     // load models
     // -----------
-    Model ourModel(argv[1]);
-
+    int model_count = argc-1;
+    Model **loading_models = new Model*[model_count];
+    for (int i=0; i<model_count; i++)
+        loading_models[i] = new Model(argv[i+1], flips[argv[i+1]]);
     
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -107,20 +113,25 @@ int main(int argc, char *argv[])
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // don't forget to enable shader before setting uniforms
-        ourShader.use();
+        for (int i=0; i<model_count; i++) {
+            ourShader.use();
 
-        // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
+            // view/projection transformations
+            glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+            glm::mat4 view = camera.GetViewMatrix();
+            ourShader.setMat4("projection", projection);
+            ourShader.setMat4("view", view);
 
-        // render the loaded model
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+            // render the loaded model
+            glm::mat4 model = glm::mat4(1.0f);
+            float radius = 5.0f;
+            float lampX = sin(glm::radians(10.0f*i)) * radius;
+            float lampZ = cos(glm::radians(10.0f*i)) * radius;
+            model = glm::translate(model, glm::vec3(-lampX, -5.0f, -lampZ)); // translate it down so it's at the center of the scene
+            model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+            ourShader.setMat4("model", model);
+            loading_models[i]->Draw(ourShader);
+        }
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -128,6 +139,9 @@ int main(int argc, char *argv[])
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    for (int i=0; i<model_count; i++)
+        delete loading_models[i];
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------

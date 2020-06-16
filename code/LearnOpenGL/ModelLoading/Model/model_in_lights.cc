@@ -7,6 +7,7 @@ using namespace std;
 #include "camera.h"
 
 #include <vector>
+#include <map>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -35,6 +36,9 @@ const char *cube_texture_data[TEX_COUNT][2] = {
   {"container2_specular.png", "material.specular"},
   {"matrix.jpg", "material.emission"},
 };
+
+// 不知为何 backpack的贴图没有Y方向颠倒, 这省去了flip操作.
+map<string, bool> flips = { {"nanosuit", true}, {"backpack", false} };
 
 unsigned int WIN_WIDTH = 800;
 unsigned int WIN_HEIGHT = 600;
@@ -122,19 +126,22 @@ int main(int argc, char *argv[]) {
   // 我们只会用到OpenGL的子集，无需向后兼容的特性
 
   // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
-  // GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-  // const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+#ifdef FULL_SCREEN
+  GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+  const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-  // glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-  // glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-  // glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-  // glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+  glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+  glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+  glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+  glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 
-  // WIN_WIDTH = mode->width;
-  // WIN_HEIGHT = mode->height;
+  WIN_WIDTH = mode->width;
+  WIN_HEIGHT = mode->height;
 
-  // GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, monitor, NULL);
+  GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, monitor, NULL);
+#else
   GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, __FILE__, NULL, NULL);
+#endif
   if (window == NULL)
   {
       cout << "Failed to create GLFW window" << endl;
@@ -288,7 +295,7 @@ int main(int argc, char *argv[]) {
   int model_count = argc-1;
   Model **loading_models = new Model*[model_count];
   for (int i=0; i<model_count; i++)
-    loading_models[i] = new Model(argv[i+1]);
+    loading_models[i] = new Model(argv[i+1], flips[argv[i+1]]);
 
   unsigned int VBO[BUFF_LEN], VAO[BUFF_LEN];
   glGenVertexArrays(BUFF_LEN, VAO);      // 第二个参数实际上表示一个数组, 第一个参数表示数组大小.
