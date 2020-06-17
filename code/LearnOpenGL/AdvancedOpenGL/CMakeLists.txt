@@ -44,3 +44,32 @@ fips_vs_disable_warnings(4819)
 fips_files_ex(StencilTesting model_behind.cc GROUP "SOURCES")
 fips_deps(Common)
 fips_end_app()
+
+fips_begin_app(ModelOutlineD cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(StencilTesting/decompose *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+## Blending
+
+fips_begin_app(BlendingGrass cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(Blending/grass *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(BlendingGlass cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(Blending/glass *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+## Face Culling
+
+fips_begin_app(FaceCulling cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(FaceCulling/glass *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
