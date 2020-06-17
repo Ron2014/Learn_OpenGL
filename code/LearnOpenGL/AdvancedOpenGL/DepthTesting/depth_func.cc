@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
 
     // load textures
     // -------------
-    Texture2D textures[TEX_NUM] = {"container.jpg", "wall.jpg"};
+    Texture2D textures[TEX_NUM] = {"marble.jpg", "metal.png"};
 
     // shader configuration
     // --------------------
