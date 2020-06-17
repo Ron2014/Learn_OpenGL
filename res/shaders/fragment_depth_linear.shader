@@ -3,6 +3,8 @@ out vec4 FragColor;
 
 uniform float near; 
 uniform float far; 
+uniform float SCR_WIDTH;
+uniform float SCR_HEIGHT;
 
 float LinearizeDepth(float depth) 
 {
@@ -33,5 +35,6 @@ void main()
 {             
     // float depth = LinearizeDepth(gl_FragCoord.z) / far; // 为了演示除以 far
     float depth = Linearize(gl_FragCoord.z);
-    FragColor = vec4(vec3(depth), 1.0);
+    // FragColor = vec4(vec3(depth), 1.0);
+    FragColor = vec4(gl_FragCoord.x/SCR_WIDTH, gl_FragCoord.y/SCR_HEIGHT, depth, 1.0);
 }

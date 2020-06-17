@@ -163,7 +163,8 @@ int main(int argc, char *argv[]) {
   // shader source -> shader object -> shader program
   shader[IDX_LAMP] = new Shader("vertex_lighted.shader", "fragment_lamp.shader");
   shader[IDX_CUBE] = new Shader("vertex_specular.shader", "fragment_multiple_lights.shader");
-  shader[IDX_OUTLINE] = new Shader("vertex_specular.shader", "fragment_color.shader");
+  shader[IDX_OUTLINE] = new Shader("vertex_back_facing.shader", "fragment_color.shader");
+  // shader[IDX_OUTLINE] = new Shader("vertex_specular.shader", "fragment_color.shader");
   shader[IDX_MODEL] = new Shader("vertex_specular.shader", "fragment_model_in_lights.shader");
 
   shader[IDX_OUTLINE]->setVec4("color", vec4(0.04f, 0.28f, 0.26f, 1.0f));
@@ -329,6 +330,11 @@ int main(int argc, char *argv[]) {
   
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_STENCIL_TEST);
+
+  // 填充模板缓冲区(绘制物体的片段全部为1)
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  glStencilMask(0xFF); // 启用模板缓冲写入
+  glStencilFunc(GL_ALWAYS, 1, 0xFF); // 所有的片段都应该更新模板缓冲
   
   // render loop:
   while(!glfwWindowShouldClose(window))
@@ -382,6 +388,15 @@ int main(int argc, char *argv[]) {
       shader[i]->setMatrix4("view", glm::value_ptr(view));
     }
     
+    /**
+     * 我们在上方(或上一帧)开启了模板测试方式GL_ALWAYS
+     * 理论上, 下面模型渲染的片段区域会填充为1
+     * 但这并不会对逻辑造成影响
+     * 
+     * 因为我们描边使用的使用的是箱子的顶点位置和法线
+     * 而且是通过 GL_NOTEQUAL 1 的方式
+     * 天然避开了模型的片段
+    */
     //////////////////////////////// render loading_model
     for (int i=0; i<model_count; i++)
     {
@@ -398,14 +413,9 @@ int main(int argc, char *argv[]) {
       loading_models[i]->Draw(shader[IDX_MODEL]);
       Texture2D::reset();                  // use 完之后记得重置
     }
-    
+
     //////////////////////////////// render CUBE
     {
-      // 填充模板缓冲区(绘制物体的片段全部为1)
-      glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-      glStencilFunc(GL_ALWAYS, 1, 0xFF); // 所有的片段都应该更新模板缓冲
-      glStencilMask(0xFF); // 启用模板缓冲写入
-
       shader[IDX_CUBE]->use();
       for (int i=0; i<TEX_COUNT; i++)
         cube_texture[i]->use();                // 创建了 texture 但是忘记 use，就看不到高光效果了
@@ -425,11 +435,35 @@ int main(int argc, char *argv[]) {
     
     //////////////////////////////// render OUTLINE
     {
-      // 放大物体为原来1.1倍
-      // 不等于1的部分(非物体部分才会测试通过)
-      // 同时不需要考虑Z缓冲, 没有深度, 保证绘制的像素覆盖已绘制的像素
+      /**
+       * 放大物体为原来1.1倍
+       * 不等于1的部分(非物体部分才会测试通过)
+       *
+       * 缩放的方式并不能保证表面被覆盖, 因为每个顶点在设计时(模型文件中)都已经存在了偏移位置(顶点坐标)
+       * 缩放会导致偏移也会缩放. 而且缩放影子对于不同大小的模型, 会对应不同的描边厚度.
+       * 正确的做法是将顶点坐标和法线方向做偏移, 就能将描边厚度具体的值(偏移的模).
+       * 
+       * 关掉Z缓冲(深度测试)的结果是:
+       * 描边的片段不会去做深度测试, 更不会修改深度缓冲区的值.
+       * 
+       * 这就导致有非描边的片段可以(ALWAYS通过所有模板缓冲且按照深度测试)正常绘制
+       * 也就是说: 描边片段仅按照模板缓冲绘制(因为此时深度测试关掉了), 非描边片段仅按照深度测试绘制(因为此时模板缓冲全部通过)
+       * 
+       * 最终效果就是: 描边像一层光圈一样覆盖在物体表面, 但是这个光本身不会和任何颜色混合, 它会优先被颜色片段覆盖.
+       */
       glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-      glStencilMask(0x00); // 禁止模板缓冲的写入
+      /**
+       * 为什么要禁止模板写入呢?
+       * 测试通过时写入, 会增加模板缓冲区1的范围, 描边的区域也添加进去了
+       * 这会增加后续 NOTEQUAL 1 的命中率, 过滤掉多余的计算(先模板测试, 才会有深度测试)
+       * 因为 NOTEQUAL 1 仅对描边操作(后面会解释对于非描边片段会打开GL_NOTEQUAL)
+       * 
+       * 这表示当遇到非描边片段和已经绘制的描边片段, 我们都不需要再考虑描边了:
+       * 前者有优先渲染权(覆盖), 后者也不需要考虑(描边颜色是单色, 没有颜色混合的操作)
+       * 而这个片段范围, 刚好可以被[开启模板缓冲写入的模板缓冲区]所描述.
+       * 所以此处根本没有禁用写入的需要哇!
+       */
+      // glStencilMask(0x00); // 禁止模板缓冲的写入
       glDisable(GL_DEPTH_TEST);
 
       shader[IDX_OUTLINE]->use();
@@ -439,19 +473,43 @@ int main(int argc, char *argv[]) {
         glm::mat4 model(1.0f);
         model = glm::translate(model, pos);
         model = glm::rotate(model, (float)glfwGetTime()+20.0f*(i+1), glm::vec3(0.5f, 1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(1.1f));
+        // model = glm::scale(model, glm::vec3(1.1f));
         shader[IDX_OUTLINE]->setMatrix4("model", glm::value_ptr(model));
         glDrawArrays(GL_TRIANGLES, 0, 36);
       }
-
       Texture2D::reset();                   // use 完之后记得重置
       
-      // 不加这一句, glStencilFunc(GL_NOTEQUAL, 1, 0xFF);依然奏效, 会存在测试不通过的情况, 片段会被丢弃
-      glStencilFunc(GL_ALWAYS, 1, 0xFF); // 所有的片段都应该更新模板缓冲
-      glStencilMask(0xFF);
+      /**
+       * 不加这一句, 上面的glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+       * 依然奏效, 模板缓冲区在下一帧刷新(全为0)之后, 渲染模型时, 只会渲染模板值为[0, 1.0)的片段
+       * 模板值为1.0的片段会被丢弃(看上去像是挖去了一些顶点)
+       * 除非在清理缓冲之后, 立即指定 glStencilFunc(GL_ALWAYS, 1, 0xFF); 让所有的片段都应该更新模板缓冲
+       * 但是这依然有问题, 如果模型渲染在这一帧的后面, 还是会因为模板测试过滤掉.
+       * 所以此处必须将ALWAYS打开
+       */
+      glStencilFunc(GL_ALWAYS, 1, 0xFF);
+      // glStencilMask(0xFF);
       glEnable(GL_DEPTH_TEST);  // 后面的继续做深度测试
     }
 
+/*    
+    //////////////////////////////// render loading_model
+    for (int i=0; i<model_count; i++)
+    {
+      shader[IDX_MODEL]->use();
+
+      glm::mat4 model = glm::mat4(1.0f);
+      float radius = 10.0f;
+      float lampX = sin(glm::radians(10.0f*i)) * radius;
+      float lampZ = cos(glm::radians(10.0f*i)) * radius;
+      model = glm::translate(model, glm::vec3(-lampX, -5.0f, -lampZ)); // translate it down so it's at the center of the scene
+      model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+      shader[IDX_MODEL]->setMatrix4("model", glm::value_ptr(model));
+
+      loading_models[i]->Draw(shader[IDX_MODEL]);
+      Texture2D::reset();                  // use 完之后记得重置
+    }
+*/
     //////////////////////////////// render point light
     {
       shader[IDX_LAMP]->use();

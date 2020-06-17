@@ -3,12 +3,59 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
-void Model::Draw(Shader *shader) {
+Shader *Model::borderShader = nullptr;
+
+Model::Model(string path, bool flip):border(false),centerPos(glm::vec3(0.0f)),mesh_count(0)  {
+  if (path.find("\\")==string::npos) {
+      char tmp[256];
+      sprintf(tmp, "%s%s\\%s.obj", MODEL_PATH, path.c_str(), path.c_str());
+      path = tmp;
+  }
+  loadModel(path, flip);
+}
+
+Model::~Model() {
+#ifdef __DEBUG_LOAD
+  cout << "~Model:" << directory.substr(directory.find_last_of("\\")) << endl;
+#endif
+  for (auto it : textures_loaded)
+      delete it.second;
+  for (auto mesh : meshes)
+      mesh.Clean();
+}
+
+void Model::ShowBorder(bool visible) {
+  border = visible;
+}
+
+void Model::Draw(Shader *shader, glm::mat4 *model) {
 #ifdef __DEBUG_DRAW
   cout << "Model draw ======" << endl;
 #endif
-  for (Mesh m : meshes) {
+  if (border && model) {
+#ifdef OUTLINE_DEPTH
+    glClear(GL_STENCIL_BUFFER_BIT);
+#endif
+  }
+
+  for (Mesh m : meshes)
     m.Draw(shader);
+
+  if (border && model) {
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);      // 缓冲区取反
+#ifndef OUTLINE_DEPTH
+    glDisable(GL_DEPTH_TEST);
+#endif
+
+    borderShader->use();
+    borderShader->setMatrix4("model", glm::value_ptr(*model));
+    for (Mesh m : meshes)
+      m.Draw(borderShader);
+
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+#ifndef OUTLINE_DEPTH
+    glEnable(GL_DEPTH_TEST);
+#endif 
   }
 }
 
@@ -32,6 +79,7 @@ void Model::loadModel(string path, bool flip){
       directory = path.substr(0, path.find_last_of('\\'));
 
     processNode(scene->mRootNode, scene);
+    if (mesh_count) centerPos /= mesh_count;
 }
 
 void Model::processNode(aiNode *node, const aiScene *scene) {
@@ -48,7 +96,11 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
   vector<Vertex> vertices;
   vector<unsigned int> indices;
   vector<Texture2D *> textures;
+  glm::vec3 center(0.0f);
 
+#ifdef __DEBUG_LOAD
+    float mark = 1.0f;
+#endif
   // vertex attributes
   for (int i=0; i<mesh->mNumVertices; i++) {
     Vertex vertex;
@@ -56,6 +108,23 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
     vertex.Position.x = mesh->mVertices[i].x;
     vertex.Position.y = mesh->mVertices[i].y;
     vertex.Position.z = mesh->mVertices[i].z;
+
+    center += vertex.Position;
+
+#ifdef __DEBUG_LOAD
+    bool show = false;
+    if (vertex.Position.x < -mark || vertex.Position.x > mark) {
+        show = true;
+        mark = glm::abs(vertex.Position.x);
+    } else if (vertex.Position.y < -mark || vertex.Position.y > mark) {
+        show = true;
+        mark = glm::abs(vertex.Position.y);
+    } else if (vertex.Position.z < -mark || vertex.Position.x > mark) {
+        show = true;
+        mark = glm::abs(vertex.Position.z);
+    }
+    if (show) cout << vertex.Position.x << " " << vertex.Position.y << " " << vertex.Position.z << endl;
+#endif
 
     vertex.Normal.x = mesh->mNormals[i].x;
     vertex.Normal.y = mesh->mNormals[i].y;
@@ -80,6 +149,9 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 
     vertices.push_back(vertex);
   }
+  if (mesh->mNumVertices) center /= mesh->mNumVertices;
+  centerPos += center;
+  mesh_count ++;
 
   // faces -> indices
   for( unsigned int i=0; i<mesh->mNumFaces; i++) {
@@ -115,7 +187,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 #endif
   textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-  return Mesh(vertices, indices, textures);
+  return Mesh(vertices, indices, textures, center);
 }
 
 vector<Texture2D *> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName) {

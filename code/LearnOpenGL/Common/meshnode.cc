@@ -2,7 +2,7 @@
 #include <assimp/material.h>
 #include <map>
 
-Mesh::Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices, const vector<Texture2D *> &textures) {
+Mesh::Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices, const vector<Texture2D *> &textures, const vec3 &center):centerPos(center) {
   this->vertices = vertices;
   this->indices = indices;
   this->textures = textures;

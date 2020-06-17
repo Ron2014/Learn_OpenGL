@@ -197,6 +197,8 @@ int main(int argc, char *argv[]) {
         glm::mat4 projection = glm::perspective(glm::radians(camera.FieldOfView), (float)SCR_WIDTH /glm::max((float)SCR_HEIGHT,0.01f), 0.1f, 100.0f);
         shader.setMatrix4("view", view);
         shader.setMatrix4("projection", projection);
+        shader.setFloat("SCR_WIDTH", float(SCR_WIDTH));
+        shader.setFloat("SCR_HEIGHT", float(SCR_HEIGHT));
 
         // cubes
         glBindVertexArray(cubeVAO);

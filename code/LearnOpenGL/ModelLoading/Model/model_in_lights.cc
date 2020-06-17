@@ -1,6 +1,8 @@
 #include <iostream>
 using namespace std;
 
+#define FULL_SCREEN
+
 #include "model.h"
 #include "shader.h"
 #include "texture2d.h"

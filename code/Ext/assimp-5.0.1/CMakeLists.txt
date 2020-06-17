@@ -1,4 +1,5 @@
 SET ( ASSIMP_BUILD_TESTS OFF CACHE INTERNAL "If the test suite for Assimp is built in addition to the library.")
+SET ( ASSIMP_BUILD_SAMPLES OFF CACHE INTERNAL "If the official samples are built as well (needs Glut).")
 SET ( INJECT_DEBUG_POSTFIX OFF CACHE INTERNAL "Inject debug postfix in .a/.so/.dll lib names")
 # Open Asset Import Library (assimp)
 # ----------------------------------------------------------------------

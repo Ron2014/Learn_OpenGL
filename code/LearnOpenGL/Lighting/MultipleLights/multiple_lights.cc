@@ -1,6 +1,8 @@
 #include <iostream>
 using namespace std;
 
+#define FULL_SCREEN
+
 #include "shader.h"
 #include "texture2d.h"
 #include "camera.h"

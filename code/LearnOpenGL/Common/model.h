@@ -12,29 +12,21 @@ using namespace std;
 class Model {
     public:
         /*  函数   */
-        Model(string path, bool flip=true) {
-            if (path.find("\\")==string::npos) {
-                char tmp[256];
-                sprintf(tmp, "%s%s\\%s.obj", MODEL_PATH, path.c_str(), path.c_str());
-                path = tmp;
-            }
-            loadModel(path, flip);
-        }
-        ~Model() {
-#ifdef __DEBUG_LOAD
-            cout << "~Model:" << directory.substr(directory.find_last_of("\\")) << endl;
-#endif
-            for (auto it : textures_loaded)
-                delete it.second;
-            for (auto mesh : meshes)
-                mesh.Clean();
-        }
-        void Draw(Shader *shader);   
+        Model(string path, bool flip=true);
+        ~Model();
+        void Draw(Shader *shader, glm::mat4 *model=NULL);
+        void ShowBorder(bool visible=true);
+        static Shader *borderShader;
     private:
+
         /*  模型数据  */
         vector<Mesh> meshes;
         map<string, Texture2D *> textures_loaded;
         string directory;
+        glm::vec3 centerPos;
+        int mesh_count;
+        bool border;
+
         /*  函数   */
         void loadModel(string path, bool flip);
         void processNode(aiNode *node, const aiScene *scene);

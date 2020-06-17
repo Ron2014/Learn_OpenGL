@@ -20,10 +20,11 @@ using namespace std;
 enum {
   IDX_LAMP,
   IDX_CUBE,
-  IDX_OUTLINE,
   IDX_MODEL,
+  IDX_OUTLINE,
   SHADER_NUM,
 };
+Shader *shader[SHADER_NUM];
 
 int OBJ_IDXS[] = {IDX_CUBE, IDX_MODEL};
 
@@ -46,7 +47,6 @@ map<string, bool> flips = { {"nanosuit", true}, {"backpack", false} };
 unsigned int WIN_WIDTH = 800;
 unsigned int WIN_HEIGHT = 600;
 
-Shader *shader[SHADER_NUM];
 Camera::Camera *camera;
 
 float deltaTime = 0.0f;
@@ -163,7 +163,7 @@ int main(int argc, char *argv[]) {
   // shader source -> shader object -> shader program
   shader[IDX_LAMP] = new Shader("vertex_lighted.shader", "fragment_lamp.shader");
   shader[IDX_CUBE] = new Shader("vertex_specular.shader", "fragment_multiple_lights.shader");
-  shader[IDX_OUTLINE] = new Shader("vertex_specular.shader", "fragment_color.shader");
+  shader[IDX_OUTLINE] = new Shader("vertex_back_facing.shader", "fragment_color.shader");
   shader[IDX_MODEL] = new Shader("vertex_specular.shader", "fragment_model_in_lights.shader");
 
   shader[IDX_OUTLINE]->setVec4("color", vec4(0.04f, 0.28f, 0.26f, 0.5f));
@@ -329,6 +329,11 @@ int main(int argc, char *argv[]) {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_STENCIL_TEST);
   
+  // 填充模板缓冲区(绘制物体的片段全部为1)
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  glStencilFunc(GL_ALWAYS, 1, 0xFF); // 所有的片段都应该更新模板缓冲
+  glStencilMask(0xFF); // 启用模板缓冲写入
+  
   // render loop:
   while(!glfwWindowShouldClose(window))
   {
@@ -394,7 +399,7 @@ int main(int argc, char *argv[]) {
       model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
       shader[IDX_MODEL]->setMatrix4("model", glm::value_ptr(model));
 
-      loading_models[i]->Draw(shader[IDX_MODEL]);
+      loading_models[i]->Draw(shader[IDX_MODEL], &model);
       Texture2D::reset();                  // use 完之后记得重置
     }
     
@@ -402,11 +407,18 @@ int main(int argc, char *argv[]) {
     {
       // 填充模板缓冲区(绘制物体的片段全部为1)
       glBindVertexArray(VAO[IDX_CUBE]);
-      for (int i=0; i<(sizeof(cubePositions)/sizeof(glm::vec3)); i++) {
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF); // 所有的片段都应该更新模板缓冲
-        glStencilMask(0xFF); // 启用模板缓冲写入
 
+      /**
+       * 具有深度的轮廓:
+       * 
+       * 就不需要动深度测试的开关(保持开启).
+       * 其效果就像是, 在箱子箱子被一层光圈包裹. 这层光圈会完全遮挡住(被包裹的)箱子后面的物体
+       */
+      for (int i=0; i<(sizeof(cubePositions)/sizeof(glm::vec3)); i++) {
+        // fill buffer
+        glClear(GL_STENCIL_BUFFER_BIT); // 必须要清理缓冲区, 让一切从0开始, 正常填充一个箱子的片段区域
+
+        // cube
         shader[IDX_CUBE]->use();
         for (int i=0; i<TEX_COUNT; i++)
           cube_texture[i]->use();                // 创建了 texture 但是忘记 use，就看不到高光效果了
@@ -418,21 +430,21 @@ int main(int argc, char *argv[]) {
         shader[IDX_CUBE]->setMatrix4("model", glm::value_ptr(model));
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00); // 禁止模板缓冲的写入
+        // filter by buffer
+        // outline
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);      // GL_NOTEQUAL 有点异或的味道
+        // glStencilMask(0x00); // 禁止模板缓冲的写入
         
         shader[IDX_OUTLINE]->use();
-        model = glm::scale(model, glm::vec3(1.1f));
         shader[IDX_OUTLINE]->setMatrix4("model", glm::value_ptr(model));
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        glStencilMask(0xFF);
-        glClear(GL_STENCIL_BUFFER_BIT);
+        // 继续保持填充
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        // glStencilMask(0xFF);
       }
 
       Texture2D::reset();                   // use 完之后记得重置
-      // 不加这一句, glStencilFunc(GL_NOTEQUAL, 1, 0xFF);依然奏效, 会存在测试不通过的情况, 片段会被丢弃
-      glStencilFunc(GL_ALWAYS, 1, 0xFF); // 所有的片段都应该更新模板缓冲
     }
 
     //////////////////////////////// render point light

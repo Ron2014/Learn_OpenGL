@@ -31,12 +31,13 @@ class Mesh {
         vector<unsigned int> indices;
         vector<Texture2D *> textures;
         /*  函数  */
-        Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices, const vector<Texture2D *> &textures);
+        Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices, const vector<Texture2D *> &textures, const vec3 &center);
         void Draw(Shader *shader);
         void Clean();
     private:
         /*  渲染数据  */
         unsigned int VAO, VBO, EBO;
+        vec3 centerPos;
         /*  函数  */
         void setupMesh();
 };  
