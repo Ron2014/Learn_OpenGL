@@ -1,5 +1,5 @@
-#include "texture2d.h"
 #include "stb_image.h"
+#include "texture2d.h"
 #include "shader.h"
 
 #include <iostream>
@@ -71,4 +71,61 @@ void Texture2D::use() {
 void Texture2D::reset() {
   Texture2D::TEXTURE_UNIT_ID = 0;
   glActiveTexture(GL_TEXTURE0);
+}
+
+const char *faces[FACE_SIZE] = {
+  "right.jpg",
+  "left.jpg",
+  "top.jpg",
+  "bottom.jpg",
+  "front.jpg",
+  "back.jpg",
+};
+
+Cubemaps::Cubemaps(string texPath, string uniform_name, GLuint type, GLenum wrapping, GLenum minFilter, GLenum magFilter): type(type), uniform_name(uniform_name) {
+  // 生成Texture并指定模式, 要放在文件加载之前.
+  // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work
+  if (texPath.find("\\")==string::npos)
+    texPath = CUBEMAPS_PATH + texPath;
+
+  glGenTextures(1, &ID);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
+
+  int width, height, nrChannels;
+  for (unsigned int i = 0; i < FACE_SIZE; i++)
+  {
+      string fullpath = texPath + '\\' + faces[i];
+      unsigned char *data = stbi_load( fullpath.c_str(), &width, &height, &nrChannels, 0);
+      if (data)
+      {
+          glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
+                        0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+          stbi_image_free(data);
+      }
+      else
+      {
+          std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+          stbi_image_free(data);
+      }
+  }
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, wrapping);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, wrapping);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, wrapping);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, minFilter);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, magFilter);
+}
+
+Cubemaps::~Cubemaps() {
+#ifdef __DEBUG_LOAD
+  cout << "~Cubemaps:" << ID << endl;
+#endif
+  if (ID) glDeleteTextures(1, &ID);
+}
+
+void Cubemaps::use() {
+  glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
+}
+
+void Cubemaps::reset() {
+  glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }

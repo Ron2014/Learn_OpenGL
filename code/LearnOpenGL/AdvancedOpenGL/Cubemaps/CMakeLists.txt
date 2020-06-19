@@ -1,0 +1,17 @@
+fips_begin_app(Skybox cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(skybox *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(SkyboxReflect cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(skybox_reflect *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(SkyboxRefract cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(skybox_refract *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()

@@ -76,3 +76,6 @@ fips_end_app()
 ##
 fips_add_subdirectory(Framebuffers)
 
+##
+fips_add_subdirectory(Cubemaps)
+
