@@ -12,7 +12,6 @@ Texture2D::Texture2D(string texPath, string uniform_name, GLuint type, GLenum wr
   // 生成Texture并指定模式, 要放在文件加载之前.
   // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work
   glGenTextures(1, &ID);
-
   if (texPath.find("\\")==string::npos)
     texPath = TEXTURE_PATH + texPath;
 
