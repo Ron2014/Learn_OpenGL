@@ -1,0 +1,11 @@
+fips_begin_app(FramebuffersBegin cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(begin *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(PostProcessing cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(post-processing *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()

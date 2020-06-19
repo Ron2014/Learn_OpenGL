@@ -73,3 +73,6 @@ fips_files_ex(FaceCulling/glass *.cc GROUP "SOURCES")
 fips_deps(Common)
 fips_end_app()
 
+##
+fips_add_subdirectory(Framebuffers)
+

@@ -8,6 +8,14 @@ using namespace std;
 
 unsigned int Texture2D::TEXTURE_UNIT_ID = 0;
 
+Texture2D::Texture2D(int width, int height, string uniform_name, GLuint type, GLenum wrapping, GLenum minFilter, GLenum magFilter): type(type), uniform_name(uniform_name) {
+  glGenTextures(1, &ID);
+  glBindTexture(GL_TEXTURE_2D, ID);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+}
+
 Texture2D::Texture2D(string texPath, string uniform_name, GLuint type, GLenum wrapping, GLenum minFilter, GLenum magFilter): type(type), uniform_name(uniform_name) {
   // 生成Texture并指定模式, 要放在文件加载之前.
   // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work

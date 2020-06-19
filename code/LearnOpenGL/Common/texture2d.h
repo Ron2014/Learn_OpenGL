@@ -19,6 +19,7 @@ public:
   int nrChannels;
   unsigned char* data;
 
+  Texture2D(int width, int height, string uniform_name="", GLuint type=0, GLenum wrapping = GL_REPEAT, GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR, GLenum magFilter = GL_LINEAR);
   Texture2D(string texPath, string uniform_name="", GLuint type=0, GLenum wrapping = GL_REPEAT, GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR, GLenum magFilter = GL_LINEAR);
   ~Texture2D();
 
