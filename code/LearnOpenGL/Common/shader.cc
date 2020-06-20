@@ -47,6 +47,8 @@ static int createProgram(vector<int> &shaders) {
   return shaderProgram;
 }
 
+// #define  __DEBUG_UNIFORM
+
 static int getUniformLocation(int ID, const string &name, int idx) {
   if (idx>=0) {
     size_t dot_pos = name.find(".");
@@ -54,9 +56,20 @@ static int getUniformLocation(int ID, const string &name, int idx) {
     cout << idx << " " << dot_pos << endl;
 #endif
     if (dot_pos!=string::npos) {
+      // attribute in array-entry
+      // name.xxx -> name[0].xxx
       stringstream tmp_name;
       tmp_name << name.substr(0, dot_pos);
       tmp_name << "[" << idx << "]" << name.substr(dot_pos, name.length()-dot_pos);
+#ifdef __DEBUG_UNIFORM
+      cout << tmp_name.str().c_str() << endl;
+#endif
+      return glGetUniformLocation(ID, tmp_name.str().c_str());
+    } else {
+      // array-entry itself
+      // name -> name[0]
+      stringstream tmp_name;
+      tmp_name << name << "[" << idx << "]";
 #ifdef __DEBUG_UNIFORM
       cout << tmp_name.str().c_str() << endl;
 #endif
@@ -165,7 +178,7 @@ void Shader::setBool(const string &name, bool value, int idx) const {
 }
 
 void Shader::setInt(const string &name, int value, int idx) const {
-#ifdef __DEBUG_DRAW
+#ifdef __DEBUG_UNIFORM
     cout << name << " " << value << endl;
 #endif
     int location = getUniformLocation(ID, name.c_str(), idx);
@@ -201,6 +214,12 @@ void Shader::setVec3(const string &name, GLfloat *value, int idx) const {
     int location = getUniformLocation(ID, name.c_str(), idx);
     glUseProgram(ID);
     glUniform3fv(location, 1, value);
+}
+
+void Shader::setVec2(const string &name, const glm::vec2 &value, int idx) const {
+    int location = getUniformLocation(ID, name.c_str(), idx);
+    glUseProgram(ID);
+    glUniform2fv(location, 1, glm::value_ptr(value));
 }
 
 void Shader::setVec3(const string &name, const glm::vec3 &value, int idx) const {

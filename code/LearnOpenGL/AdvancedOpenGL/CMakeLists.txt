@@ -82,3 +82,6 @@ fips_add_subdirectory(Cubemaps)
 ##
 fips_add_subdirectory(GeometryShader)
 
+##
+fips_add_subdirectory(Instancing)
+

@@ -41,9 +41,6 @@ const char *cube_texture_data[TEX_COUNT][2] = {
   {"matrix.jpg", "material.emission"},
 };
 
-// 不知为何 backpack的贴图没有Y方向颠倒, 这省去了flip操作.
-map<string, bool> flips = { {"nanosuit", true}, {"backpack", false} };
-
 unsigned int WIN_WIDTH = 800;
 unsigned int WIN_HEIGHT = 600;
 

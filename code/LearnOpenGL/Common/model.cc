@@ -3,6 +3,13 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
+// 不知为何 backpack的贴图没有Y方向颠倒, 这省去了flip操作.
+map<string, bool> flips = {
+  {"nanosuit", true},
+  {"nanosuit_reflection\\nanosuit.obj", true},
+  {"backpack", false},
+};
+
 Shader *Model::borderShader = nullptr;
 map<string, ModelCore *> Model::resources = {};
 
@@ -23,9 +30,13 @@ Model::~Model() {
 }
 
 ModelCore::ModelCore(string path, bool flip):border(false),centerPos(glm::vec3(0.0f)),mesh_count(0),ref(0)  {
-  if (path.find("\\")==string::npos) {
+  if (path.find(":")==string::npos) {
       char tmp[256];
-      sprintf(tmp, "%s%s\\%s.obj", MODEL_PATH, path.c_str(), path.c_str());
+      if (path.find(".obj")==string::npos){
+        sprintf(tmp, "%s%s\\%s.obj", MODEL_PATH, path.c_str(), path.c_str());
+      } else {
+        sprintf(tmp, "%s%s", MODEL_PATH, path.c_str());
+      }
       path = tmp;
   }
   loadModel(path, flip);
@@ -43,6 +54,11 @@ ModelCore::~ModelCore() {
 
 void ModelCore::ShowBorder(bool visible) {
   border = visible;
+}
+
+void ModelCore::DrawAmount(Shader *shader, int amount) {
+  for (Mesh m : meshes)
+    m.DrawAmount(shader, amount);
 }
 
 void ModelCore::Draw(Shader *shader, glm::mat4 *model) {

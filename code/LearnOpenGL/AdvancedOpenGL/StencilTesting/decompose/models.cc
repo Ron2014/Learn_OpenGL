@@ -8,9 +8,6 @@ Model **loading_models = nullptr;
 int model_count = 0;
 int selected_model = -1;
 
-// 不知为何 backpack的贴图没有Y方向颠倒, 这省去了flip操作.
-map<string, bool> flips = { {"nanosuit", true}, {"backpack", false} };
-
 void switchModels() {
   if (selected_model>=0) loading_models[selected_model]->ShowBorder(false);
   if (model_count) {

@@ -1,0 +1,23 @@
+fips_begin_app(InstancingBegin cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(begin *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(InstancingArray cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(array *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(Asteroid cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(asteroid *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(InstancingAsteroid cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(asteroid_instanced *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()

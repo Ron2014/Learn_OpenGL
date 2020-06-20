@@ -36,9 +36,12 @@ class Shader {
     void setInt(const string &name, int value, int idx=-1) const;
     void setUint(const string &name, unsigned int value, int idx=-1) const;
     void setFloat(const string &name, float value, int idx=-1) const;
+    
     void setMatrix4(const string &name, GLfloat *value, int idx=-1) const;
-    void setMatrix4(const string &name, const glm::mat4 &mat4, int idx=-1) const;
     void setVec3(const string &name, GLfloat *value, int idx=-1) const;
+
+    void setMatrix4(const string &name, const glm::mat4 &mat4, int idx=-1) const;
+    void setVec2(const string &name, const glm::vec2 &value, int idx=-1) const;
     void setVec3(const string &name, const glm::vec3 &value, int idx=-1) const;
     void setVec4(const string &name, const glm::vec4 &value, int idx=-1) const;
 };

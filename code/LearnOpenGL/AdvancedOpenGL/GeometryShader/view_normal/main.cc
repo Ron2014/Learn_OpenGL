@@ -11,11 +11,12 @@ using namespace std;
 
 void cleanWindow();
 void initWindow();
+void switchFullScreen();
+
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
-void switchFullScreen();
 
 void cleanCubeData();
 void initCubeData();
@@ -255,19 +256,19 @@ void processInput(GLFWwindow *window)
     switchModels();
   }
 
-  if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && checkKeySensitive(GLFW_KEY_TAB)) {
+  if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS && checkKeySensitive(GLFW_KEY_ENTER)) {
     // <Enter>: reload shader
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS && checkKeySensitive(GLFW_KEY_LEFT_CONTROL)) {
       switchFullScreen();
     } else initShaders();
   }
 
-  if(glfwGetKey(window, GLFW_KEY_PAUSE) == GLFW_PRESS && checkKeySensitive(GLFW_KEY_TAB)) {
+  if(glfwGetKey(window, GLFW_KEY_PAUSE) == GLFW_PRESS && checkKeySensitive(GLFW_KEY_PAUSE)) {
     // <Enter>: reload shader
     rolling = !rolling;
   }
 
-  if(glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS && checkKeySensitive(GLFW_KEY_TAB)) {
+  if(glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS && checkKeySensitive(GLFW_KEY_N)) {
     // <Enter>: reload shader
     drawNormal = !drawNormal;
   }

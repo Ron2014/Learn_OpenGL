@@ -60,6 +60,31 @@ void Mesh::Draw(Shader *shader) {
   Texture2D::reset();     // 位置0留空, 不绑定任何texture
 }
 
+void Mesh::DrawAmount(Shader *shader, int amount) {
+  map<unsigned int, unsigned int> texture_ids;
+  texture_ids[aiTextureType_DIFFUSE]  = 0;
+  texture_ids[aiTextureType_SPECULAR] = 0;
+  texture_ids[aiTextureType_HEIGHT]   = 0;
+  texture_ids[aiTextureType_AMBIENT]  = 0;
+
+  for (unsigned int i=0; i<textures.size(); i++) {
+    Texture2D *tex = textures[i];
+    int num = texture_ids[tex->type]++;
+    tex->use();
+    shader->setInt(tex->uniform_name + to_string(num), i);
+  }
+  glBindVertexArray(VAO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  
+  glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, amount);
+
+  glBindVertexArray(0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+  // always good practice to set everything back to defaults once configured.
+  Texture2D::reset();     // 位置0留空, 不绑定任何texture
+}
+
 /**
  * 
  * loading
