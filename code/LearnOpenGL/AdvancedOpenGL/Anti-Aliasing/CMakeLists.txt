@@ -1,0 +1,5 @@
+fips_begin_app(MSAA cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(msaa *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()

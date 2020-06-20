@@ -85,3 +85,6 @@ fips_add_subdirectory(GeometryShader)
 ##
 fips_add_subdirectory(Instancing)
 
+##
+fips_add_subdirectory(Anti-Aliasing)
+

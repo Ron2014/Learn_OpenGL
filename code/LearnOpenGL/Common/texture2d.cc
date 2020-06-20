@@ -16,6 +16,12 @@ Texture2D::Texture2D(int width, int height, string uniform_name, GLuint type, GL
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 }
 
+Texture2D::Texture2D(int width, int height, int samples) {
+  glGenTextures(1, &ID);
+  glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, ID);
+  glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, width, height, GL_TRUE);
+}
+
 Texture2D::Texture2D(string texPath, string uniform_name, GLuint type, GLenum wrapping, GLenum minFilter, GLenum magFilter): type(type), uniform_name(uniform_name) {
   // 生成Texture并指定模式, 要放在文件加载之前.
   // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work
