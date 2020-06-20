@@ -176,7 +176,7 @@ void renderPlane() {
 
   shader[IDX_PLANE]->use();
   cube_texture[TEX_PLANE]->use();
-  shader[TEX_PLANE]->setInt(cube_texture[TEX_PLANE]->uniform_name, 0);
+  shader[IDX_PLANE]->setInt(cube_texture[TEX_PLANE]->uniform_name, 0);
 
   glm::mat4 model(1.0f);
   shader[IDX_PLANE]->setMatrix4("model", model);

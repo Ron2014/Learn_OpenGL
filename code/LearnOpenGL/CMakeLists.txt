@@ -5,6 +5,7 @@ fips_add_subdirectory(Beginner)
 fips_add_subdirectory(Lighting)
 fips_add_subdirectory(ModelLoading)
 fips_add_subdirectory(AdvancedOpenGL)
+fips_add_subdirectory(AdvancedLighting)
 
 fips_begin_unittest(LearnOpenGL)
     fips_vs_warning_level(3)
