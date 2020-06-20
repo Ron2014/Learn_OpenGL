@@ -10,6 +10,7 @@ using namespace std;
 
 #define VERTEX_DEFAULT "vertex_default.shader"
 #define FRAGMENT_DEFAULT "fragment_default.shader"
+#define GEOMETRY_DEFAULT "geometry_default.shader"
 #define SHADER_PATH "E:\\GitHub\\Learn_OpenGL\\res\\shaders\\"
 
 
@@ -18,7 +19,7 @@ class Shader {
     unsigned int ID;    // shader program id
 
     // read file to load shader source
-    Shader(const GLchar *vertexPath = VERTEX_DEFAULT, const GLchar *fragmentPath = FRAGMENT_DEFAULT);
+    Shader(const GLchar *vertexPath = VERTEX_DEFAULT, const GLchar *fragmentPath = FRAGMENT_DEFAULT, const GLchar *geometryPath = nullptr);
     ~Shader();
     
     // active

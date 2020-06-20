@@ -66,42 +66,61 @@ static int getUniformLocation(int ID, const string &name, int idx) {
   return glGetUniformLocation(ID, name.c_str());
 }
 
-Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath) {
+Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath, const GLchar *geometryPath) {
   ifstream vShaderFile;
   ifstream fShaderFile;
+  ifstream gShaderFile;
   vShaderFile.exceptions (ifstream::failbit | ifstream::badbit);
   fShaderFile.exceptions (ifstream::failbit | ifstream::badbit);
+  gShaderFile.exceptions (ifstream::failbit | ifstream::badbit);
 
   // char buffer[INFO_LEN];
   stringstream buffer;
   vector<int> shaders;
   try {
-    cout << vertexPath << endl;
-    cout << fragmentPath << endl;
+    {
+      cout << vertexPath << endl;
 
-    buffer << SHADER_PATH << vertexPath;
-    vShaderFile.open(buffer.str().c_str(), ios::in);
+      buffer << SHADER_PATH << vertexPath;
+      vShaderFile.open(buffer.str().c_str(), ios::in);
 
-    buffer.str("");
-    buffer << SHADER_PATH << fragmentPath;
-    fShaderFile.open(buffer.str().c_str(), ios::in);
+      // vShaderFile.read(buffer, INFO_LEN-1);
+      buffer.str("");
+      buffer << vShaderFile.rdbuf();
+      // cout << buffer.str() << endl;
+      createShader(GL_VERTEX_SHADER, buffer.str().c_str(), vertexPath, shaders);
+      vShaderFile.close();
+    }
 
-    // vShaderFile.read(buffer, INFO_LEN-1);
-    buffer.str("");
-    buffer << vShaderFile.rdbuf();
-    // cout << buffer.str() << endl;
-    createShader(GL_VERTEX_SHADER, buffer.str().c_str(), vertexPath, shaders);
+    {
+      cout << fragmentPath << endl;
 
-    buffer.str("");
-    buffer << fShaderFile.rdbuf();
-    // cout << buffer.str() << endl;
-    createShader(GL_FRAGMENT_SHADER, buffer.str().c_str(), fragmentPath, shaders);
+      buffer.str("");
+      buffer << SHADER_PATH << fragmentPath;
+      fShaderFile.open(buffer.str().c_str(), ios::in);
+
+      buffer.str("");
+      buffer << fShaderFile.rdbuf();
+      // cout << buffer.str() << endl;
+      createShader(GL_FRAGMENT_SHADER, buffer.str().c_str(), fragmentPath, shaders);
+      fShaderFile.close();
+    }
+
+    if (geometryPath) {  
+      cout << geometryPath << endl;
+
+      buffer.str("");
+      buffer << SHADER_PATH << geometryPath;
+      gShaderFile.open(buffer.str().c_str(), ios::in);
+
+      buffer.str("");
+      buffer << gShaderFile.rdbuf();
+      createShader(GL_GEOMETRY_SHADER, buffer.str().c_str(), geometryPath, shaders);
+      gShaderFile.close();
+    }
 
     ID = createProgram(shaders);
-
-    vShaderFile.close();
-    fShaderFile.close();
-
+    
   } catch(ifstream::failure e) {
     cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << endl;
   }

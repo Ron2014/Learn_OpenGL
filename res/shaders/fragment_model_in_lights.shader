@@ -51,8 +51,8 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 FragPos);
 out vec4 FragColor;
 
 in vec3 Normal;
-in vec2 TexCoord;
 in vec3 FragPos;
+in vec2 TexCoord;
 
 uniform vec3 viewPos;
 uniform Material material;      // == objColor

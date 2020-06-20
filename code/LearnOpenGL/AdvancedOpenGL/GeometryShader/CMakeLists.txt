@@ -1,0 +1,23 @@
+fips_begin_app(GeometryShaderBegin cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(begin *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(GeometryShaderHouse cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(house *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(GeometryShaderExplode cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(explode *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()
+
+fips_begin_app(GeometryShaderViewNormal cmdline)
+fips_vs_disable_warnings(4819 4091)
+fips_files_ex(view_normal *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()

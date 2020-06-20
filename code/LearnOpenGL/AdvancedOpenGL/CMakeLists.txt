@@ -79,3 +79,6 @@ fips_add_subdirectory(Framebuffers)
 ##
 fips_add_subdirectory(Cubemaps)
 
+##
+fips_add_subdirectory(GeometryShader)
+
