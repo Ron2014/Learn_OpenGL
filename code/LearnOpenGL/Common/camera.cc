@@ -89,9 +89,9 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
     updateCameraVectors();
 }
 
-void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
+void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime, float ratio)
 {
-    float velocity = MovementSpeed * deltaTime;
+    float velocity = MovementSpeed * deltaTime * ratio;
     switch(direction) {
       case FORWARD : {
         Position += velocity * Front;
@@ -114,4 +114,5 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
       default: break;
     }
 }
+
 }

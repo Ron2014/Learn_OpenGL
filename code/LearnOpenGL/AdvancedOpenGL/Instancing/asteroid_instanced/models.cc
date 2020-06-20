@@ -60,19 +60,19 @@ void initModels(int argc, char *argv[]) {
       float z = cos(glm::radians(angle)) * radius + displacement;
       model = glm::translate(model, glm::vec3(x, y, z));
 
-      // 2. 缩放：在 0.05 和 0.25f 之间缩放
+      // 2. 旋转：绕着一个（半）随机选择的旋转轴向量进行随机的旋转
+      float rotateX = rand() % 180;
+      float rotateY = rand() % 180;
+      float rotateZ = rand() % 180;
+      model = glm::rotate(model, glm::radians(rotateX), glm::vec3(0, 0, 1));
+      model = glm::rotate(model, glm::radians(rotateY), glm::vec3(1, 0, 0));
+      model = glm::rotate(model, glm::radians(rotateZ), glm::vec3(0, 1, 0));
+
+      // 3. 缩放：在 0.05 和 0.25f 之间缩放
       float scaleX = (rand() % 20) * 0.01f + 0.05;
       float scaleY = (rand() % 20) * 0.01f + 0.05;
       float scaleZ = (rand() % 20) * 0.01f + 0.05;
       model = glm::scale(model, glm::vec3(scaleX, scaleY, scaleZ));
-
-      // 3. 旋转：绕着一个（半）随机选择的旋转轴向量进行随机的旋转
-      float rotAngle = (rand() % 360);
-      // 0.00 -> 1.00
-      scaleX = (rand() % 101) * 0.01f;
-      scaleY = (rand() % 101) * 0.01f;
-      scaleZ = (rand() % 101) * 0.01f;
-      model = glm::rotate(model, glm::radians(rotAngle), glm::vec3(scaleX, scaleY, scaleZ));
 
       // 4. 添加到矩阵的数组中
       modelMatrices[i] = model;

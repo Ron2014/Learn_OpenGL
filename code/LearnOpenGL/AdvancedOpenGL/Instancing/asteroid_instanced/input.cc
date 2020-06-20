@@ -69,19 +69,24 @@ void processInput(GLFWwindow *window)
   if(isKeyPressed(GLFW_KEY_ESCAPE))
     glfwSetWindowShouldClose(window, true);           // response to ESC
 
-  if(isKeyHolding(GLFW_KEY_W))
-    camera->ProcessKeyboard(Camera::FORWARD, deltaTime);
-  if(isKeyHolding(GLFW_KEY_S))
-    camera->ProcessKeyboard(Camera::BACKWARD, deltaTime);
-  if(isKeyHolding(GLFW_KEY_A))
-    camera->ProcessKeyboard(Camera::LEFT, deltaTime);
-  if(isKeyHolding(GLFW_KEY_D))
-    camera->ProcessKeyboard(Camera::RIGHT, deltaTime);
-  if(isKeyHolding(GLFW_KEY_Q))
-    camera->ProcessKeyboard(Camera::RISE, deltaTime);
-  if(isKeyHolding(GLFW_KEY_E))
-    camera->ProcessKeyboard(Camera::FALL, deltaTime);
-
+  unsigned int camera_direct = 0;
+  if(isKeyHolding(GLFW_KEY_W)) camera_direct = Camera::FORWARD;
+  if(isKeyHolding(GLFW_KEY_S)) camera_direct = Camera::BACKWARD;
+  if(isKeyHolding(GLFW_KEY_A)) camera_direct = Camera::LEFT;
+  if(isKeyHolding(GLFW_KEY_D)) camera_direct = Camera::RIGHT;
+  if(isKeyHolding(GLFW_KEY_Q)) camera_direct = Camera::RISE;
+  if(isKeyHolding(GLFW_KEY_E)) camera_direct = Camera::FALL;
+  if (camera_direct) {
+    float ratio = 1.0f;
+    if (isKeyHolding(GLFW_KEY_LEFT_SHIFT)) {
+      // speed up
+      ratio = 2.0f;
+    } else if (isKeyHolding(GLFW_KEY_LEFT_CONTROL)) {
+      // speed slow
+      ratio = 0.5f;
+    }
+    camera->ProcessKeyboard((Camera::Camera_Movement)camera_direct, deltaTime, ratio);
+  }
   
   if(isKeyPressed(GLFW_KEY_SPACE)) {
     fillType = !fillType;
