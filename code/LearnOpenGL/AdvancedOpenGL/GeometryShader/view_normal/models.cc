@@ -45,7 +45,8 @@ void renderModels() {
     float scaleV = 0.2f;
     
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(-lampX, 0, -lampZ)); // translate it down so it's at the center of the scen
+    model = glm::translate(model, glm::vec3(-lampX, -5.0f, -lampZ)); // translate it down so it's at the center of the scen
+    model = glm::rotate(model, glm::radians(10.0f*i), glm::vec3(0.0f, 1.0f, 0.0f));	// it's a bit too big for our scene, so scale it down
     model = glm::scale(model, glm::vec3(scaleV));	// it's a bit too big for our scene, so scale it down
 
     // 模型绘制
@@ -57,13 +58,15 @@ void renderModels() {
     Texture2D::reset();                  // use 完之后记得重置
     // Cubemaps::reset();
     
-    // 法线绘制
-    s = shader[IDX_NORMAL];
-    s->use();
-    // tex_skybox->use();
-    s->setMatrix4("model", glm::value_ptr(model));
-    loading_models[i]->Draw(s, &model);
-    Texture2D::reset();                  // use 完之后记得重置
-    // Cubemaps::reset();
+    if (drawNormal) {
+      // 法线绘制
+      s = shader[IDX_NORMAL];
+      s->use();
+      // tex_skybox->use();
+      s->setMatrix4("model", glm::value_ptr(model));
+      loading_models[i]->Draw(s, &model);
+      Texture2D::reset();                  // use 完之后记得重置
+      // Cubemaps::reset();
+    }
   }
 }

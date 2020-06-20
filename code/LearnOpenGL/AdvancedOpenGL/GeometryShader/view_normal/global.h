@@ -8,6 +8,7 @@ extern unsigned int WIN_WIDTH;
 extern unsigned int WIN_HEIGHT;
 extern float NEAR_Z;
 extern float FAR_Z;
+extern bool drawNormal;
 
 extern enum {
   IDX_CUBE,

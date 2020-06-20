@@ -9,14 +9,14 @@ using namespace std;
 
 #define MODEL_PATH "E:\\GitHub\\Learn_OpenGL\\res\\models\\"
 
-class Model {
+class ModelCore {
     public:
         /*  函数   */
-        Model(string path, bool flip=true);
-        ~Model();
+        ModelCore(string path, bool flip=true);
+        ~ModelCore();
         void Draw(Shader *shader, glm::mat4 *model=NULL);
         void ShowBorder(bool visible=true);
-        static Shader *borderShader;
+        int ref;
     private:
 
         /*  模型数据  */
@@ -33,4 +33,17 @@ class Model {
         Mesh processMesh(aiMesh *mesh, const aiScene *scene);
         vector<Texture2D *> loadMaterialTextures(aiMaterial *mat, aiTextureType type, 
                                              string typeName);
+};
+
+class Model {
+public:
+    /*  函数   */
+    Model(string path, bool flip=true);
+    ~Model();
+    void Draw(Shader *shader, glm::mat4 *model=NULL) {core->Draw(shader, model);}
+    void ShowBorder(bool visible=true) {core->ShowBorder(visible);}
+    static map<string, ModelCore *> resources;
+    static Shader *borderShader;
+private:
+    ModelCore *core;
 };

@@ -4,8 +4,25 @@
 #include <assimp/postprocess.h>
 
 Shader *Model::borderShader = nullptr;
+map<string, ModelCore *> Model::resources = {};
 
-Model::Model(string path, bool flip):border(false),centerPos(glm::vec3(0.0f)),mesh_count(0)  {
+Model::Model(string path, bool flip) {
+  ModelCore *model;
+  if (resources.find(path)==resources.end()) {
+    resources.insert({path, new ModelCore(path, flip)});
+  }
+  model = resources[path];
+  model->ref++;
+  core = model;
+}
+
+Model::~Model() {
+  core->ref--;
+  if (core->ref<=0)
+    delete core;
+}
+
+ModelCore::ModelCore(string path, bool flip):border(false),centerPos(glm::vec3(0.0f)),mesh_count(0),ref(0)  {
   if (path.find("\\")==string::npos) {
       char tmp[256];
       sprintf(tmp, "%s%s\\%s.obj", MODEL_PATH, path.c_str(), path.c_str());
@@ -14,9 +31,9 @@ Model::Model(string path, bool flip):border(false),centerPos(glm::vec3(0.0f)),me
   loadModel(path, flip);
 }
 
-Model::~Model() {
+ModelCore::~ModelCore() {
 #ifdef __DEBUG_LOAD
-  cout << "~Model:" << directory.substr(directory.find_last_of("\\")) << endl;
+  cout << "~ModelCore:" << directory.substr(directory.find_last_of("\\")) << endl;
 #endif
   for (auto it : textures_loaded)
       delete it.second;
@@ -24,13 +41,13 @@ Model::~Model() {
       mesh.Clean();
 }
 
-void Model::ShowBorder(bool visible) {
+void ModelCore::ShowBorder(bool visible) {
   border = visible;
 }
 
-void Model::Draw(Shader *shader, glm::mat4 *model) {
+void ModelCore::Draw(Shader *shader, glm::mat4 *model) {
 #ifdef __DEBUG_DRAW
-  cout << "Model draw ======" << endl;
+  cout << "ModelCore draw ======" << endl;
 #endif
   if (border && model) {
 #ifdef OUTLINE_DEPTH
@@ -47,10 +64,10 @@ void Model::Draw(Shader *shader, glm::mat4 *model) {
     glDisable(GL_DEPTH_TEST);
 #endif
 
-    borderShader->use();
-    borderShader->setMatrix4("model", glm::value_ptr(*model));
+    Model::borderShader->use();
+    Model::borderShader->setMatrix4("model", glm::value_ptr(*model));
     for (Mesh m : meshes)
-      m.Draw(borderShader);
+      m.Draw(Model::borderShader);
 
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
 #ifndef OUTLINE_DEPTH
@@ -59,7 +76,7 @@ void Model::Draw(Shader *shader, glm::mat4 *model) {
   }
 }
 
-void Model::loadModel(string path, bool flip){
+void ModelCore::loadModel(string path, bool flip){
 #ifdef __DEBUG_LOAD
     cout << "loadModel ------" << path.c_str() << endl;
 #endif
@@ -82,7 +99,7 @@ void Model::loadModel(string path, bool flip){
     if (mesh_count) centerPos /= mesh_count;
 }
 
-void Model::processNode(aiNode *node, const aiScene *scene) {
+void ModelCore::processNode(aiNode *node, const aiScene *scene) {
   for(unsigned int i=0; i<node->mNumMeshes; i++) {
     aiMesh *aMesh = scene->mMeshes[node->mMeshes[i]];
     meshes.push_back(processMesh(aMesh, scene));
@@ -92,7 +109,7 @@ void Model::processNode(aiNode *node, const aiScene *scene) {
     processNode(node->mChildren[i], scene);
 }
 
-Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
+Mesh ModelCore::processMesh(aiMesh *mesh, const aiScene *scene) {
   vector<Vertex> vertices;
   vector<unsigned int> indices;
   vector<Texture2D *> textures;
@@ -190,7 +207,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
   return Mesh(vertices, indices, textures, center);
 }
 
-vector<Texture2D *> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName) {
+vector<Texture2D *> ModelCore::loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName) {
   vector<Texture2D *> textures;
   aiString path;
   for (int i=0; i<mat->GetTextureCount(type); i++) {
