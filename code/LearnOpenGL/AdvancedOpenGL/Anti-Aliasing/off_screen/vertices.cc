@@ -11,6 +11,8 @@ using namespace std;
 #define BUFF_LEN 2
 extern unsigned int VBO[BUFF_LEN]={0}, VAO[BUFF_LEN]={0};
 extern bool rolling = true;
+extern unsigned int FRAME_BUFF_ID_0 = 0;
+extern unsigned int FRAME_BUFF_ID_1 = 0;
 
 const char *texture_data[TEX_COUNT][2] = {
   {"metal.png", "texture0"},
@@ -130,16 +132,16 @@ void initCubeData(int sample) {
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)(2*sizeof(float)));
 
-  ///////////////////////////////////////////////////////////////////////////// 自定义帧缓冲
+  ///////////////////////////////////////////////////////////////////////////// 自定义帧缓冲 0
 
-  glGenFramebuffers(1, &FRAME_BUFF_ID);
-  glBindFramebuffer(GL_FRAMEBUFFER, FRAME_BUFF_ID);
+  glGenFramebuffers(1, &FRAME_BUFF_ID_0);
+  glBindFramebuffer(GL_FRAMEBUFFER, FRAME_BUFF_ID_0);
 
   // 创建纹理附件
-  cube_texture[TEX_QUAD] = new Texture2D(WIN_WIDTH, WIN_HEIGHT, sample);
+  cube_texture[TEX_MSAA] = new Texture2D(WIN_WIDTH, WIN_HEIGHT, sample);
 
   // 将它附加到当前绑定的帧缓冲对象
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, cube_texture[TEX_QUAD]->ID, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, cube_texture[TEX_MSAA]->ID, 0);
 
   // 渲染缓冲对象附件
   unsigned int rbo;
@@ -147,6 +149,31 @@ void initCubeData(int sample) {
 
   glBindRenderbuffer(GL_RENDERBUFFER, rbo); 
   glRenderbufferStorageMultisample(GL_RENDERBUFFER, sample, GL_DEPTH24_STENCIL8, WIN_WIDTH, WIN_HEIGHT);  
+  
+  // 将它附加到当前绑定的帧缓冲对象
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+  if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  ///////////////////////////////////////////////////////////////////////////// 自定义帧缓冲 1
+
+  glGenFramebuffers(1, &FRAME_BUFF_ID_1);
+  glBindFramebuffer(GL_FRAMEBUFFER, FRAME_BUFF_ID_1);
+
+  // 创建纹理附件
+  cube_texture[TEX_QUAD] = new Texture2D(WIN_WIDTH, WIN_HEIGHT, "texture0");
+
+  // 将它附加到当前绑定的帧缓冲对象
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cube_texture[TEX_QUAD]->ID, 0);
+
+  // 渲染缓冲对象附件
+  // unsigned int rbo;
+  glGenRenderbuffers(1, &rbo);
+
+  glBindRenderbuffer(GL_RENDERBUFFER, rbo); 
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIN_WIDTH, WIN_HEIGHT);  
   
   // 将它附加到当前绑定的帧缓冲对象
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
@@ -172,5 +199,5 @@ void renderPlane() {
 void renderGrass() {
 }
 
-void renderSkybox(Camera::Camera *camera) {
+void renderSkybox() {
 }

@@ -83,7 +83,7 @@ void processInput(GLFWwindow *window)
       ratio = 2.0f;
     } else if (isKeyHolding(GLFW_KEY_LEFT_CONTROL)) {
       // speed slow
-      ratio = 0.5f;
+      ratio = 0.1f;
     }
     camera->ProcessKeyboard((Camera::Camera_Movement)camera_direct, deltaTime, ratio);
   }

@@ -16,20 +16,24 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
 void cleanCubeData();
-void initCubeData();
+void initCubeData(int);
 void renderCubes();
 void renderPlane();
 void renderGrass();
 
 void cleanShader();
 
-void renderCamera(Camera::Camera *camera);
-void renderSkybox(Camera::Camera *camera);
+void renderCamera();
+void renderSkybox();
 void renderPointLights();
 
 void cleanModels();
 void initModels(int n, char *path[]);
 void renderModels();
+
+void fillFrameBuffer();
+void dealWithMSAA();
+void drawScreen();
 
 #define DEFAULT_SCR_W 800
 #define DEFAULT_SCR_H 600
@@ -77,11 +81,15 @@ int main(int argc, char *argv[]) {
     processInput(window);
     
     // 第一处理阶段(Pass)
-    // 绘制自定义帧缓冲
+    // 绘制自定义帧缓冲0(MSAA)
     fillFrameBuffer();
 
     // 第二处理阶段
-    // 默认帧缓冲绘制贴图
+    // 帧缓冲0填充帧缓冲1
+    dealWithMSAA();
+
+    // 第三处理阶段
+    // 绘制屏幕四边形
     drawScreen();
 
     glfwSwapBuffers(window);              // double buffer switch
@@ -101,7 +109,7 @@ int main(int argc, char *argv[]) {
 }
 
 void fillFrameBuffer() {
-    glBindFramebuffer(GL_FRAMEBUFFER, FRAME_BUFF_ID);
+    glBindFramebuffer(GL_FRAMEBUFFER, FRAME_BUFF_ID_0);
     glEnable(GL_DEPTH_TEST);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -119,6 +127,12 @@ void fillFrameBuffer() {
         
     //////////////////////////////// render point light
     renderPointLights();
+}
+
+void dealWithMSAA() {
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, FRAME_BUFF_ID_0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, FRAME_BUFF_ID_1);
+    glBlitFramebuffer(0, 0, WIN_WIDTH, WIN_HEIGHT, 0, 0, WIN_WIDTH, WIN_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
 void drawScreen() {
@@ -191,15 +205,16 @@ void initWindow() {
   }
 
   camera = new Camera::Camera(0.0f);
-
+  int sample = 4;
+  if (__argc>1) sample = atoi(__argv[1]);
   initShaders();
-  initCubeData();
+  initCubeData(sample);
   initModels(__argc-1, __argv+1);
   
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_STENCIL_TEST);
 
-  if (__argc>1) glfwWindowHint(GLFW_SAMPLES, atoi(__argv[1]));
+  glfwWindowHint(GLFW_SAMPLES, sample);
   glEnable(GL_MULTISAMPLE); // enabled by default on some drivers, but not all so always enable to make sure
   
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);

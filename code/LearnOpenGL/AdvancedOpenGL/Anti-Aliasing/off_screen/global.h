@@ -20,9 +20,11 @@ extern enum {
 extern Shader *shader[];
 
 extern unsigned int VBO[], VAO[];
-extern unsigned int FRAME_BUFF_ID;
+extern unsigned int FRAME_BUFF_ID_0;
+extern unsigned int FRAME_BUFF_ID_1;
 
 extern enum {
+  TEX_MSAA,
   TEX_QUAD,
   TEX_COUNT,
 };

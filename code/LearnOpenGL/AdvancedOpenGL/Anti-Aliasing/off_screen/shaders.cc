@@ -28,6 +28,7 @@ void initShaders() {
   cleanShader();
   // shader source -> shader object -> shader program
   shader[IDX_LAMP] = new Shader("vertex_lighted.shader", "fragment_lamp.shader");
+  shader[IDX_QUAD] = new Shader("vertex_normal2d.shader", "fragment_texture_screen.shader");
 }
 
 void renderPointLights() {
@@ -45,7 +46,7 @@ void renderPointLights() {
   }
 }
 
-void renderCamera(Camera::Camera *camera) {
+void renderCamera() {
     glm::mat4 projection(1.0f);
     projection = glm::perspective(glm::radians(camera->FieldOfView), float(WIN_WIDTH)/glm::max((float)WIN_HEIGHT,0.01f), NEAR_Z, FAR_Z);
     glm::mat4 view = camera->GetViewMatrix();
