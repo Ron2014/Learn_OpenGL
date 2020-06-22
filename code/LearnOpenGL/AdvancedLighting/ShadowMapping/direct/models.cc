@@ -103,7 +103,7 @@ void renderModels() {
     model = glm::scale(model, glm::vec3(scaleV));	// it's a bit too big for our scene, so scale it down
     shader[shaderId]->setMatrix4("model", model);
 
-    tex_fb[FB_DEPTH_DIRECT]->use();
+    tex_fb[FB_DEPTH_MAP]->use();
     loading_models[i]->Draw(shader[shaderId], &model);
   }
 }

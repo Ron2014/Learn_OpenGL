@@ -19,7 +19,7 @@ extern float FAR_Z;
 extern enum {
   IDX_CUBE,
   IDX_PLANE,
-  IDX_QUAD,
+  IDX_DBUG,
 
   IDX_MODEL,
   IDX_OUTLINE_MODEL,
@@ -39,7 +39,7 @@ extern unsigned int VBO[], VAO[];
 extern vector<int> OBJ_IDXS;
 
 extern enum {
-  FB_DEPTH_DIRECT,
+  FB_DEPTH_MAP,
   // FB_QUAD,
   FB_NUM,
 };

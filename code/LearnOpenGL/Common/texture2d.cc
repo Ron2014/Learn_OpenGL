@@ -59,6 +59,10 @@ void Texture2D::use() {
   TEXTURE_UNIT_ID ++;
 }
 
+void Texture2D::bind() {
+  glBindTexture(GL_TEXTURE_2D, ID);
+}
+
 // 在渲染帧结束后调用
 void Texture2D::reset() {
   TEXTURE_UNIT_ID = 0;
@@ -69,7 +73,7 @@ void Texture2D::use(const vector<Texture2D *> &aTex, const Shader *shader) {
   for (int i=0; i<aTex.size(); i++) {
     Texture2D *tex = aTex[i];
     glActiveTexture(GL_TEXTURE0+i);
-    glBindTexture(GL_TEXTURE_2D, tex->ID);
+    tex->bind();
     if (!tex->uniform_name.empty() && shader) shader->setInt(tex->uniform_name, i);
   }
 }
@@ -162,8 +166,7 @@ Cubemaps::Cubemaps(string texPath, string uniform_name, GLuint type, GLenum wrap
   glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
 
   int width, height, nrChannels;
-  for (unsigned int i = 0; i < FACE_SIZE; i++)
-  {
+  for (unsigned int i = 0; i < FACE_SIZE; i++) {
       string fullpath = texPath + '\\' + faces[i];
       unsigned char *data = stbi_load( fullpath.c_str(), &width, &height, &nrChannels, 0);
       if (data)
@@ -196,6 +199,28 @@ void Cubemaps::use() {
   glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
 }
 
+void Cubemaps::bind() {
+  glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
+}
+
 void Cubemaps::reset() {
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+
+CubemapsAttachDepth::CubemapsAttachDepth(int width, int height, string uniform_name, GLenum wrapping, GLenum minFilter, GLenum magFilter):uniform_name(uniform_name) {
+  glGenTextures(1, &ID);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
+  for (unsigned int i = 0; i < FACE_SIZE; i++) {
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, wrapping);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, wrapping);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, wrapping);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, minFilter);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, magFilter);
+    if (wrapping == GL_CLAMP_TO_BORDER) {
+      GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+      glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    }
+  }
 }

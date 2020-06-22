@@ -14,7 +14,7 @@ extern enum {
   IDX_PLANE,
   IDX_CUBE,
   IDX_MONITOR,
-  IDX_QUAD,
+  IDX_DBUG,
   IDX_MODEL,
   IDX_LAMP,
   IDX_OUTLINE_CUBE,

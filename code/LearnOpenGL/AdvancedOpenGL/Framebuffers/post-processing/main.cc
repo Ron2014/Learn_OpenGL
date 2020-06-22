@@ -171,13 +171,13 @@ void drawScreen() {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glBindVertexArray(VAO[IDX_QUAD]);
+    glBindVertexArray(VAO[IDX_DBUG]);
 
-    shader[IDX_QUAD]->use();  
+    shader[IDX_DBUG]->use();  
     cube_texture[TEX_QUAD]->use();
     // glActiveTexture(GL_TEXTURE0);
     // glBindTexture(GL_TEXTURE_2D, cube_texture[TEX_QUAD]->ID);
-    shader[IDX_QUAD]->setInt(cube_texture[TEX_QUAD]->uniform_name, 0);
+    shader[IDX_DBUG]->setInt(cube_texture[TEX_QUAD]->uniform_name, 0);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     Texture2D::reset();
 }

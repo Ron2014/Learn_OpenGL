@@ -33,7 +33,7 @@ void initShaders() {
   // shader[IDX_CUBE] = new Shader("vertex_cube_shadow.shader", "fragment_shadow.shader", "geometry_gen_normal.shader");
   shader[IDX_CUBE] = new Shader("vertex_shadow.shader", "fragment_shadow.shader");
   shader[IDX_PLANE] = new Shader("vertex_shadow.shader", "fragment_gamma_shadow.shader");
-  shader[IDX_QUAD] = new Shader("vertex_normal3d.shader", "fragment_debug_depth.shader");
+  shader[IDX_DBUG] = new Shader("vertex_normal3d.shader", "fragment_debug_depth.shader");
   shader[IDX_MODEL] = new Shader("vertex_model_shadow.shader", "fragment_model_shadow.shader");
   shader[IDX_LAMP] = new Shader("vertex_lighted.shader", "fragment_color.shader");
   shader[IDX_SIMPLE_DEPTH] = new Shader("vertex_simple_depth.shader", "fragment_simple_depth.shader");

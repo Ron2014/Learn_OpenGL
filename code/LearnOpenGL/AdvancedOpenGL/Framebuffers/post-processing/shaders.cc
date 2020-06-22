@@ -33,7 +33,7 @@ void initShaders() {
   shader[IDX_CUBE] = new Shader("vertex_normal.shader", "fragment_texture.shader");
   shader[IDX_MONITOR] = new Shader("vertex_normal.shader", "fragment_texture.shader");
   
-  shader[IDX_QUAD] = new Shader("vertex_normal2d.shader", "fragment_post_processing.shader");
+  shader[IDX_DBUG] = new Shader("vertex_normal2d.shader", "fragment_post_processing.shader");
 
   shader[IDX_MODEL] = new Shader("vertex_specular.shader", "fragment_model_in_lights.shader");
   shader[IDX_LAMP] = new Shader("vertex_lighted.shader", "fragment_lamp.shader");

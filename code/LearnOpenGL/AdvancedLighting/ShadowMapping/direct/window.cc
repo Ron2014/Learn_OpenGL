@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
     int org_w = WIN_WIDTH, org_h = WIN_HEIGHT;
     // 1. 首选渲染深度贴图
     glViewport(0, 0, SHADOW_W, SHADOW_H);
-    glBindFramebuffer(GL_FRAMEBUFFER, FRAME_BUFFER[FB_DEPTH_DIRECT]);
+    glBindFramebuffer(GL_FRAMEBUFFER, FRAME_BUFFER[FB_DEPTH_MAP]);
     glClear(GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
 
@@ -123,10 +123,10 @@ int main(int argc, char *argv[]) {
 
     if (dbgShadow) {
       // 2. 将深度贴图展示出来
-      shader[IDX_QUAD]->setFloat("near_plane", near_plane);
-      shader[IDX_QUAD]->setFloat("far_plane", far_plane);
-      Texture2D::use({tex_fb[FB_DEPTH_DIRECT]}, shader[IDX_QUAD]);
-      glBindVertexArray(VAO[IDX_QUAD]);
+      shader[IDX_DBUG]->setFloat("near_plane", near_plane);
+      shader[IDX_DBUG]->setFloat("far_plane", far_plane);
+      Texture2D::use({tex_fb[FB_DEPTH_MAP]}, shader[IDX_DBUG]);
+      glBindVertexArray(VAO[IDX_DBUG]);
       glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
       glBindVertexArray(0);
     } else {

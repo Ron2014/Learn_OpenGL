@@ -149,7 +149,7 @@ void initCubeData() {
   // for (int i=0; i<POINT_LIGHT_NUM; i++) {
   //   tex_depth_point[i] = initFrameBufferDepth(FRAME_BUFFER_DEPTH, "texture0");
   // }
-  tex_fb[FB_DEPTH_DIRECT] = initFrameBufferDepth(FRAME_BUFFER[FB_DEPTH_DIRECT], "shadowMap", SHADOW_W, SHADOW_H);
+  tex_fb[FB_DEPTH_MAP] = initFrameBufferDepth(FRAME_BUFFER[FB_DEPTH_MAP], "shadowMap", SHADOW_W, SHADOW_H);
   // tex_fb[FB_DEPTH_DIRECT] = initFrameBufferDepth(FRAME_BUFFER[FB_DEPTH_DIRECT], "shadowMap");
   // tex_fb[FB_QUAD] = initFrameBuffer(FRAME_BUFFER[FB_QUAD], "texture0");
 }
@@ -163,7 +163,7 @@ void renderCubes() {
   if (genShadow) shaderId = IDX_SIMPLE_DEPTH;
 
   Texture2D::use({
-    tex_fb[FB_DEPTH_DIRECT],
+    tex_fb[FB_DEPTH_MAP],
     cube_texture[TEX_DIFFUSE + offset], 
     cube_texture[TEX_SPECULAR + offset], 
     cube_texture[TEX_EMISSION + offset], 
@@ -188,7 +188,7 @@ void renderPlane() {
   if (genShadow) shaderId = IDX_SIMPLE_DEPTH;
 
   Texture2D::use({
-    tex_fb[FB_DEPTH_DIRECT],
+    tex_fb[FB_DEPTH_MAP],
     cube_texture[TEX_PLANE + offset],
     }, shader[shaderId]);
   glm::mat4 model(1.0f);

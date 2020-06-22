@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
     shader[IDX_SIMPLE_DEPTH]->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
 
     // 1. 首选渲染深度贴图
-    glBindFramebuffer(GL_FRAMEBUFFER, FRAME_BUFFER[FB_DEPTH_DIRECT]);
+    glBindFramebuffer(GL_FRAMEBUFFER, FRAME_BUFFER[FB_DEPTH_MAP]);
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // 只绘制阴影计算的物体
@@ -103,12 +103,12 @@ int main(int argc, char *argv[]) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // 2. 将深度贴图展示出来
-    shader[IDX_QUAD]->use();
-    shader[IDX_QUAD]->setFloat("near_plane", near_plane);
-    shader[IDX_QUAD]->setFloat("far_plane", far_plane);
-    Texture2D::use({tex_fb[FB_DEPTH_DIRECT]}, shader[IDX_QUAD]);
+    shader[IDX_DBUG]->use();
+    shader[IDX_DBUG]->setFloat("near_plane", near_plane);
+    shader[IDX_DBUG]->setFloat("far_plane", far_plane);
+    Texture2D::use({tex_fb[FB_DEPTH_MAP]}, shader[IDX_DBUG]);
     
-    glBindVertexArray(VAO[IDX_QUAD]);
+    glBindVertexArray(VAO[IDX_DBUG]);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
 

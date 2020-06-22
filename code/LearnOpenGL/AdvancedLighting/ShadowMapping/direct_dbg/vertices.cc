@@ -155,7 +155,7 @@ void initCubeData() {
   // for (int i=0; i<POINT_LIGHT_NUM; i++) {
   //   tex_depth_point[i] = initFrameBufferDepth(FRAME_BUFFER_DEPTH, "texture0");
   // }
-  tex_fb[FB_DEPTH_DIRECT] = initFrameBufferDepth(FRAME_BUFFER[FB_DEPTH_DIRECT], "texture0");
+  tex_fb[FB_DEPTH_MAP] = initFrameBufferDepth(FRAME_BUFFER[FB_DEPTH_MAP], "texture0");
   // tex_fb[FB_QUAD] = initFrameBuffer(FRAME_BUFFER[FB_QUAD], "texture0");
 }
 

@@ -15,7 +15,7 @@ extern float FAR_Z;
 extern enum {
   IDX_CUBE,
   IDX_PLANE,
-  IDX_QUAD,
+  IDX_DBUG,
   IDX_LAMP,
   IDX_SIMPLE_DEPTH,
   SHADER_NUM,
@@ -31,7 +31,7 @@ extern glm::vec3 directLightDir;
 extern unsigned int VBO[], VAO[];
 
 extern enum {
-  FB_DEPTH_DIRECT,
+  FB_DEPTH_MAP,
   // FB_QUAD,
   FB_NUM,
 };

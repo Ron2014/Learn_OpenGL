@@ -26,6 +26,7 @@ public:
   ~Texture2D();
 
   void use();
+  void bind();
   static void reset();
   static void use(const vector<Texture2D *> &aTex, const Shader *shader = nullptr);
 };
@@ -60,7 +61,7 @@ public:
 #define CUBEMAPS_DEFAULT "skybox"
 #define FACE_SIZE 6
 
-class Cubemaps {
+class Cubemaps : public Texture2D {
 public:
   unsigned int ID;
   unsigned int type;
@@ -75,5 +76,12 @@ public:
   ~Cubemaps();
 
   void use();
+  void bind();
   static void reset();
+};
+
+class CubemapsAttachDepth : public Cubemaps {
+public:
+  string uniform_name;
+  CubemapsAttachDepth(int width, int height, string uniform_name="", GLenum wrapping = GL_REPEAT, GLenum minFilter = GL_NEAREST, GLenum magFilter = GL_NEAREST);
 };

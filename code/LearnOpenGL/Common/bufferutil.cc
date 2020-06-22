@@ -129,3 +129,36 @@ Texture2D *initFrameBufferDepth(unsigned int &frameBufferID, string uniform_name
   return tex;
 }
 
+// 帧缓冲: 立方体深度贴图纹理
+Cubemaps *initFrameBufferCubemapDepth(unsigned int &frameBufferID, string uniform_name, int width, int height) {
+  glGenFramebuffers(1, &frameBufferID);
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+
+  // 创建纹理附件
+  Cubemaps *tex = new CubemapsAttachDepth(width, height, uniform_name, GL_CLAMP_TO_EDGE);
+
+  // 绑定纹理附件
+  glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, tex->ID, 0);
+
+/*
+  // 渲染缓冲对象附件
+  unsigned int rbo;
+  glGenRenderbuffers(1, &rbo);
+
+  glBindRenderbuffer(GL_RENDERBUFFER, rbo); 
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIN_WIDTH, WIN_HEIGHT);  
+  
+  // 将它附加到当前绑定的帧缓冲对象
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+*/
+  // 不需要颜色缓冲
+  glDrawBuffer(GL_NONE);
+  glReadBuffer(GL_NONE);
+
+  if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  return tex;
+}
+
