@@ -85,10 +85,10 @@ vector< vector<float> > all_vertices = {
   // quad
   {
             // positions        // texture Coords
-            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f,  0.9f, 0.0f, 0.0f, 1.0f,
             -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+             0.9f,  0.9f, 0.0f, 1.0f, 1.0f,
+             0.9f, -1.0f, 0.0f, 1.0f, 0.0f,
   },
 };
 

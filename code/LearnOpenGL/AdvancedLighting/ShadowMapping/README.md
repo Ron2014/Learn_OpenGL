@@ -25,7 +25,7 @@
 2. 纹理源格式/目标格式为 GL_DEPTH_COMPONENT
 3. 不需要颜色缓冲
 
-渲染
+渲染深度贴图(阴影灰度图)
 
 1. 取得定向光的观察矩阵view和投影矩阵projection(正交/透视)
 2. 使用指定渲染深度贴图的shader, 绘制场景中的物体
@@ -39,3 +39,31 @@ glm::mat4 lightView = glm::lookAt(glm::vec(-2.0f, 4.0f, -1.0f), glm::vec3(0.0f, 
 glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 ```
 
+正常渲染场景
+
+1. 向所有shader传入定向光的观察矩阵view和投影矩阵projection(正交/透视)
+2. 在片段着色器上, 将片段坐标变换至定向光的观察空间, 将深度值与深度贴图的closet深度值作比较.
+3. 混合颜色.
+
+### 需要注意的地方
+
+光的观察空间的视锥, 近平面/远平面距离的选择决定了空间的大小.
+
+指定一个固定的深度图分辨率, 填充该图前后进行视口变换viewport, 保证图像的尺寸正确, 方便第二次渲染时采样深度值.
+
+## 阴影失真(Shadow Acne)
+
+阴影贴图受限于分辨率，在距离光源比较远的情况下，多个片段可能从深度贴图的同一个值中去采样。
+
+解决方案
+
+- 阴影偏移（shadow bias）
+
+使用了偏移量后，所有采样点都获得了比表面深度更小的深度值
+
+```c
+float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+```
+
+## 悬浮(Peter Panning)
