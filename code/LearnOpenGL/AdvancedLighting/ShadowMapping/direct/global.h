@@ -2,6 +2,7 @@
 
 #define OUTLINE_DEPTH
 
+#include "model.h"
 #include "camera.h"
 #include "shader.h"
 #include "texture2d.h"
@@ -21,6 +22,7 @@ extern enum {
   IDX_QUAD,
 
   IDX_MODEL,
+  IDX_OUTLINE_MODEL,
   IDX_LAMP,
   IDX_SIMPLE_DEPTH,
   SHADER_NUM,
@@ -57,12 +59,18 @@ extern Cubemaps *tex_skybox;
 extern GLFWwindow* window;
 extern Camera::Camera *camera;
 
+extern Model **loading_models;
+extern int model_count;
+extern int selected_model;
+extern glm::vec3 *model_pos;
+
 extern float deltaTime;
 extern float lastFrame;
 extern float sunSpeed;
 
 extern void initShaders();
 extern void switchModels();
+extern void moveModel(unsigned int, float);
 extern void switchFullScreen();
 
 extern bool rolling;

@@ -1,6 +1,7 @@
 #include <iostream>
 using namespace std;
 
+#include "model.h"
 #include "global.h"
 #include "camera.h"
 
@@ -72,23 +73,44 @@ void processInput(GLFWwindow *window)
   if(isKeyPressed(GLFW_KEY_ESCAPE))
     glfwSetWindowShouldClose(window, true);           // response to ESC
 
-  unsigned int camera_direct = 0;
-  if(isKeyHolding(GLFW_KEY_W)) camera_direct = Camera::FORWARD;
-  if(isKeyHolding(GLFW_KEY_S)) camera_direct = Camera::BACKWARD;
-  if(isKeyHolding(GLFW_KEY_A)) camera_direct = Camera::LEFT;
-  if(isKeyHolding(GLFW_KEY_D)) camera_direct = Camera::RIGHT;
-  if(isKeyHolding(GLFW_KEY_Q)) camera_direct = Camera::RISE;
-  if(isKeyHolding(GLFW_KEY_E)) camera_direct = Camera::FALL;
-  if (camera_direct) {
-    float ratio = 1.0f;
-    if (isKeyHolding(GLFW_KEY_LEFT_SHIFT)) {
-      // speed up
-      ratio = 2.0f;
-    } else if (isKeyHolding(GLFW_KEY_LEFT_CONTROL)) {
-      // speed slow
-      ratio = 0.5f;
+  if (selected_model < 0) {
+    unsigned int camera_direct = 0;
+    if(isKeyHolding(GLFW_KEY_W)) camera_direct = Camera::FORWARD;
+    if(isKeyHolding(GLFW_KEY_S)) camera_direct = Camera::BACKWARD;
+    if(isKeyHolding(GLFW_KEY_A)) camera_direct = Camera::LEFT;
+    if(isKeyHolding(GLFW_KEY_D)) camera_direct = Camera::RIGHT;
+    if(isKeyHolding(GLFW_KEY_Q)) camera_direct = Camera::RISE;
+    if(isKeyHolding(GLFW_KEY_E)) camera_direct = Camera::FALL;
+    if (camera_direct) {
+      float ratio = 1.0f;
+      if (isKeyHolding(GLFW_KEY_LEFT_SHIFT)) {
+        // speed up
+        ratio = 2.0f;
+      } else if (isKeyHolding(GLFW_KEY_LEFT_CONTROL)) {
+        // speed slow
+        ratio = 0.5f;
+      }
+      camera->ProcessKeyboard((Camera::Camera_Movement)camera_direct, deltaTime, ratio);
     }
-    camera->ProcessKeyboard((Camera::Camera_Movement)camera_direct, deltaTime, ratio);
+  } else {
+    unsigned int model_move = 0;
+    if(isKeyHolding(GLFW_KEY_W)) model_move = Model::FORWARD;
+    if(isKeyHolding(GLFW_KEY_S)) model_move = Model::BACKWARD;
+    if(isKeyHolding(GLFW_KEY_A)) model_move = Model::LEFT;
+    if(isKeyHolding(GLFW_KEY_D)) model_move = Model::RIGHT;
+    if(isKeyHolding(GLFW_KEY_Q)) model_move = Model::RISE;
+    if(isKeyHolding(GLFW_KEY_E)) model_move = Model::FALL;
+    if (model_move) {
+      float ratio = 1.0f;
+      if (isKeyHolding(GLFW_KEY_LEFT_SHIFT)) {
+        // speed up
+        ratio = 2.0f;
+      } else if (isKeyHolding(GLFW_KEY_LEFT_CONTROL)) {
+        // speed slow
+        ratio = 0.1f;
+      }
+      moveModel(model_move, ratio);
+    }
   }
   
   if(isKeyPressed(GLFW_KEY_SPACE)) {
@@ -126,9 +148,9 @@ void processInput(GLFWwindow *window)
   }
 
   if(isKeyHolding(GLFW_KEY_B)) {
-    shader[IDX_PLANE]->setInt("blinn", 1);
-  } else {
     shader[IDX_PLANE]->setInt("blinn", 0);
+  } else {
+    shader[IDX_PLANE]->setInt("blinn", 1);
   }
 
   if(isKeyHolding(GLFW_KEY_G)) {
@@ -151,7 +173,13 @@ void processInput(GLFWwindow *window)
   }
   if(isKeyPressed(GLFW_KEY_PAGE_DOWN)) {
     sunSpeed /= 2.0f;
-    sunSpeed = max(sunSpeed, 1.0f);
+    sunSpeed = glm::max(sunSpeed, 1.0f);
     cout << "sun speed down " << sunSpeed << endl;
+  }
+
+  if(isKeyPressed(GLFW_KEY_P)) {
+    if (selected_model>=0) {
+      cout << model_pos[selected_model].x << "," << model_pos[selected_model].y << "," << model_pos[selected_model].z << endl;
+    }
   }
 }

@@ -38,6 +38,11 @@ void initShaders() {
   shader[IDX_LAMP] = new Shader("vertex_lighted.shader", "fragment_color.shader");
   shader[IDX_SIMPLE_DEPTH] = new Shader("vertex_simple_depth.shader", "fragment_simple_depth.shader");
 
+  shader[IDX_OUTLINE_MODEL] = new Shader("vertex_model_outline.shader", "fragment_outline_color.shader");
+  shader[IDX_OUTLINE_MODEL]->setVec4("color", vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+  Model::borderShader = shader[IDX_OUTLINE_MODEL];
+
   // direct light
   vec3 ambientLight(0.0f, 0.0f, 0.0f);
   vec3 diffuseLight(0.1f, 0.1f, 0.1f);
@@ -71,7 +76,7 @@ void initShaders() {
   // point light
   for (int i=0; i<POINT_LIGHT_NUM; i++) {
     for (int j : OBJ_IDXS) {
-      shader[j]->setVec3("pointLights.ambient", ambientLight), i;
+      shader[j]->setVec3("pointLights.ambient", ambientLight, i);
       shader[j]->setVec3("pointLights.diffuse", gPointLightPositions[i][1], i);
       shader[j]->setVec3("pointLights.specular", gPointLightPositions[i][1], i);
       
@@ -86,7 +91,7 @@ void initShaders() {
   for (int i: OBJ_IDXS)
     shader[i]->setFloat("material.shininess", 8.0f);
 
-  shader[IDX_PLANE]->setInt("blinn", 0);  
+  shader[IDX_PLANE]->setInt("blinn", 1);  
   shader[IDX_PLANE]->setInt("gamma", 0);  
 }
 

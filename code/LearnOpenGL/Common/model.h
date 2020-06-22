@@ -38,6 +38,15 @@ class ModelCore {
 
 class Model {
 public:
+    enum Model_Movement {
+        UNKNOWN,
+        FORWARD,
+        BACKWARD,
+        LEFT,
+        RIGHT,
+        RISE,
+        FALL,
+    };
     /*  函数   */
     Model(string path, bool flip=true);
     ~Model();

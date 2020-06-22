@@ -70,7 +70,7 @@ void initShaders() {
   // point light
   for (int i=0; i<POINT_LIGHT_NUM; i++) {
     for (int j : OBJ_IDXS) {
-      shader[j]->setVec3("pointLights.ambient", ambientLight), i;
+      shader[j]->setVec3("pointLights.ambient", ambientLight, i);
       shader[j]->setVec3("pointLights.diffuse", gPointLightPositions[i][1], i);
       shader[j]->setVec3("pointLights.specular", gPointLightPositions[i][1], i);
       

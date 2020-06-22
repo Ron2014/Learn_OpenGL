@@ -67,3 +67,65 @@ float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
 ```
 
 ## 悬浮(Peter Panning)
+
+使用背面深度不会有错误，因为阴影在物体内部有错误我们也看不见。
+
+解决方案
+
+- 正面剔除（front face culling）
+
+
+## 过度采样
+
+光照有一个区域，超出该区域就成为了阴影:
+
+1. 正射投影, 这个区域是个长方体
+2. 透视投影, 这个区域是个平头截体
+
+**采样的片段, 实际上是被定向光观察空间裁剪的片段.**
+
+- 解决方案
+
+1. 调整近平面/远平面
+
+扩大观察空间的纵深度
+
+2. 让所有超出深度贴图的坐标的深度范围是1.0，而不是0, 如果为0, 那么采样点永远处在阴影中.
+
+   - 对于观察空间的边缘: 把深度贴图的纹理环绕选项设置为GL_CLAMP_TO_BORDER, 并指定边缘值为1.0.
+
+```c
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+```
+
+   - 对于观察空间的远平面, 在片段着色器中修改
+
+```GLSL
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+```
+
+## 阴影的锯齿
+
+深度贴图拥有固定分辨率, 多个片段对应一个纹理像素.
+
+- 解决方案
+
+PCF（percentage-closer filtering）
+
+一共采样9个点(包括边缘的8个点), 对它们的shadow求平均值.
+
+比较重要的是, 我们需要知道纹素texel的尺寸: 一个片段包含多少个像素
+
+```GLSL
+vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+```
+
+这个textureSize返回一个给定采样器纹理的0级mipmap的vec2类型的宽和高。用1除以它返回一个单独纹理像素的大小，我们用以对纹理坐标进行偏移，确保每个新样本，来自不同的深度值。
+
+## 透视投影
+
+会进行提前深度测试, 深度值非线性.

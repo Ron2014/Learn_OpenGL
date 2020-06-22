@@ -84,11 +84,12 @@ vector< vector<float> > all_vertices = {
   },
   // quad
   {
+    // 铺满屏幕
             // positions        // texture Coords
-            -1.0f,  0.9f, 0.0f, 0.0f, 1.0f,
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
             -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-             0.9f,  0.9f, 0.0f, 1.0f, 1.0f,
-             0.9f, -1.0f, 0.0f, 1.0f, 0.0f,
+             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
   },
 };
 

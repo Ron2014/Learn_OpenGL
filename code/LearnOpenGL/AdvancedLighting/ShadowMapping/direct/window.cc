@@ -97,7 +97,10 @@ int main(int argc, char *argv[]) {
     lightView = glm::lookAt(-directLightDir, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
     lightSpaceMatrix = lightProjection * lightView;
     // shader[IDX_SIMPLE_DEPTH]->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
-    for (int i : OBJ_IDXS) shader[i]->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
+    for (int i : OBJ_IDXS) {
+      shader[i]->setMatrix4("lightSpaceMatrix", lightSpaceMatrix);
+      shader[i]->setVec3("directLight.direction", directLightDir);
+    }
 
     int org_w = WIN_WIDTH, org_h = WIN_HEIGHT;
     // 1. 首选渲染深度贴图

@@ -1,5 +1,11 @@
 #version 330 core
 out vec4 FragColor;  
+struct DirectLight {
+  vec3 direction;
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
+};
 
 struct PointLight {
   vec3 position;
@@ -24,11 +30,13 @@ in VS_OUT {
 
 uniform sampler2D shadowMap;
 uniform sampler2D ourTexture;
+uniform DirectLight directLight;
 uniform vec3 viewPos;
 uniform bool blinn;
 uniform bool gamma;
 
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
+    if (dot(normal, lightDir) <=0 ) return 1.0f;
     // 执行透视除法
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
@@ -48,6 +56,28 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
     }
     shadow /= 9.0;
     return shadow;
+}
+
+vec3 CalcDirectLight(DirectLight light, vec3 normal, vec3 viewDir) {
+  vec3 ambient = light.ambient;
+  
+  vec3 fromLight = light.direction;
+  vec3 toLight = -fromLight;
+  float diff = max(dot(toLight, normal), 0.0);
+  vec3 diffuse = light.diffuse * diff;
+
+  float spec;
+  if (blinn) {
+    vec3 halfwayDir = normalize(viewDir + toLight);
+    spec = pow(max(dot(normal, halfwayDir), 0.0f), 32.0f);
+  } else {
+    vec3 reflectDir = reflect(fromLight, normal);
+    spec = pow(max(dot(viewDir, reflectDir), 0.0f), 8.0f);
+  }
+  vec3 specular = light.specular * spec * 0.005;
+
+  float shadow = ShadowCalculation(fs_in.FragPosLightSpace, normal, toLight);
+  return ambient + (diffuse + specular) * (1.0f - shadow);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir, vec3 FragPos) {
@@ -75,9 +105,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir, vec3 FragPos) {
   }
   vec3 specular = light.specular * spec;
 
-  // return (ambient + diffuse + specular) * attenuation;
-  float shadow = ShadowCalculation(fs_in.FragPosLightSpace, normal, toLight);
-  return (ambient + (diffuse + specular) * (1.0f - shadow)) * attenuation;
+  return (ambient + diffuse + specular) * attenuation;
 }
 
 void main()
@@ -87,6 +115,7 @@ void main()
   vec3 viewDir = normalize(viewPos - fs_in.FragPos);
 
   vec3 lighting = vec3(0.0f);
+  lighting += CalcDirectLight(directLight, norm, viewDir);
   for(int i = 0; i < NR_POINT_LIGHTS; i++)
       lighting += CalcPointLight(pointLights[i], norm, viewDir, fs_in.FragPos);
   texColor *= lighting;
