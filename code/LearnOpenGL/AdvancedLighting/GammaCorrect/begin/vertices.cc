@@ -13,12 +13,12 @@ extern unsigned int VBO[BUFF_LEN]={0}, VAO[BUFF_LEN]={0};
 extern bool rolling = true;
 
 const char *texture_data[TEX_COUNT][2] = {
-  {"container2.png", "material.diffuse"},
+  {"container2.png",          "material.diffuse"},
   {"container2_specular.png", "material.specular"},
-  {"matrix.jpg", "material.emission"},
-  {"wood.png", "ourTexture"},
+  {"matrix.jpg",              "material.emission"},
+  {"wood.png",                "ourTexture"},
 };
-extern Texture2D *cube_texture[TEX_COUNT] = {nullptr};
+extern Texture2D *cube_texture[TEX_COUNT*2] = {nullptr};
 extern Cubemaps *tex_skybox = nullptr;
 
 vector< vector<float> > all_vertices = {
@@ -101,7 +101,7 @@ glm::vec3 grass_positions[] = {
 };
 
 void cleanCubeData() {
-  for (int i=0; i<TEX_COUNT; i++) {
+  for (int i=0; i<TEX_COUNT*2; i++) {
     if(cube_texture[i]) delete cube_texture[i];
     cube_texture[i] = nullptr;
   }
@@ -147,6 +147,7 @@ void initCubeData() {
 
   for (int i=0; i<TEX_COUNT; i++) {
     cube_texture[i] = new Texture2D(texture_data[i][0], texture_data[i][1]);
+    cube_texture[i+TEX_COUNT] = new TextureGamma(texture_data[i][0], texture_data[i][1]);
     shader[IDX_CUBE]->setInt(cube_texture[i]->uniform_name, i);
   }
 }
@@ -155,8 +156,10 @@ void renderCubes(bool rolling) {
   glBindVertexArray(VAO[IDX_CUBE]);
   shader[IDX_CUBE]->use();
   
-  for (int i=0; i<TEX_COUNT-1; i++)
-    cube_texture[i]->use();                // 创建了 texture 但是忘记 use，就看不到高光效果了
+  for (int i=0; i<TEX_COUNT-1; i++) {
+    if (gamma) cube_texture[i+TEX_COUNT]->use();
+    else  cube_texture[i]->use();
+  }
 
   for (int i=0; i<(sizeof(cube_positions)/sizeof(glm::vec3)); i++) {
     glm::vec3 pos = cube_positions[i];
@@ -174,7 +177,8 @@ void renderPlane() {
   glBindVertexArray(VAO[IDX_PLANE]);
 
   shader[IDX_PLANE]->use();
-  cube_texture[TEX_PLANE]->use();
+  if (gamma) cube_texture[TEX_PLANE+TEX_COUNT]->use();
+  else  cube_texture[TEX_PLANE]->use();
   shader[IDX_PLANE]->setInt(cube_texture[TEX_PLANE]->uniform_name, 0);
 
   glm::mat4 model(1.0f);
