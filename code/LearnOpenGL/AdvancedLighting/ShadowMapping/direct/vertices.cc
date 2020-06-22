@@ -192,7 +192,7 @@ void renderPlane() {
     cube_texture[TEX_PLANE + offset],
     }, shader[shaderId]);
   glm::mat4 model(1.0f);
-  model = glm::translate(model, glm::vec3(0.0f, 0.0f, -5.0f));
+  // model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
   shader[shaderId]->setMatrix4("model", model);
   glDrawArrays(GL_TRIANGLES, 0, 6);
 }

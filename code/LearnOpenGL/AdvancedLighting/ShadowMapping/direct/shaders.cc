@@ -132,7 +132,7 @@ void renderCamera() {
     glBindVertexArray(VAO[IDX_CUBE]);
     shader[IDX_LAMP]->use();
     glm::mat4 model(1.0f);
-    model = glm::translate(model, -glm::normalize(directLightDir) * 10.0f);
+    model = glm::translate(model, -glm::normalize(directLightDir) * 20.0f);
     shader[IDX_LAMP]->setMatrix4("model", model);
     shader[IDX_LAMP]->setVec4("color", glm::vec4(1.0f));
     glDrawArrays(GL_TRIANGLES, 0, 36);
