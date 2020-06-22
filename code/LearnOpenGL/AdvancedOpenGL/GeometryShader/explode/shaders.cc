@@ -31,7 +31,7 @@ void initShaders() {
 
   // shader source -> shader object -> shader program
   shader[IDX_CUBE] = new Shader("vertex_specular.shader", "fragment_multiple_lights.shader");
-  shader[IDX_MODEL] = new Shader("vertex_explode.shader", "fragment_model_in_lights.shader", "geometry_explode.shader");
+  shader[IDX_MODEL] = new Shader("vertex_diffuse_block.shader", "fragment_model_in_lights.shader", "geometry_explode.shader");
   shader[IDX_LAMP] = new Shader("vertex_lighted.shader", "fragment_lamp.shader");
 
   shader[IDX_OUTLINE_CUBE] = new Shader("vertex_back_facing.shader", "fragment_color.shader");

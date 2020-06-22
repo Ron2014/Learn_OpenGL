@@ -196,7 +196,9 @@ Cubemaps::~Cubemaps() {
 }
 
 void Cubemaps::use() {
+  glActiveTexture(TEXTURE_UNIT_ID+GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
+  TEXTURE_UNIT_ID++;
 }
 
 void Cubemaps::bind() {

@@ -1,12 +1,13 @@
 #version 330 core
-layout (triangles) in;
-layout (triangle_strip, max_vertices = 75) out;
+layout (points) in;
+layout (points, max_vertices = 6) out;
 
 out vec4 FragPos;
+out vec3 lightPos;
 
-uniform mat4 directLightMatrix;
+struct PointLightData {
+  vec3 position;
 
-struct PointLightMatrix {
   mat4 right;
   mat4 left;
   mat4 top;
@@ -15,47 +16,39 @@ struct PointLightMatrix {
   mat4 back;
 };
 
-#define NR_POINT_LIGHTS 4
-uniform PointLightMatrix pointLightMatrix[NR_POINT_LIGHTS];
+// #define NR_POINT_LIGHTS 4
+#define NR_POINT_LIGHTS 1
+uniform PointLightData pointLightData[NR_POINT_LIGHTS];
 
 void main() {
-    for(int j=0; j<3; j++) {
-      // FragPos = gl_in[j].gl_Position;
-      // gl_Position = directLightMatrix * FragPos;
+    FragPos = gl_in[0].gl_Position;
+    
+    for(int i=0; i<NR_POINT_LIGHTS; i++) {
+      lightPos = pointLightData[i].position;
 
-      // for(int k=0; k<6; k++) {
-      //   gl_Layer = k; // built-in variable that specifies to which face we render.
-      //   EmitVertex();
-      // }
-      FragPos = gl_in[j].gl_Position;
-      gl_Position = directLightMatrix * FragPos;
+      gl_Layer = 0; // built-in variable that specifies to which face we render.
+      gl_Position = pointLightData[i].right * FragPos;
       EmitVertex();
       
-      for(int i=0; i<NR_POINT_LIGHTS; i++) {
-        gl_Layer = 0; // built-in variable that specifies to which face we render.
-        gl_Position = pointLightMatrix[i].right * FragPos;
-        EmitVertex();
-        
-        gl_Layer = 1; // built-in variable that specifies to which face we render.
-        gl_Position = pointLightMatrix[i].left * FragPos;
-        EmitVertex();
-        
-        gl_Layer = 2; // built-in variable that specifies to which face we render.
-        gl_Position = pointLightMatrix[i].top * FragPos;
-        EmitVertex();
-        
-        gl_Layer = 3; // built-in variable that specifies to which face we render.
-        gl_Position = pointLightMatrix[i].bottom * FragPos;
-        EmitVertex();
-        
-        gl_Layer = 4; // built-in variable that specifies to which face we render.
-        gl_Position = pointLightMatrix[i].front * FragPos;
-        EmitVertex();
-        
-        gl_Layer = 5; // built-in variable that specifies to which face we render.
-        gl_Position = pointLightMatrix[i].back * FragPos;
-        EmitVertex();
-      }
+      gl_Layer = 1; // built-in variable that specifies to which face we render.
+      gl_Position = pointLightData[i].left * FragPos;
+      EmitVertex();
+      
+      gl_Layer = 2; // built-in variable that specifies to which face we render.
+      gl_Position = pointLightData[i].top * FragPos;
+      EmitVertex();
+      
+      gl_Layer = 3; // built-in variable that specifies to which face we render.
+      gl_Position = pointLightData[i].bottom * FragPos;
+      EmitVertex();
+      
+      gl_Layer = 4; // built-in variable that specifies to which face we render.
+      gl_Position = pointLightData[i].front * FragPos;
+      EmitVertex();
+      
+      gl_Layer = 5; // built-in variable that specifies to which face we render.
+      gl_Position = pointLightData[i].back * FragPos;
+      EmitVertex();
     }
 
     EndPrimitive();

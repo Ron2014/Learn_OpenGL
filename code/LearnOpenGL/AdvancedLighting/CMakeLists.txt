@@ -1,3 +1,4 @@
 fips_add_subdirectory(BlinnPhong)
 fips_add_subdirectory(GammaCorrect)
 fips_add_subdirectory(ShadowMapping)
+fips_add_subdirectory(NormalMapping)
