@@ -32,6 +32,7 @@ in VS_OUT {
 uniform sampler2D shadowMap;
 uniform samplerCube shadowCubemap;
 uniform sampler2D ourTexture;
+
 uniform DirectLight directLight;
 uniform vec3 viewPos;
 uniform bool blinn;
@@ -60,6 +61,7 @@ float ShadowCalcDirectLight(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) 
     }
     shadow /= 9.0;
     return shadow;
+    // return 0.0f;
 }
 
 vec3 sampleOffsetDirections[20] = vec3[]
@@ -110,9 +112,9 @@ vec3 CalcDirectLight(DirectLight light, vec3 normal, vec3 viewDir) {
   }
   vec3 specular = light.specular * spec * 0.005;
 
-  // float shadow = ShadowCalcDirectLight(fs_in.FragPosLightSpace, normal, toLight);
-  // return ambient + (diffuse + specular) * (1.0f - shadow);
-  return ambient + diffuse + specular;
+  float shadow = ShadowCalcDirectLight(fs_in.FragPosLightSpace, normal, toLight);
+  return ambient + (diffuse + specular) * (1.0f - shadow);
+  // return ambient + diffuse + specular;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPos) {

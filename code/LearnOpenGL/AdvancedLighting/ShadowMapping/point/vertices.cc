@@ -150,6 +150,10 @@ void initCubeData() {
 
   tex_fb[FB_DEPTH_DIRECT] = initFrameBufferDepth(FRAME_BUFFER[FB_DEPTH_DIRECT], "shadowMap", SHADOW_W, SHADOW_H);
   tex_fb[FB_DEPTH_POINT] = initFrameBufferCubemapDepth(FRAME_BUFFER[FB_DEPTH_POINT], "shadowCubemap", SHADOW_W, SHADOW_H);
+
+  cout << "names:" << endl;
+  for (int i=0; i<FB_NUM; i++)
+    cout << tex_fb[i]->uniform_name << endl;
 }
 
 void renderCubes() {
@@ -158,7 +162,7 @@ void renderCubes() {
   int offset = 0;
   if (gamma) offset = TEX_COUNT;
   int shaderId = IDX_CUBE;
-  if (genShadow) shaderId = genShadow;
+  if (shaderShadow) shaderId = shaderShadow;
 
   Texture2D::use({
     tex_fb[FB_DEPTH_DIRECT],
@@ -184,7 +188,7 @@ void renderPlane() {
   int offset = 0;
   if (gamma) offset = TEX_COUNT;
   int shaderId = IDX_PLANE;
-  if (genShadow) shaderId = genShadow;
+  if (shaderShadow) shaderId = shaderShadow;
 
   Texture2D::use({
     tex_fb[FB_DEPTH_DIRECT],

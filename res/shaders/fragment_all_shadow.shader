@@ -130,8 +130,8 @@ vec3 CalcDirectLight(DirectLight light, vec3 normal, vec3 viewDir) {
   vec3 specular = light.specular * (spec * vec3(texture(material.specular, texCoord)));
 
   float shadow = ShadowCalcDirectLight(fs_in.FragPosLightSpace, normal, toLight);
-  // return ambient + (diffuse + specular) * (1.0f - shadow);
-  return ambient + diffuse + specular;
+  return ambient + (diffuse + specular) * (1.0f - shadow);
+  // return ambient + diffuse + specular;
 }
 
 vec3 sampleOffsetDirections[20] = vec3[]

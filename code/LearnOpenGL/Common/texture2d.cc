@@ -78,15 +78,17 @@ void Texture2D::use(const vector<Texture2D *> &aTex, const Shader *shader) {
   }
 }
 
-TextureAttach::TextureAttach(int width, int height, string uniform_name, GLenum minFilter, GLenum magFilter):uniform_name(uniform_name) {
+TextureAttach::TextureAttach(int width, int height, string uniform_name, GLenum minFilter, GLenum magFilter){
   glGenTextures(1, &ID);
   glBindTexture(GL_TEXTURE_2D, ID);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+  this->uniform_name = uniform_name;
 }
 
-TextureAttachDepth::TextureAttachDepth(int width, int height, string uniform_name, GLenum wrapping, GLenum minFilter, GLenum magFilter):uniform_name(uniform_name) {
+TextureAttachDepth::TextureAttachDepth(int width, int height, string uniform_name, GLenum wrapping, GLenum minFilter, GLenum magFilter){
+  this->uniform_name = uniform_name; 
   glGenTextures(1, &ID);
   glBindTexture(GL_TEXTURE_2D, ID);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
@@ -100,13 +102,14 @@ TextureAttachDepth::TextureAttachDepth(int width, int height, string uniform_nam
   }
 }
 
-TextureAttachSample::TextureAttachSample(int width, int height, int samples, string uniform_name):uniform_name(uniform_name),sample(samples) {
+TextureAttachSample::TextureAttachSample(int width, int height, int sample, string uniform_name):sample(sample) {
   glGenTextures(1, &ID);
   glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, ID);
-  glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, width, height, GL_TRUE);
+  glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sample, GL_RGB, width, height, GL_TRUE);
+  this->uniform_name = uniform_name;
 }
 
-TextureGamma::TextureGamma(string texPath, string uniform_name, GLuint type, GLenum wrapping, GLenum minFilter, GLenum magFilter): type(type){
+TextureGamma::TextureGamma(string texPath, string uniform_name, GLuint type, GLenum wrapping, GLenum minFilter, GLenum magFilter) {
   // 生成Texture并指定模式, 要放在文件加载之前.
   // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work
   glGenTextures(1, &ID);
@@ -141,6 +144,8 @@ TextureGamma::TextureGamma(string texPath, string uniform_name, GLuint type, GLe
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+    
+    this->type = type;
   } else {
     cout << "Fail to load texture " << texPath << endl;
   }
@@ -156,7 +161,7 @@ const char *faces[FACE_SIZE] = {
   "back.jpg",
 };
 
-Cubemaps::Cubemaps(string texPath, string uniform_name, GLuint type, GLenum wrapping, GLenum minFilter, GLenum magFilter): type(type), uniform_name(uniform_name) {
+Cubemaps::Cubemaps(string texPath, string uniform_name, GLuint type, GLenum wrapping, GLenum minFilter, GLenum magFilter) {
   // 生成Texture并指定模式, 要放在文件加载之前.
   // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work
   if (texPath.find("\\")==string::npos)
@@ -186,6 +191,9 @@ Cubemaps::Cubemaps(string texPath, string uniform_name, GLuint type, GLenum wrap
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, wrapping);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, minFilter);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, magFilter);
+
+  this->type =type;
+  this->uniform_name =uniform_name;
 }
 
 Cubemaps::~Cubemaps() {
@@ -209,7 +217,8 @@ void Cubemaps::reset() {
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-CubemapsAttachDepth::CubemapsAttachDepth(int width, int height, string uniform_name, GLenum wrapping, GLenum minFilter, GLenum magFilter):uniform_name(uniform_name) {
+CubemapsAttachDepth::CubemapsAttachDepth(int width, int height, string uniform_name, GLenum wrapping, GLenum minFilter, GLenum magFilter){
+  this->uniform_name = uniform_name;
   glGenTextures(1, &ID);
   glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
   for (unsigned int i = 0; i < FACE_SIZE; i++) {

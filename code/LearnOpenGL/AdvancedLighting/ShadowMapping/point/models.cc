@@ -92,7 +92,7 @@ void moveModel(unsigned int movement, float ratio) {
 
 void renderModels() {
   int shaderId = IDX_MODEL;
-  if (genShadow) shaderId = genShadow;
+  if (shaderShadow) shaderId = shaderShadow;
 
   for (int i=0; i<model_count; i++) {
     Texture2D::reset();

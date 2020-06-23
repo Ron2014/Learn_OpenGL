@@ -160,9 +160,9 @@ vec3 CalcDirectLight(DirectLight light, vec3 normal, vec3 viewDir) {
   // float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
   vec3 specular = light.specular * (spec * vec3(texture(material.specular0, texCoord)));
 
-  // float shadow = ShadowCalcDirectLight(fs_in.FragPosLightSpace, normal, toLight);
-  // return ambient + (diffuse + specular) * (1.0f - shadow);
-  return ambient + diffuse + specular;
+  float shadow = ShadowCalcDirectLight(fs_in.FragPosLightSpace, normal, toLight);
+  return ambient + (diffuse + specular) * (1.0f - shadow);
+  // return ambient + diffuse + specular;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPos) {

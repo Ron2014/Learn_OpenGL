@@ -10,7 +10,7 @@ using namespace std;
 #include <GLFW/glfw3.h>
 
 extern bool gamma = false;
-extern bool dbgShadow = false;
+extern int dbgShadow = 0;
 
 #define DEFAULT_SENSITIVE 0.2f
 #define FORBID_SENSITIVE 0.21f
@@ -161,10 +161,15 @@ void processInput(GLFWwindow *window)
     gamma = false;
   }
 
-  if(isKeyHolding(GLFW_KEY_DELETE)) {
-    dbgShadow = true;
-  } else {
-    dbgShadow = false;
+  if(isKeyPressed(GLFW_KEY_DELETE)) {
+    if (dbgShadow) dbgShadow = 0;
+    else {
+      if (isKeyHolding(GLFW_KEY_1)) {
+        dbgShadow = 1;
+      } else if(isKeyHolding(GLFW_KEY_2)) {
+        dbgShadow = 2;
+      }
+    }
   }
 
   if(isKeyPressed(GLFW_KEY_PAGE_UP)) {

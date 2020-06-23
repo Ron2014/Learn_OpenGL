@@ -19,7 +19,9 @@ extern glm::vec3 gPointLightPositions[POINT_LIGHT_NUM][2] = {
   { glm::vec3 (0.0f, 0.0f, 0.0f), glm::vec3(1.00),},
 };
 
-extern vector<int> OBJ_IDXS = {IDX_CUBE, IDX_PLANE, IDX_MODEL, IDX_CUBEMAP_DEPTH, IDX_DBUG};
+extern vector<int> OBJ_IDXS = {IDX_CUBE, IDX_PLANE, IDX_MODEL, 
+IDX_CUBEMAP_DEPTH, IDX_SIMPLE_DEPTH,
+IDX_DBUG, IDX_QUAD};
 
 void cleanShader() {
   for (int i=0; i<SHADER_NUM; i++) {
@@ -36,7 +38,7 @@ void initShaders() {
   shader[IDX_PLANE] = new Shader("vertex_shadow.shader", "fragment_gamma_all_shadow.shader");
   shader[IDX_MODEL] = new Shader("vertex_model_shadow.shader", "fragment_model_all_shadow.shader");
 
-  // shader[IDX_QUAD] = new Shader("vertex_normal3d.shader", "fragment_debug_depth.shader");
+  shader[IDX_QUAD] = new Shader("vertex_normal3d.shader", "fragment_debug_depth.shader");
   shader[IDX_DBUG] = new Shader("vertex_skybox.shader", "fragment_debug_cubemap_depth.shader");     // 调试用
   
   shader[IDX_LAMP] = new Shader("vertex_lighted.shader", "fragment_color.shader");

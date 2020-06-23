@@ -19,8 +19,9 @@ extern float FAR_Z;
 extern enum {
   IDX_CUBE,
   IDX_PLANE,
-  IDX_DBUG,
+  IDX_QUAD,
 
+  IDX_DBUG,
   IDX_MODEL,
   IDX_OUTLINE_MODEL,
   IDX_LAMP,
@@ -75,12 +76,12 @@ extern void switchModels();
 extern void moveModel(unsigned int, float);
 extern void switchFullScreen();
 
-extern int genShadow;
+extern int shaderShadow;
 
 extern bool rolling;
 extern bool drawNormal;
 extern bool gamma;
-extern bool dbgShadow;
+extern int dbgShadow;
 
 extern unsigned int amount;
 extern glm::mat4 *modelMatrices;

@@ -42,7 +42,7 @@ extern unsigned int WIN_HEIGHT = DEFAULT_SCR_H;
 
 extern float NEAR_Z = 0.1f;
 extern float FAR_Z = 1000.0f;
-extern int genShadow = 0;
+extern int shaderShadow = 0;
 extern float sunSpeed = 1.0f;
 
 GLFWwindow* window = nullptr;
@@ -111,75 +111,94 @@ int main(int argc, char *argv[]) {
 
         // right
         lookPoint = pos + glm::vec3(1.0f, 0.0f, 0.0f);
-        lightView = glm::lookAt(pos, lookPoint, glm::vec3(0.0f, 1.0f, 0.0f));
-        lightSpaceMatrix = lightProjection * lightView;
-        shader[i]->setMatrix4("pointLightData.right", lightSpaceMatrix, j);
+        lightView = glm::lookAt(pos, lookPoint, glm::vec3(0.0f, -1.0f, 0.0f));
+        shader[i]->setMatrix4("pointLightData.right", lightProjection * lightView, j);
 
         // left
         lookPoint = pos + glm::vec3(-1.0f, 0.0f, 0.0f);
         lightView = glm::lookAt(pos, lookPoint, glm::vec3(0.0f, -1.0f, 0.0f));
-        lightSpaceMatrix = lightProjection * lightView;
-        shader[i]->setMatrix4("pointLightData.left", lightSpaceMatrix, j);
+        shader[i]->setMatrix4("pointLightData.left", lightProjection * lightView, j);
 
         // top
         lookPoint = pos + glm::vec3(0.0f, 1.0f, 0.0f);
         lightView = glm::lookAt(pos, lookPoint, glm::vec3(0.0f, 0.0f, 1.0f));
-        lightSpaceMatrix = lightProjection * lightView;
-        shader[i]->setMatrix4("pointLightData.top", lightSpaceMatrix, j);
+        shader[i]->setMatrix4("pointLightData.top", lightProjection * lightView, j);
 
         // bottom
         lookPoint = pos + glm::vec3(0.0f, -1.0f, 0.0f);
         lightView = glm::lookAt(pos, lookPoint, glm::vec3(0.0f, 0.0f, -1.0f));
-        lightSpaceMatrix = lightProjection * lightView;
-        shader[i]->setMatrix4("pointLightData.bottom", lightSpaceMatrix, j);
+        shader[i]->setMatrix4("pointLightData.bottom", lightProjection * lightView, j);
 
         // front
         lookPoint = pos + glm::vec3(0.0f, 0.0f, 1.0f);
         lightView = glm::lookAt(pos, lookPoint, glm::vec3(0.0f, -1.0f, 0.0f));
-        lightSpaceMatrix = lightProjection * lightView;
-        shader[i]->setMatrix4("pointLightData.front", lightSpaceMatrix, j);
+        shader[i]->setMatrix4("pointLightData.front", lightProjection * lightView, j);
 
         // front
         lookPoint = pos + glm::vec3(0.0f, 0.0f, -1.0f);
         lightView = glm::lookAt(pos, lookPoint, glm::vec3(0.0f, -1.0f, 0.0f));
-        lightSpaceMatrix = lightProjection * lightView;
-        shader[i]->setMatrix4("pointLightData.back", lightSpaceMatrix, j);
+        shader[i]->setMatrix4("pointLightData.back", lightProjection * lightView, j);
       }
     }
 
     int org_w = WIN_WIDTH, org_h = WIN_HEIGHT;
     glViewport(0, 0, SHADOW_W, SHADOW_H);
-/*
+
     // 1. 渲染定向光深度贴图
     glBindFramebuffer(GL_FRAMEBUFFER, FRAME_BUFFER[FB_DEPTH_DIRECT]);
     glClear(GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
 
     // 只绘制阴影计算的物体
-    genShadow = IDX_SIMPLE_DEPTH;
+    shaderShadow = IDX_SIMPLE_DEPTH;
+    Texture2D::use({tex_fb[FB_DEPTH_DIRECT]}, shader[shaderShadow]);
     renderPlane();
     renderCubes();
     renderModels();
-*/
+
     // 2. 渲染点光源深度贴图
     glBindFramebuffer(GL_FRAMEBUFFER, FRAME_BUFFER[FB_DEPTH_POINT]);
     glClear(GL_DEPTH_BUFFER_BIT);
     glCullFace(GL_FRONT);
 
     // 只绘制阴影计算的物体
-    genShadow = IDX_CUBEMAP_DEPTH;
+    shaderShadow = IDX_CUBEMAP_DEPTH;
+    Texture2D::use({tex_fb[FB_DEPTH_POINT]}, shader[shaderShadow]);
     renderPlane();
     renderCubes();
     renderModels();
 
-    genShadow = 0;
+    shaderShadow = 0;
     glCullFace(GL_BACK);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, org_w, org_h);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // 绘制场景
-    drawScene();
+    switch (dbgShadow) {
+      case 0: {
+        // 绘制场景
+        drawScene();
+
+      } break;
+      case 1: {
+        // 将深度贴图展示出来
+        Texture2D::use({tex_fb[FB_DEPTH_DIRECT]}, shader[IDX_QUAD]);
+        glBindVertexArray(VAO[IDX_QUAD]);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glBindVertexArray(0);
+
+      } break;
+      case 2: {
+        // 立方体深度贴图
+        glDepthFunc(GL_LEQUAL);
+        Texture2D::use({tex_fb[FB_DEPTH_POINT]}, shader[IDX_DBUG]);
+        glBindVertexArray(VAO[IDX_CUBE]);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDepthFunc(GL_LESS);
+        glBindVertexArray(0);
+        
+      } break;
+    };
 
     glfwSwapBuffers(window);              // double buffer switch
     glfwPollEvents();                     // keyboard/mouse event
