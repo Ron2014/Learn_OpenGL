@@ -9,7 +9,7 @@
 using namespace glm;
 using namespace std;
 
-extern unsigned int VBO[BUFF_LEN]={0}, VAO[BUFF_LEN]={0};
+extern unsigned int VBO[BUFF_LEN+1]={0}, VAO[BUFF_LEN]={0};
 extern unsigned int FRAME_BUFFER[FB_NUM]={0};
 extern Texture2D *tex_fb[FB_NUM] = {nullptr};
 extern bool rolling = true;
@@ -182,6 +182,7 @@ void initCubeData() {
   for (int i=0; i<BUFF_LEN; i++) {
     initBuffer(VAO[i], VBO[i], all_vertices[i].size(), &(all_vertices[i][0]), all_attrib[i]);
   }
+  glGenBuffers(1, &VBO[IDX_CUBEMAP_DEPTH]);
 
   for (int i=0; i<TEX_COUNT; i++) {
     cube_texture[i] = new Texture2D(texture_data[i][0], texture_data[i][1]);
@@ -219,8 +220,9 @@ void renderCubes() {
     model = glm::translate(model, pos);
     if (rolling) model = glm::rotate(model, (float)glfwGetTime()+20.0f*(i+1), glm::vec3(0.5f, 1.0f, 0.0f));
     shader[shaderId]->setMatrix4("model", model);  
-    
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    if (shaderShadow) glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1);
+    else glDrawArrays(GL_TRIANGLES, 0, 36);
+    // glDrawArrays(GL_TRIANGLES, 0, 36);
   }
 }
 
@@ -248,7 +250,9 @@ void renderPlane() {
   model = glm::scale(model, glm::vec3(25.0f));
   shader[shaderId]->setMatrix4("model", model);
     
-  glDrawArrays(GL_TRIANGLES, 0, 36);
+  if (shaderShadow) glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1);
+  else glDrawArrays(GL_TRIANGLES, 0, 36);
+  // glDrawArrays(GL_TRIANGLES, 0, 36);
 
   shader[shaderId]->setInt("reverse_normals", 0);
   glEnable(GL_CULL_FACE);

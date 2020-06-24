@@ -56,6 +56,10 @@ void ModelCore::ShowBorder(bool visible) {
   border = visible;
 }
 
+vector<Mesh> &ModelCore::GetMesh() {
+  return meshes;
+}
+
 void ModelCore::DrawAmount(Shader *shader, int amount) {
   for (Mesh m : meshes)
     m.DrawAmount(shader, amount);

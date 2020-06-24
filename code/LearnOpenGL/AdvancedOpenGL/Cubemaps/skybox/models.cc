@@ -34,6 +34,9 @@ void initModels(int n, char *path[]) {
 }
 
 void renderModels() {
+  Cubemaps::reset();
+  Texture2D::reset();                  // use 完之后记得重置
+  
   for (int i=0; i<model_count; i++) {
     shader[IDX_MODEL]->use();
 

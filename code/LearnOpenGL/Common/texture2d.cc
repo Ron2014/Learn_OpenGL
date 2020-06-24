@@ -8,7 +8,13 @@ using namespace std;
 
 unsigned int Texture2D::TEXTURE_UNIT_ID = 0;
 
-Texture2D::Texture2D(string texPath, string uniform_name, GLuint type, GLenum wrapping, GLenum minFilter, GLenum magFilter): type(type), uniform_name(uniform_name) {
+Texture2D::Texture2D(string texPath,
+  string uniform_name,
+  GLuint type,
+  GLenum wrapping,
+  GLenum minFilter,
+  GLenum magFilter): type(type), uniform_name(uniform_name) {
+
   // 生成Texture并指定模式, 要放在文件加载之前.
   // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work
   glGenTextures(1, &ID);
@@ -40,6 +46,7 @@ Texture2D::Texture2D(string texPath, string uniform_name, GLuint type, GLenum wr
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+    glBindTexture(GL_TEXTURE_2D, 0);
   } else {
     cout << "Fail to load texture " << texPath << endl;
   }
@@ -67,6 +74,7 @@ void Texture2D::bind() {
 void Texture2D::reset() {
   TEXTURE_UNIT_ID = 0;
   glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture2D::use(const vector<Texture2D *> &aTex, const Shader *shader) {
@@ -78,16 +86,35 @@ void Texture2D::use(const vector<Texture2D *> &aTex, const Shader *shader) {
   }
 }
 
-TextureAttach::TextureAttach(int width, int height, string uniform_name, GLenum minFilter, GLenum magFilter){
+void Texture2D::use4model(const vector<Texture2D *> &aTex, const Shader *shader, int offset) {
+  for (int i=0; i<aTex.size(); i++) {
+    Texture2D *tex = aTex[i];
+    glActiveTexture(GL_TEXTURE0+i+offset);
+    tex->bind();
+    if (!tex->uniform_name.empty() && shader) shader->setInt(tex->uniform_name, i+offset);
+  }
+}
+
+TextureAttach::TextureAttach(int width, int height,
+  string uniform_name,
+  GLenum minFilter,
+  GLenum magFilter) {
+
   glGenTextures(1, &ID);
   glBindTexture(GL_TEXTURE_2D, ID);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
   this->uniform_name = uniform_name;
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-TextureAttachDepth::TextureAttachDepth(int width, int height, string uniform_name, GLenum wrapping, GLenum minFilter, GLenum magFilter){
+TextureAttachDepth::TextureAttachDepth(int width, int height,
+  string uniform_name,
+  GLenum wrapping,
+  GLenum minFilter,
+  GLenum magFilter) {
+
   this->uniform_name = uniform_name; 
   glGenTextures(1, &ID);
   glBindTexture(GL_TEXTURE_2D, ID);
@@ -100,16 +127,26 @@ TextureAttachDepth::TextureAttachDepth(int width, int height, string uniform_nam
     GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
   }
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-TextureAttachSample::TextureAttachSample(int width, int height, int sample, string uniform_name):sample(sample) {
+TextureAttachSample::TextureAttachSample(int width, int height, int sample,
+  string uniform_name): sample(sample) {
+
   glGenTextures(1, &ID);
   glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, ID);
   glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, sample, GL_RGB, width, height, GL_TRUE);
   this->uniform_name = uniform_name;
+  glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 }
 
-TextureGamma::TextureGamma(string texPath, string uniform_name, GLuint type, GLenum wrapping, GLenum minFilter, GLenum magFilter) {
+TextureGamma::TextureGamma(string texPath, 
+  string uniform_name,
+  GLuint type,
+  GLenum wrapping,
+  GLenum minFilter,
+  GLenum magFilter) {
+
   // 生成Texture并指定模式, 要放在文件加载之前.
   // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work
   glGenTextures(1, &ID);
@@ -146,6 +183,8 @@ TextureGamma::TextureGamma(string texPath, string uniform_name, GLuint type, GLe
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
     
     this->type = type;
+    glBindTexture(GL_TEXTURE_2D, 0);
+
   } else {
     cout << "Fail to load texture " << texPath << endl;
   }
@@ -161,7 +200,13 @@ const char *faces[FACE_SIZE] = {
   "back.jpg",
 };
 
-Cubemaps::Cubemaps(string texPath, string uniform_name, GLuint type, GLenum wrapping, GLenum minFilter, GLenum magFilter) {
+Cubemaps::Cubemaps(string texPath,
+  string uniform_name,
+  GLuint type,
+  GLenum wrapping,
+  GLenum minFilter,
+  GLenum magFilter) {
+
   // 生成Texture并指定模式, 要放在文件加载之前.
   // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work
   if (texPath.find("\\")==string::npos)
@@ -173,18 +218,10 @@ Cubemaps::Cubemaps(string texPath, string uniform_name, GLuint type, GLenum wrap
   int width, height, nrChannels;
   for (unsigned int i = 0; i < FACE_SIZE; i++) {
       string fullpath = texPath + '\\' + faces[i];
-      unsigned char *data = stbi_load( fullpath.c_str(), &width, &height, &nrChannels, 0);
-      if (data)
-      {
-          glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
-                        0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-          stbi_image_free(data);
-      }
-      else
-      {
-          std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-          stbi_image_free(data);
-      }
+      unsigned char *data = stbi_load(fullpath.c_str(), &width, &height, &nrChannels, 0);
+      if (data) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+      else std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+      stbi_image_free(data);
   }
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, wrapping);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, wrapping);
@@ -194,6 +231,7 @@ Cubemaps::Cubemaps(string texPath, string uniform_name, GLuint type, GLenum wrap
 
   this->type =type;
   this->uniform_name =uniform_name;
+  glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
 Cubemaps::~Cubemaps() {
@@ -204,9 +242,9 @@ Cubemaps::~Cubemaps() {
 }
 
 void Cubemaps::use() {
-  glActiveTexture(TEXTURE_UNIT_ID+GL_TEXTURE0);
+  glActiveTexture(Texture2D::TEXTURE_UNIT_ID+GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
-  TEXTURE_UNIT_ID++;
+  Texture2D::TEXTURE_UNIT_ID++;
 }
 
 void Cubemaps::bind() {
@@ -217,7 +255,12 @@ void Cubemaps::reset() {
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-CubemapsAttachDepth::CubemapsAttachDepth(int width, int height, string uniform_name, GLenum wrapping, GLenum minFilter, GLenum magFilter){
+CubemapsAttachDepth::CubemapsAttachDepth(int width, int height, 
+  string uniform_name,
+  GLenum wrapping,
+  GLenum minFilter,
+  GLenum magFilter) {
+
   this->uniform_name = uniform_name;
   glGenTextures(1, &ID);
   glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
@@ -234,4 +277,5 @@ CubemapsAttachDepth::CubemapsAttachDepth(int width, int height, string uniform_n
       glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     }
   }
+  glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }

@@ -50,7 +50,13 @@ static int createProgram(vector<int> &shaders) {
 // #define  __DEBUG_UNIFORM
 
 static int getUniformLocation(int ID, const string &name, int idx) {
-  if (idx>=0) {
+  GLint result = 0;
+  stringstream tmp_name;
+  tmp_name << name;
+
+  if (idx < 0) {
+    result = glGetUniformLocation(ID, tmp_name.str().c_str());
+  } else {
     size_t dot_pos = name.find(".");
 #ifdef __DEBUG_UNIFORM
     cout << idx << " " << dot_pos << endl;
@@ -58,25 +64,27 @@ static int getUniformLocation(int ID, const string &name, int idx) {
     if (dot_pos!=string::npos) {
       // attribute in array-entry
       // name.xxx -> name[0].xxx
-      stringstream tmp_name;
+      tmp_name.str("");
       tmp_name << name.substr(0, dot_pos);
       tmp_name << "[" << idx << "]" << name.substr(dot_pos, name.length()-dot_pos);
 #ifdef __DEBUG_UNIFORM
       cout << tmp_name.str().c_str() << endl;
 #endif
-      return glGetUniformLocation(ID, tmp_name.str().c_str());
+      result = glGetUniformLocation(ID, tmp_name.str().c_str());
     } else {
       // array-entry itself
       // name -> name[0]
-      stringstream tmp_name;
-      tmp_name << name << "[" << idx << "]";
+      tmp_name << "[" << idx << "]";
 #ifdef __DEBUG_UNIFORM
       cout << tmp_name.str().c_str() << endl;
 #endif
-      return glGetUniformLocation(ID, tmp_name.str().c_str());
+      result = glGetUniformLocation(ID, tmp_name.str().c_str());
     }
   }
-  return glGetUniformLocation(ID, name.c_str());
+#ifdef __DEBUG_UNIFORM
+  if (result < 0) cout << "can't find uniform " << tmp_name.str() << endl;
+#endif
+  return result;
 }
 
 Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath, const GLchar *geometryPath) {

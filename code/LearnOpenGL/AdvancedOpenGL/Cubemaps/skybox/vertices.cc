@@ -147,7 +147,7 @@ void initCubeData() {
     else
       cube_texture[i] = new Texture2D(texture_data[i][0], texture_data[i][1]);
   }
-  tex_skybox = new Cubemaps("skybox");
+  tex_skybox = new Cubemaps("skybox", "skybox");
 }
 
 void renderCubes() {
@@ -208,25 +208,12 @@ void renderGrass() {
 }
 
 void renderSkybox(Camera::Camera *camera) {
-    // 天空盒
-    // glDepthMask(GL_FALSE);
     glDepthFunc(GL_LEQUAL);
-
     glBindVertexArray(VAO[IDX_CUBE]);
-    shader[IDX_SKYBOX]->use();
-    tex_skybox->use();
-    // shader[IDX_SKYBOX]->setInt("skybox", 0);
-
-    // model = glm::mat4(1.0f);
-    // model = glm::translate(model, camera->Position);
-    // shader[IDX_SKYBOX]->setMatrix4("model", model);
-
+    Texture2D::use({tex_skybox}, shader[IDX_SKYBOX]);
+    // 观察矩阵去掉平移数据
     glm::mat4 view = glm::mat4(glm::mat3(camera->GetViewMatrix()));
     shader[IDX_SKYBOX]->setMatrix4("view", view);
-
     glDrawArrays(GL_TRIANGLES, 0, 36);
-
-    Cubemaps::reset();
-    // glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
 }

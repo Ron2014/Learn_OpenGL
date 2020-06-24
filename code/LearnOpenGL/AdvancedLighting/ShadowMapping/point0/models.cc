@@ -102,7 +102,7 @@ void renderModels() {
     shader[shaderId]->setMatrix4("model", model);
 
     Texture2D::use4model({tex_fb[FB_DEPTH_DIRECT], tex_fb[FB_DEPTH_POINT]}, shader[shaderId]);
-    
-    loading_models[i]->Draw(shader[shaderId], &model);
+    if (shaderShadow) loading_models[i]->DrawAmount(shader[shaderId], 1);
+    else loading_models[i]->Draw(shader[shaderId], &model);
   }
 }
