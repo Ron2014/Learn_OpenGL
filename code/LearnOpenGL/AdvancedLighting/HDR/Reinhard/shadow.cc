@@ -39,6 +39,7 @@ void renderPointShadow() {
 void renderColorBuffer() {
     glBindFramebuffer(GL_FRAMEBUFFER, FRAME_BUFFER[FB_DEPTH_COLOR]);
       glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+      glDisable(GL_CULL_FACE);
       renderCamera();
       Texture2D::use({cube_texture[TEX_PLANE]}, shader[IDX_COLOR_BUF_W]);
       for (GLuint i = 0; i < lightPositions.size(); i++) {
@@ -52,6 +53,7 @@ void renderColorBuffer() {
       shader[IDX_COLOR_BUF_W]->setInt("reverse_normals", GL_TRUE);
       glBindVertexArray(VAO[IDX_CUBE]);
       glDrawArrays(GL_TRIANGLES, 0, 36);
+      glEnable(GL_CULL_FACE);
 }
 
 void debugDirectShadow () {
