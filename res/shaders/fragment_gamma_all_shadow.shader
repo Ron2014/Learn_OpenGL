@@ -20,6 +20,11 @@ struct PointLight {
 };
 uniform PointLight pointLight;
 
+struct Material {
+    sampler2D diffuse;
+    sampler2D normal;
+}; 
+
 in VS_OUT {
     vec3 Normal;
     vec3 FragPos;
@@ -29,7 +34,7 @@ in VS_OUT {
 
 uniform sampler2D shadowMap;
 uniform samplerCube shadowCubemap;
-uniform sampler2D ourTexture;
+uniform Material material;      // == objColor
 
 uniform DirectLight directLight;
 uniform vec3 viewPos;
@@ -140,7 +145,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPos) {
 
 void main()
 {
-  vec3 texColor = texture(ourTexture, fs_in.TexCoord).rgb;
+  vec3 texColor = texture(material.diffuse, fs_in.TexCoord).rgb;
   vec3 norm = normalize(fs_in.Normal);
   vec3 viewDir = normalize(viewPos - fs_in.FragPos);
 
