@@ -76,7 +76,19 @@ extern void initShaders();
 extern void switchModels();
 extern void moveModel(unsigned int, float);
 extern void switchFullScreen();
+
 extern void update(float);
+
+extern void renderCamera();
+extern void renderPlane();
+extern void renderCubes();
+extern void renderModels();
+
+extern void renderDirectShadow();
+extern void renderPointShadow();
+
+extern void debugDirectShadow();
+extern void debugPointShadow();
 
 extern int shaderShadow;
 

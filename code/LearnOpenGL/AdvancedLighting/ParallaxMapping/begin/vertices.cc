@@ -9,7 +9,7 @@
 using namespace glm;
 using namespace std;
 
-extern unsigned int VBO[BUFF_LEN]={0}, VAO[BUFF_LEN]={0};
+extern unsigned int VBO[BUFF_LEN+1]={0}, VAO[BUFF_LEN+1]={0};
 extern unsigned int FRAME_BUFFER[FB_NUM]={0};
 extern Texture2D *tex_fb[FB_NUM] = {nullptr};
 extern bool rolling = true;
@@ -18,8 +18,9 @@ const char *texture_data[TEX_COUNT][2] = {
   {"container2.png",          "material.diffuse"},
   {"container2_specular.png", "material.specular"},
   {"matrix.jpg",              "material.emission"},
-  {"brickwall.jpg",           "material.diffuse"},
-  {"brickwall_normal.jpg",    "material.normal"},
+  {"bricks2.jpg",           "material.diffuse"},
+  {"bricks2_normal.jpg",    "material.normal"},
+  {"bricks2_disp.jpg",      "material.displace"},
 };
 extern Texture2D *cube_texture[TEX_COUNT*2] = {nullptr};
 extern Cubemaps *tex_skybox = nullptr;
@@ -142,14 +143,15 @@ vector< vector<unsigned int> > all_attrib = {
   {3, 3, 2,},
   {3, 2,},
   {3, 2,},
+  {3, 3, 2, 3, 3},
 };
 
 glm::vec3 cube_positions[] = {
   glm::vec3(  4.0f, -3.5f,  0.0),
-  // glm::vec3(  2.0f,  3.0f,  1.0),
-  // glm::vec3( -3.0f, -1.0f,  0.0),
-  // glm::vec3( -1.5f,  1.0f,  1.5),
-  // glm::vec3( -1.5f,  2.0f, -3.0),
+  glm::vec3(  2.0f,  3.0f,  1.0),
+  glm::vec3( -3.0f, -1.0f,  0.0),
+  glm::vec3( -1.5f,  1.0f,  1.5),
+  glm::vec3( -1.5f,  2.0f, -3.0),
 };
 
 glm::vec3 grass_positions[] = {
@@ -173,8 +175,74 @@ void cleanCubeData() {
     if(tex_fb[i]) delete tex_fb[i];
     tex_fb[i] = nullptr;
   }
-  if (VAO[0]) glDeleteVertexArrays(BUFF_LEN, VAO);
-  if (VBO[0]) glDeleteBuffers(BUFF_LEN, VBO);
+  if (VAO[0]) glDeleteVertexArrays(BUFF_LEN+1, VAO);
+  if (VBO[0]) glDeleteBuffers(BUFF_LEN+1, VBO);
+}
+
+void genTBN(int id) {
+  vector<float> values = all_vertices[IDX_QUAD];
+  vector<glm::vec3> pos;
+  vector<glm::vec2> uv;
+
+  for (int i : {0, 1, 3, 2}) {
+    pos.push_back(glm::vec3(values[i*5+0], values[i*5+1], values[i*5+2]));
+    uv.push_back(glm::vec2(values[i*5+3], values[i*5+4]));
+  }
+
+  // normal vector
+  glm::vec3 nm(0.0, 0.0, 1.0);
+
+  // calculate tangent/bitangent vectors of both triangles
+  glm::vec3 tangent1, bitangent1;
+  glm::vec3 tangent2, bitangent2;
+  // - triangle 1
+  glm::vec3 edge1 = pos[2-1] - pos[1-1];
+  glm::vec3 edge2 = pos[3-1] - pos[1-1];
+  glm::vec2 deltaUV1 = uv[2-1] - uv[1-1];
+  glm::vec2 deltaUV2 = uv[3-1] - uv[1-1];
+
+  GLfloat f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+  tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+  tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+  tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+  tangent1 = glm::normalize(tangent1);
+
+  bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+  bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+  bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+  bitangent1 = glm::normalize(bitangent1);
+
+  // - triangle 2
+  edge1 = pos[3-1] - pos[1-1];
+  edge2 = pos[4-1] - pos[1-1];
+  deltaUV1 = uv[3-1] - uv[1-1];
+  deltaUV2 = uv[4-1] - uv[1-1];
+
+  f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+  tangent2.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+  tangent2.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+  tangent2.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+  tangent2 = glm::normalize(tangent2);
+
+  bitangent2.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+  bitangent2.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+  bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+  bitangent2 = glm::normalize(bitangent2);
+
+  GLfloat quadVertices[] = {
+      // Positions                        // normal         // TexCoords          // Tangent                          // Bitangent
+      pos[1-1].x, pos[1-1].y, pos[1-1].z, nm.x, nm.y, nm.z, uv[1-1].x, uv[1-1].y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+      pos[2-1].x, pos[2-1].y, pos[2-1].z, nm.x, nm.y, nm.z, uv[2-1].x, uv[2-1].y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+      pos[3-1].x, pos[3-1].y, pos[3-1].z, nm.x, nm.y, nm.z, uv[3-1].x, uv[3-1].y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+
+      pos[1-1].x, pos[1-1].y, pos[1-1].z, nm.x, nm.y, nm.z, uv[1-1].x, uv[1-1].y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+      pos[3-1].x, pos[3-1].y, pos[3-1].z, nm.x, nm.y, nm.z, uv[3-1].x, uv[3-1].y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+      pos[4-1].x, pos[4-1].y, pos[4-1].z, nm.x, nm.y, nm.z, uv[4-1].x, uv[4-1].y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+  };
+
+  initBuffer(VAO[id], VBO[id], sizeof(quadVertices), quadVertices, all_attrib[id]);
 }
 
 void initCubeData() {
@@ -183,6 +251,7 @@ void initCubeData() {
   for (int i=0; i<BUFF_LEN; i++) {
     initBuffer(VAO[i], VBO[i], all_vertices[i].size(), &(all_vertices[i][0]), all_attrib[i]);
   }
+  genTBN(IDX_TBN_PLANE);
 
   for (int i=0; i<TEX_COUNT; i++) {
     cube_texture[i] = new Texture2D(texture_data[i][0], texture_data[i][1]);
@@ -225,7 +294,7 @@ void renderCubes() {
   }
 }
 
-void renderPlane() {
+void renderBox() {
   // 这次的 Plane 其实是个Cube
   glBindVertexArray(VAO[IDX_CUBE]);
 
@@ -254,6 +323,31 @@ void renderPlane() {
 
   shader[shaderId]->setInt("reverse_normals", 0);
   glEnable(GL_CULL_FACE);
+}
+
+void renderPlane() {
+  glBindVertexArray(VAO[IDX_TBN_PLANE]);
+
+  int offset = 0;
+  if (gamma) offset = TEX_COUNT;
+  int shaderId = IDX_TBN_PLANE;
+  if (shaderShadow) shaderId = shaderShadow;
+
+  Texture2D::use({
+    tex_fb[FB_DEPTH_DIRECT],
+    tex_fb[FB_DEPTH_POINT],
+    cube_texture[TEX_PLANE + offset],
+    cube_texture[TEX_PLANE_NORMAL + offset],
+    cube_texture[TEX_PLANE_DISPLACE + offset],
+    }, shader[shaderId]);
+    
+  glm::mat4 model(1.0f);
+  // model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+  shader[shaderId]->setMatrix4("model", model);
+  shader[shaderId]->setVec3("pointLightPos", pointLightPos);
+  shader[shaderId]->setFloat("height_scale", 1.0f);
+
+  glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void renderGrass() {

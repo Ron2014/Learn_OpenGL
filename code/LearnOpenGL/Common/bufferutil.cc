@@ -12,7 +12,12 @@ using namespace std;
  * data 顶点数据
  * attrsize 表示顶点属性的分布规则
 */
-void initBuffer(unsigned int &vao, unsigned int &vbo, const unsigned int size, const void* data, const vector<unsigned int> &attrsize) {
+void initBuffer(unsigned int &vao,
+  unsigned int &vbo,
+  const unsigned int size,
+  const void* data,
+  const vector<unsigned int> &attrsize) {
+    
   unsigned int floatSize = sizeof(float);
   
   glGenVertexArrays(1, &vao);
