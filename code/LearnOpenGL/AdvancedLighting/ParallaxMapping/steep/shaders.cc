@@ -28,7 +28,7 @@ void initShaders() {
   shader[IDX_CUBE] = new Shader("vertex_shadow.shader", "fragment_all_shadow.shader");
   shader[IDX_PLANE] = new Shader("vertex_reverse_normal.shader", "fragment_gamma_normal_mapping.shader");
   shader[IDX_MODEL] = new Shader("vertex_model_normal_mapping.shader", "fragment_model_normal_mapping.shader");
-  shader[IDX_TBN_PLANE] = new Shader("vertex_parallax.shader", "fragment_gamma_parallax.shader");
+  shader[IDX_TBN_PLANE] = new Shader("vertex_parallax.shader", "fragment_gamma_parallax_steep.shader");
 
   shader[IDX_QUAD] = new Shader("vertex_normal3d.shader", "fragment_debug_depth.shader");
   shader[IDX_DBG_POINT_SHADOW] = new Shader("vertex_debug_cubemap_depth.shader", "fragment_debug_cubemap_depth.shader");     // 调试用

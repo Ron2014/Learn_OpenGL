@@ -18,9 +18,9 @@ const char *texture_data[TEX_COUNT][2] = {
   {"container2.png",          "material.diffuse"},
   {"container2_specular.png", "material.specular"},
   {"matrix.jpg",              "material.emission"},
-  {"bricks2.jpg",           "material.diffuse"},
-  {"bricks2_normal.jpg",    "material.normal"},
-  {"bricks2_disp.jpg",      "material.displace"},
+  {"wood.png",           "material.diffuse"},
+  {"toy_box_normal.png",    "material.normal"},
+  {"toy_box_disp.png",      "material.displace"},
 };
 extern Texture2D *cube_texture[TEX_COUNT*2] = {nullptr};
 extern Cubemaps *tex_skybox = nullptr;
@@ -326,8 +326,9 @@ void renderBox() {
 }
 
 void renderPlane() {
-  glBindVertexArray(VAO[IDX_TBN_PLANE]);
+  // glDisable(GL_CULL_FACE);
 
+  glBindVertexArray(VAO[IDX_TBN_PLANE]);
   int offset = 0;
   if (gamma) offset = TEX_COUNT;
   int shaderId = IDX_TBN_PLANE;
@@ -348,6 +349,7 @@ void renderPlane() {
   shader[shaderId]->setFloat("height_scale", 0.1f);
 
   glDrawArrays(GL_TRIANGLES, 0, 6);
+  // glEnable(GL_CULL_FACE);
 }
 
 void renderGrass() {
