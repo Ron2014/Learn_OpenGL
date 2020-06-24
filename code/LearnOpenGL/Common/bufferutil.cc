@@ -167,3 +167,31 @@ Cubemaps *initFrameBufferCubemapDepth(unsigned int &frameBufferID, string unifor
   return tex;
 }
 
+// 帧缓冲: 浮点颜色帧缓冲
+Texture2D *initFrameBufferColor(unsigned int &frameBufferID, string uniform_name) {
+  glGenFramebuffers(1, &frameBufferID);
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+
+  // 创建纹理附件
+  Texture2D *tex = new TextureAttachColor(WIN_WIDTH, WIN_HEIGHT, uniform_name);
+
+  // 绑定纹理附件
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->ID, 0);   
+
+  // 渲染缓冲对象附件
+  unsigned int rbo;
+  glGenRenderbuffers(1, &rbo);
+
+  glBindRenderbuffer(GL_RENDERBUFFER, rbo); 
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, WIN_WIDTH, WIN_HEIGHT);
+  
+  // 将它附加到当前绑定的帧缓冲对象
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+ 
+  if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  return tex;
+}
+

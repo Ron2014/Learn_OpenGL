@@ -109,6 +109,20 @@ TextureAttach::TextureAttach(int width, int height,
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+TextureAttachColor::TextureAttachColor(int width, int height,
+  string uniform_name,
+  GLenum minFilter,
+  GLenum magFilter) {
+
+  glGenTextures(1, &ID);
+  glBindTexture(GL_TEXTURE_2D, ID);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+  this->uniform_name = uniform_name;
+  glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 TextureAttachDepth::TextureAttachDepth(int width, int height,
   string uniform_name,
   GLenum wrapping,

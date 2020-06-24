@@ -46,6 +46,14 @@ public:
     GLenum magFilter = GL_LINEAR);
 };
 
+class TextureAttachColor : public TextureAttach {
+public:
+  TextureAttachColor(int width, int height,
+    string uniform_name = "",
+    GLenum minFilter = GL_LINEAR,
+    GLenum magFilter = GL_LINEAR);
+};
+
 class TextureAttachDepth : public Texture2D {
 public:
   TextureAttachDepth(int width, int height,
