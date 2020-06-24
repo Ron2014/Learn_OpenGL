@@ -1,0 +1,5 @@
+fips_begin_app(NormalMapping cmdline)
+fips_vs_disable_warnings(4819 4091 4312)
+fips_files_ex(wall *.cc GROUP "SOURCES")
+fips_deps(Common)
+fips_end_app()

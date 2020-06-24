@@ -58,6 +58,7 @@ in VS_OUT {
     vec3 FragPos;
     vec2 TexCoord;
     vec4 FragPosLightSpace;
+    mat3 TBN;
 } fs_in;
 
 uniform sampler2D shadowMap;
@@ -74,16 +75,20 @@ uniform float far_plane;
 
 void main() {
     // 属性
-    vec3 norm = normalize(fs_in.Normal);
+    vec3 normal = texture(material.normal0, fs_in.TexCoord).rgb;
+    normal = normalize(normal * 2.0 - 1.0);   
+    normal = normalize(fs_in.TBN * normal);
+
+    // vec3 normal = normalize(fs_in.Normal);
     vec3 viewDir = normalize(viewPos - fs_in.FragPos);
     vec3 result = vec3(0.0f);
 
     // 第一阶段：定向光照
-    result += CalcDirectLight(directLight, norm, viewDir);
+    result += CalcDirectLight(directLight, normal, viewDir);
     // 第二阶段：点光源
-    result += CalcPointLight(pointLight, norm, viewDir, fs_in.FragPos);
+    result += CalcPointLight(pointLight, normal, viewDir, fs_in.FragPos);
     // 第三阶段：聚光
-    result += CalcSpotLight(spotLight, norm, viewDir, fs_in.FragPos);    
+    result += CalcSpotLight(spotLight, normal, viewDir, fs_in.FragPos);    
 
     FragColor = vec4(result, 1.0);
 }

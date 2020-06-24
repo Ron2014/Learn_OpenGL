@@ -20,16 +20,22 @@ struct PointLight {
 };
 uniform PointLight pointLight;
 
+struct Material {
+    sampler2D diffuse;
+    sampler2D normal;
+}; 
+
 in VS_OUT {
     vec3 Normal;
     vec3 FragPos;
     vec2 TexCoord;
     vec4 FragPosLightSpace;
+    mat3 TBN;
 } fs_in;
 
 uniform sampler2D shadowMap;
 uniform samplerCube shadowCubemap;
-uniform sampler2D ourTexture;
+uniform Material material;      // == objColor
 
 uniform DirectLight directLight;
 uniform vec3 viewPos;
@@ -40,7 +46,7 @@ uniform float near_plane;
 uniform float far_plane;
 
 float ShadowCalcDirectLight(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
-    if (dot(normal, lightDir) <=0 ) return 1.0f;
+    // if (dot(normal, lightDir) <=0 ) return 1.0f;
     // 执行透视除法
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
@@ -140,8 +146,12 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPos) {
 
 void main()
 {
-  vec3 texColor = texture(ourTexture, fs_in.TexCoord).rgb;
-  vec3 norm = normalize(fs_in.Normal);
+  vec3 texColor = texture(material.diffuse, fs_in.TexCoord).rgb;
+  // 从法线贴图范围[0,1]获取法线
+  vec3 norm = texture(material.normal, fs_in.TexCoord).rgb;
+  // 将法线向量转换为范围[-1,1]
+  norm = normalize(norm * 2.0 - 1.0);   
+  // vec3 norm = normalize(fs_in.Normal);
   vec3 viewDir = normalize(viewPos - fs_in.FragPos);
 
   vec3 lighting = vec3(0.0f);
