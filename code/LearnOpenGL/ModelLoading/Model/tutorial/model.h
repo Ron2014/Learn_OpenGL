@@ -41,7 +41,7 @@ public:
     bool gammaCorrection;
 
     // constructor, expects a filepath to a 3D model.
-    Model(string path, bool bgamma = false) : gammaCorrection(gamma)
+    Model(string path, bool gamma = false) : gammaCorrection(gamma)
     {
         if (path.find("/")==string::npos) {
             char tmp[256];

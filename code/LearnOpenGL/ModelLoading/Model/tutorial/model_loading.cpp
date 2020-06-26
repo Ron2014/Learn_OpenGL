@@ -123,8 +123,8 @@ int main(int argc, char *argv[])
             // view/projection transformations
             glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
             glm::mat4 view = camera.GetViewMatrix();
-            ourShader.setMat4("projection", projection);
-            ourShader.setMat4("view", view);
+            ourShader.setMatrix4("projection", projection);
+            ourShader.setMatrix4("view", view);
 
             // render the loaded model
             glm::mat4 model = glm::mat4(1.0f);
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
             float lampZ = cos(glm::radians(10.0f*i)) * radius;
             model = glm::translate(model, glm::vec3(-lampX, -5.0f, -lampZ)); // translate it down so it's at the center of the scene
             model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-            ourShader.setMat4("model", model);
+            ourShader.setMatrix4("model", model);
             loading_models[i]->Draw(ourShader);
         }
 

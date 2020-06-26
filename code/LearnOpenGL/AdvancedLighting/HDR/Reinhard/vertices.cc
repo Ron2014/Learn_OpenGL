@@ -272,7 +272,7 @@ void renderCubes() {
   glBindVertexArray(VAO[IDX_CUBE]);
 
   int offset = 0;
-  if (gamma) offset = TEX_COUNT;
+  if (bgamma) offset = TEX_COUNT;
   int shaderId = IDX_CUBE;
   if (shaderShadow) shaderId = shaderShadow;
 
@@ -300,7 +300,7 @@ void renderBox() {
   glBindVertexArray(VAO[IDX_CUBE]);
 
   int offset = 0;
-  if (gamma) offset = TEX_COUNT;
+  if (bgamma) offset = TEX_COUNT;
   int shaderId = IDX_PLANE;
   if (shaderShadow) shaderId = shaderShadow;
 
@@ -331,7 +331,7 @@ void renderPlane() {
 
   glBindVertexArray(VAO[IDX_TBN_PLANE]);
   int offset = 0;
-  if (gamma) offset = TEX_COUNT;
+  if (bgamma) offset = TEX_COUNT;
   int shaderId = IDX_TBN_PLANE;
   if (shaderShadow) shaderId = shaderShadow;
 

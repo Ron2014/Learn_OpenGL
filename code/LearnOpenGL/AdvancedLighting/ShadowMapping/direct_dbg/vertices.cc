@@ -164,7 +164,7 @@ void renderCubes() {
   shader[IDX_CUBE]->use();
   
   for (int i=0; i<TEX_COUNT-1; i++) {
-    if (gamma) cube_texture[i+TEX_COUNT]->use();
+    if (bgamma) cube_texture[i+TEX_COUNT]->use();
     else  cube_texture[i]->use();
   }
 
@@ -185,7 +185,7 @@ void renderPlane() {
   glBindVertexArray(VAO[IDX_PLANE]);
 
   shader[IDX_PLANE]->use();
-  if (gamma) cube_texture[TEX_PLANE+TEX_COUNT]->use();
+  if (bgamma) cube_texture[TEX_PLANE+TEX_COUNT]->use();
   else  cube_texture[TEX_PLANE]->use();
   shader[IDX_PLANE]->setInt(cube_texture[TEX_PLANE]->uniform_name, 0);
 

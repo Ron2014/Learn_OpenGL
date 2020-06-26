@@ -57,7 +57,7 @@ void createShader(GLenum shader_type, const char* shader_source, vector<int> &sh
 
   char errMsg[INFO_LEN];
   sprintf(errMsg, "ERROR: Shader %d COMPILATION FAILED", shader_type);
-  if (checkError(objID, process, errMsg)) {
+  if (checkError(objID, GL_COMPILE_STATUS, errMsg)) {
     shaders.push_back(objID);
   }
 }
@@ -69,7 +69,7 @@ int createProgram(vector<int> &shaders) {
   }
   glLinkProgram(shaderProgram);
 
-  if (checkError(shaderProgram, process, "ERROR: Shader Program LINKING FAILED")) {
+  if (checkError(shaderProgram, GL_LINK_STATUS, "ERROR: Shader Program LINKING FAILED")) {
     for (auto objID : shaders) {
       glDeleteShader(objID);
     }
