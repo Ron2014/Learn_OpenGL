@@ -330,7 +330,14 @@ configure_package_config_file(src/glfw3Config.cmake.in
 #                                  VERSION ${GLFW_VERSION}
 #                                  COMPATIBILITY SameMajorVersion)
 
+if (APPLE)
+CONFIGURE_FILE(
+  ${CMAKE_CURRENT_LIST_DIR}/src/glfw_config.h.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/glfw_config.h @ONLY
+)
+else()
 configure_file(src/glfw_config.h.in src/glfw_config.h @ONLY)
+endif()
 
 configure_file(src/glfw3.pc.in src/glfw3.pc @ONLY)
 

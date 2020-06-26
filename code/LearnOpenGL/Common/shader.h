@@ -11,7 +11,14 @@ using namespace std;
 #define VERTEX_DEFAULT "vertex_default.shader"
 #define FRAGMENT_DEFAULT "fragment_default.shader"
 #define GEOMETRY_DEFAULT "geometry_default.shader"
-#define SHADER_PATH "E:\\GitHub\\Learn_OpenGL\\res\\shaders\\"
+
+#if FUTURE_WINDOWS
+#define SHADER_PATH "E:/GitHub/Learn_OpenGL/res/shaders/"
+#elif FUTURE_OSX
+#define SHADER_PATH "/Users/ron/Documents/GitHub/Learn_OpenGL/res/shaders/"
+#else
+#define SHADER_PATH "./res/shaders/"
+#endif
 
 
 class Shader {

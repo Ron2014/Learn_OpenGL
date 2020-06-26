@@ -16,7 +16,9 @@ int main(int argc, char *argv[]) {
   // will use core-profile
   // 我们只会用到OpenGL的子集，无需向后兼容的特性
 
-  // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
+#if __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
+#endif
 
   GLFWwindow* window = glfwCreateWindow(800, 600, "Shaders", NULL, NULL);
   if (window == NULL)

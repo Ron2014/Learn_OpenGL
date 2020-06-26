@@ -9,7 +9,7 @@ using namespace std;
 #include <map>
 #include <GLFW/glfw3.h>
 
-extern bool gamma = false;
+extern bool bgamma = false;
 extern bool dbgShadow = false;
 
 #define DEFAULT_SENSITIVE 0.2f
@@ -155,10 +155,10 @@ void processInput(GLFWwindow *window)
 
   if(isKeyHolding(GLFW_KEY_G)) {
     shader[IDX_PLANE]->setInt("gamma", 1);
-    gamma = true;
+    bgamma = true;
   } else {
     shader[IDX_PLANE]->setInt("gamma", 0);
-    gamma = false;
+    bgamma = false;
   }
 
   if(isKeyHolding(GLFW_KEY_DELETE)) {

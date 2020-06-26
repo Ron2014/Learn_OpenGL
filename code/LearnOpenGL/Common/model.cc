@@ -6,7 +6,7 @@
 // 不知为何 backpack的贴图没有Y方向颠倒, 这省去了flip操作.
 map<string, bool> flips = {
   {"nanosuit", true},
-  {"nanosuit_reflection\\nanosuit.obj", true},
+  {"nanosuit_reflection/nanosuit.obj", true},
   {"backpack", false},
 };
 
@@ -33,7 +33,7 @@ ModelCore::ModelCore(string path, bool flip):border(false),centerPos(glm::vec3(0
   if (path.find(":")==string::npos) {
       char tmp[256];
       if (path.find(".obj")==string::npos){
-        sprintf(tmp, "%s%s\\%s.obj", MODEL_PATH, path.c_str(), path.c_str());
+        sprintf(tmp, "%s%s/%s.obj", MODEL_PATH, path.c_str(), path.c_str());
       } else {
         sprintf(tmp, "%s%s", MODEL_PATH, path.c_str());
       }
@@ -44,7 +44,7 @@ ModelCore::ModelCore(string path, bool flip):border(false),centerPos(glm::vec3(0
 
 ModelCore::~ModelCore() {
 #ifdef __DEBUG_LOAD
-  cout << "~ModelCore:" << directory.substr(directory.find_last_of("\\")) << endl;
+  cout << "~ModelCore:" << directory.substr(directory.find_last_of("/")) << endl;
 #endif
   for (auto it : textures_loaded)
       delete it.second;
@@ -113,7 +113,7 @@ void ModelCore::loadModel(string path, bool flip){
     if (path.find_last_of('/')!=string::npos)
       directory = path.substr(0, path.find_last_of('/'));
     else
-      directory = path.substr(0, path.find_last_of('\\'));
+      directory = path.substr(0, path.find_last_of('/'));
 
     processNode(scene->mRootNode, scene);
     if (mesh_count) centerPos /= mesh_count;
@@ -239,7 +239,7 @@ vector<Texture2D *> ModelCore::loadMaterialTextures(aiMaterial *mat, aiTextureTy
       continue;
     }
 
-    Texture2D *tex = new Texture2D(directory + '\\' + apath, typeName, type);
+    Texture2D *tex = new Texture2D(directory + '/' + apath, typeName, type);
     textures.push_back(tex);
     textures_loaded.insert({apath, tex});
   }

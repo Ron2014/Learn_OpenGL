@@ -5,7 +5,14 @@
 #include <vector>
 using namespace std;
 
-#define TEXTURE_PATH "E:\\GitHub\\Learn_OpenGL\\res\\images\\"
+#if FUTURE_WINDOWS
+#define TEXTURE_PATH "E:/GitHub/Learn_OpenGL/res/images/"
+#elif FUTURE_OSX
+#define TEXTURE_PATH "/Users/ron/Documents/GitHub/Learn_OpenGL/res/images/"
+#else
+#define TEXTURE_PATH "./res/images/"
+#endif
+
 #define TEXTURE_DEFAULT "avengers.jpg"
 
 class Shader;
@@ -80,7 +87,14 @@ public:
     GLenum magFilter = GL_LINEAR);
 };
 
-#define CUBEMAPS_PATH "E:\\GitHub\\Learn_OpenGL\\res\\images\\"
+#if FUTURE_WINDOWS
+#define CUBEMAPS_PATH "E:/GitHub/Learn_OpenGL/res/images/"
+#elif FUTURE_OSX
+#define CUBEMAPS_PATH "/Users/ron/Documents/GitHub/Learn_OpenGL/res/images/"
+#else
+#define CUBEMAPS_PATH "./res/images/"
+#endif
+
 #define CUBEMAPS_DEFAULT "skybox"
 #define FACE_SIZE 6
 

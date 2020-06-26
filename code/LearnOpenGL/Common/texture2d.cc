@@ -18,7 +18,7 @@ Texture2D::Texture2D(string texPath,
   // 生成Texture并指定模式, 要放在文件加载之前.
   // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work
   glGenTextures(1, &ID);
-  if (texPath.find("\\")==string::npos)
+  if (texPath.find("/")==string::npos)
     texPath = TEXTURE_PATH + texPath;
 
   data = stbi_load(texPath.c_str(), &width, &height, &nrChannels, 0);
@@ -164,7 +164,7 @@ TextureGamma::TextureGamma(string texPath,
   // 生成Texture并指定模式, 要放在文件加载之前.
   // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work
   glGenTextures(1, &ID);
-  if (texPath.find("\\")==string::npos)
+  if (texPath.find("/")==string::npos)
     texPath = TEXTURE_PATH + texPath;
 
   data = stbi_load(texPath.c_str(), &width, &height, &nrChannels, 0);
@@ -223,7 +223,7 @@ Cubemaps::Cubemaps(string texPath,
 
   // 生成Texture并指定模式, 要放在文件加载之前.
   // 可以理解成, 先在显存种开辟存储空间, stbi_load 才会work
-  if (texPath.find("\\")==string::npos)
+  if (texPath.find("/")==string::npos)
     texPath = CUBEMAPS_PATH + texPath;
 
   glGenTextures(1, &ID);
@@ -231,7 +231,7 @@ Cubemaps::Cubemaps(string texPath,
 
   int width, height, nrChannels;
   for (unsigned int i = 0; i < FACE_SIZE; i++) {
-      string fullpath = texPath + '\\' + faces[i];
+      string fullpath = texPath + '/' + faces[i];
       unsigned char *data = stbi_load(fullpath.c_str(), &width, &height, &nrChannels, 0);
       if (data) glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
       else std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;

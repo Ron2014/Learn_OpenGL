@@ -105,7 +105,7 @@ extern int shaderShadow;
 
 extern bool rolling;
 extern bool drawNormal;
-extern bool gamma;
+extern bool bgamma;
 extern int dbgShadow;
 extern bool orthogonal;
 

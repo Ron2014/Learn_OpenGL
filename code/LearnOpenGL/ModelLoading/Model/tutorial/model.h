@@ -21,9 +21,15 @@
 #include <vector>
 using namespace std;
 
-unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
+unsigned int TextureFromFile(const char *path, const string &directory, bool bgamma = false);
 
-#define MODEL_PATH "E:\\GitHub\\Learn_OpenGL\\res\\models\\"
+#if FUTURE_WINDOWS
+#define MODEL_PATH "E:/GitHub/Learn_OpenGL/res/models/"
+#elif FUTURE_OSX
+#define MODEL_PATH "/Users/ron/Documents/GitHub/Learn_OpenGL/res/models/"
+#else
+#define MODEL_PATH "./res/models/"
+#endif
 
 class Model 
 {
@@ -35,11 +41,11 @@ public:
     bool gammaCorrection;
 
     // constructor, expects a filepath to a 3D model.
-    Model(string path, bool gamma = false) : gammaCorrection(gamma)
+    Model(string path, bool bgamma = false) : gammaCorrection(gamma)
     {
-        if (path.find("\\")==string::npos) {
+        if (path.find("/")==string::npos) {
             char tmp[256];
-            sprintf(tmp, "%s%s\\%s.obj", MODEL_PATH, path.c_str(), path.c_str());
+            sprintf(tmp, "%s%s/%s.obj", MODEL_PATH, path.c_str(), path.c_str());
             path = tmp;
         }
         loadModel(path);
@@ -68,7 +74,7 @@ private:
             return;
         }
         // retrieve the directory path of the filepath
-        directory = path.substr(0, path.find_last_of('\\'));
+        directory = path.substr(0, path.find_last_of('/'));
 
         // process ASSIMP's root node recursively
         processNode(scene->mRootNode, scene);

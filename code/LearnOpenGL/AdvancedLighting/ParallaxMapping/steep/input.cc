@@ -9,7 +9,7 @@ using namespace std;
 #include <map>
 #include <GLFW/glfw3.h>
 
-extern bool gamma = false;
+extern bool bgamma = false;
 extern bool orthogonal = false;
 extern int dbgShadow = 0;
 
@@ -159,11 +159,11 @@ void processInput(GLFWwindow *window)
   if(isKeyHolding(GLFW_KEY_G)) {
     shader[IDX_PLANE]->setInt("gamma", 1);
     shader[IDX_TBN_PLANE]->setInt("gamma", 1);  
-    gamma = true;
+    bgamma = true;
   } else {
     shader[IDX_PLANE]->setInt("gamma", 0);
     shader[IDX_TBN_PLANE]->setInt("gamma", 0);  
-    gamma = false;
+    bgamma = false;
   }
 
   if(isKeyPressed(GLFW_KEY_DELETE)) {

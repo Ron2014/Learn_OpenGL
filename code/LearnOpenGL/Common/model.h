@@ -7,7 +7,14 @@
 #include "assimp/scene.h"
 using namespace std;
 
-#define MODEL_PATH "E:\\GitHub\\Learn_OpenGL\\res\\models\\"
+#if FUTURE_WINDOWS
+#define MODEL_PATH "E:/GitHub/Learn_OpenGL/res/models/"
+#elif FUTURE_OSX
+#define MODEL_PATH "/Users/ron/Documents/GitHub/Learn_OpenGL/res/models/"
+#else
+#define MODEL_PATH "./res/models/"
+#endif
+
 
 extern map<string, bool> flips;
 class ModelCore {

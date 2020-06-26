@@ -8,7 +8,7 @@ using namespace std;
 #include <map>
 
 void cleanWindow();
-void initWindow();
+void initWindow(int, char *[]);
 void switchFullScreen();
 
 void render();
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
 #endif
 
-  initWindow();
+  initWindow(argc, argv);
 
   float previous = glfwGetTime();
   float lag = 0.0;
@@ -191,7 +191,7 @@ void cleanWindow() {
   }
 }
 
-void initWindow() {
+void initWindow(int argc, char *argv[]) {
   cleanWindow();
 
   window = glfwCreateWindow(DEFAULT_SCR_W, DEFAULT_SCR_H, __FILE__, NULL, NULL);
@@ -223,7 +223,7 @@ void initWindow() {
 
   initShaders();
   initCubeData();
-  initModels(__argc-1, __argv+1);
+  initModels(argc-1, argv+1);
   
   glEnable(GL_DEPTH_TEST);
 

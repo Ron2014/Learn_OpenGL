@@ -84,7 +84,7 @@ void initModels(int argc, char *argv[]) {
   glBindBuffer(GL_ARRAY_BUFFER, VBO[IDX_MODEL]);
   glBufferData(GL_ARRAY_BUFFER, amount * mat4Size, &modelMatrices[0], GL_STATIC_DRAW);
 
-  for (Mesh mesh : loading_models[0]->core->meshes) {
+  for (Mesh mesh : loading_models[0]->GetMesh()) {
     glBindVertexArray(mesh.VAO);
 
 /*

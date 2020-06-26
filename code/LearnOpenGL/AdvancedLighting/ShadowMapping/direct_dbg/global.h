@@ -60,7 +60,7 @@ extern void switchFullScreen();
 
 extern bool rolling;
 extern bool drawNormal;
-extern bool gamma;
+extern bool bgamma;
 
 extern unsigned int amount;
 extern glm::mat4 *modelMatrices;

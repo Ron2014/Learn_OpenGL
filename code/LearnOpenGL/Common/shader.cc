@@ -7,10 +7,10 @@
 
 #define INFO_LEN 512
 
-static bool checkError(const int objID, const char *msg) {
+static bool checkError(const int objID, const int process, const char *msg) {
   int success;
   char info[INFO_LEN];
-  glGetShaderiv(objID, GL_COMPILE_STATUS, &success);
+  glGetShaderiv(objID, process, &success);
   if (!success) {
     glGetShaderInfoLog(objID, INFO_LEN, NULL, info);
     printf("%s:\n", msg);
@@ -27,7 +27,7 @@ static void createShader(GLenum shader_type, const char *shader_source, const ch
 
   char errMsg[INFO_LEN];
   sprintf(errMsg, "ERROR: Shader %s COMPILATION FAILED", file_name);
-  if (checkError(objID, errMsg)) {
+  if (checkError(objID, GL_COMPILE_STATUS, errMsg)) {
     shaders.push_back(objID);
   }
 }
@@ -39,7 +39,7 @@ static int createProgram(vector<int> &shaders) {
   }
   glLinkProgram(shaderProgram);
 
-  if (checkError(shaderProgram, "ERROR: Shader Program LINKING FAILED")) {
+  if (checkError(shaderProgram, GL_LINK_STATUS, "ERROR: Shader Program LINKING FAILED")) {
     for (auto objID : shaders) {
       glDeleteShader(objID);
     }

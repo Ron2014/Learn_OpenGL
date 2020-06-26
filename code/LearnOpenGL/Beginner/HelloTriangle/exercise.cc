@@ -34,10 +34,10 @@ const char *fragmentShader2Source = "#version 330 core\n"
     "   FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
     "}\n\0";
 
-bool checkError(const int objID, const char *msg) {
+bool checkError(const int objID, const int process, const char *msg) {
   int success;
   char info[INFO_LEN];
-  glGetShaderiv(objID, GL_COMPILE_STATUS, &success);
+  glGetShaderiv(objID, process, &success);
   if (!success) {
     glGetShaderInfoLog(objID, INFO_LEN, NULL, info);
     printf("%s:\n", msg);
@@ -54,7 +54,7 @@ void createShader(GLenum shader_type, const char* shader_source, vector<int> &sh
 
   char errMsg[INFO_LEN];
   sprintf(errMsg, "ERROR: Shader %d COMPILATION FAILED", shader_type);
-  if (checkError(objID, errMsg)) {
+  if (checkError(objID, GL_COMPILE_STATUS, errMsg)) {
     shaders.push_back(objID);
   }
 }
@@ -66,7 +66,7 @@ int createProgram(vector<int> &shaders) {
   }
   glLinkProgram(shaderProgram);
 
-  if (checkError(shaderProgram, "ERROR: Shader Program LINKING FAILED")) {
+  if (checkError(shaderProgram, GL_LINK_STATUS, "ERROR: Shader Program LINKING FAILED")) {
     for (auto objID : shaders) {
       glDeleteShader(objID);
     }

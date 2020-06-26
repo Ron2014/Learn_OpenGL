@@ -23,7 +23,7 @@ TEST(Version) {
 	printf("OGLU工具库版本：%s\n", gluVersion);
   */
    
-  printf("OpenGL Manufacturer: %s\n", name);
+    printf("OpenGL Manufacturer: %s\n", name);
 	printf("Rendering Identity: %s\n", biaoshifu);
 	printf("OpenGL Version: %s\n", OpenGLVersion);
 	printf("OGLU Utilitys Version: %s\n", gluVersion);

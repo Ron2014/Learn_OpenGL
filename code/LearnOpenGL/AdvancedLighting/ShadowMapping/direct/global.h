@@ -75,7 +75,7 @@ extern void switchFullScreen();
 
 extern bool rolling;
 extern bool drawNormal;
-extern bool gamma;
+extern bool bgamma;
 extern bool genShadow;
 extern bool dbgShadow;
 

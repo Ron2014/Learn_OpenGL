@@ -44,10 +44,10 @@ void processInput(GLFWwindow *window)
   }
 }
 
-bool checkError(const int objID, const char *msg) {
+bool checkError(const int objID, const int process, const char *msg) {
   int success;
   char info[INFO_LEN];
-  glGetShaderiv(objID, GL_COMPILE_STATUS, &success);
+  glGetShaderiv(objID, process, &success);
   if (!success) {
     glGetShaderInfoLog(objID, INFO_LEN, NULL, info);
     printf("%s:\n", msg);
@@ -64,7 +64,7 @@ void createShader(GLenum shader_type, const char* shader_source, vector<int> &sh
 
   char errMsg[INFO_LEN];
   sprintf(errMsg, "ERROR: Shader %d COMPILATION FAILED", shader_type);
-  if (checkError(objID, errMsg)) {
+  if (checkError(objID, process, errMsg)) {
     shaders.push_back(objID);
   }
 }
@@ -76,7 +76,7 @@ int createProgram(vector<int> &shaders) {
   }
   glLinkProgram(shaderProgram);
 
-  if (checkError(shaderProgram, "ERROR: Shader Program LINKING FAILED")) {
+  if (checkError(shaderProgram, process, "ERROR: Shader Program LINKING FAILED")) {
     for (auto objID : shaders) {
       glDeleteShader(objID);
     }
@@ -96,7 +96,9 @@ int main(int argc, char *argv[]) {
   // will use core-profile
   // 我们只会用到OpenGL的子集，无需向后兼容的特性
 
-  // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
+#if __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);   // open in Mac OS X
+#endif
 
   GLFWwindow* window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "Shaders", NULL, NULL);
   if (window == NULL)

@@ -9,7 +9,13 @@
 #include <sstream>
 #include <iostream>
 
-#define SHADER_PATH "E:\\GitHub\\Learn_OpenGL\\res\\shaders\\"
+#if FUTURE_WINDOWS
+#define SHADER_PATH "E:/GitHub/Learn_OpenGL/res/shaders/"
+#elif FUTURE_OSX
+#define SHADER_PATH "/Users/ron/Documents/GitHub/Learn_OpenGL/res/shaders/"
+#else
+#define SHADER_PATH "./res/shaders/"
+#endif
 class Shader
 {
 public:
